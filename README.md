@@ -49,86 +49,86 @@ myCar.get('make'); // returns an empty string immediately
 
 ## API
 
-    ### Cannery.Adapter
+### Cannery.Adapter
 
-        #### Methods
+#### Methods
 
-            ##### create(data)
+##### create(data)
 
-            ##### destroy(id)
+##### destroy(id)
 
-            ##### findAll()
+##### findAll()
 
-            ##### findOne(id)
+##### findOne(id)
 
-            ##### search(query)
+##### search(query)
 
-            ##### update(id, data)
+##### update(id, data)
 
-    ### Cannery.Model
+### Cannery.Model
 
-        #### Static
+#### Static
 
-            ##### <static> all(options)
+##### <static> all(options)
 
-            ##### <static> create(data, options)
-            **depricated**
+##### <static> create(data, options)
+**depricated**
 
-            ##### <static> destroy(model)
-            **depricated**
+##### <static> destroy(model)
+**depricated**
 
-            ##### <static> getName()
+##### <static> getName()
 
-            ##### <static> getNamePlural()
+##### <static> getNamePlural()
 
-            ##### <static> getNestedKey()
-            **depricated**
+##### <static> getNestedKey()
+**depricated**
 
-            ##### <static> getUrl()
+##### <static> getUrl()
 
-        #### Methods
+#### Methods
 
-            ##### add(field, item, index)
+##### add(field, item, index)
 
-            ##### allOff(eventName)
+##### allOff(eventName)
 
-            ##### create(options)
+##### create(options)
 
-            ##### get(field, options, forceReload)
+##### get(field, options, forceReload)
 
-            ##### getAdapter()
+##### getAdapter()
 
-            ##### getAsync(field, options, forceReload)
+##### getAsync(field, options, forceReload)
 
-            ##### getFields()
+##### getFields()
 
-            ##### hasArray(fields)
+##### hasArray(fields)
 
-            ##### hasMany(Model, options)
+##### hasMany(Model, options)
 
-            ##### hasObject(fields)
+##### hasObject(fields)
 
-            ##### hasOne(Model, options)
+##### hasOne(Model, options)
 
-            ##### move(field, oldIndex, newIndex)
+##### move(field, oldIndex, newIndex)
 
-            ##### off(eventName, listener)
+##### off(eventName, listener)
 
-            ##### on(eventName, callback)
+##### on(eventName, callback)
 
-            ##### refresh()
+##### refresh()
 
-            ##### remove(field, item)
+##### remove(field, item)
 
-            ##### removeAll(field)
+##### removeAll(field)
 
-            ##### set(field, value)
+##### set(field, value)
 
-            ##### save()
+##### save()
 
-            ##### toJSON()
+##### toJSON()
 
-            ##### validate(field)
+##### validate(field)
 
 ## Contributing
 
