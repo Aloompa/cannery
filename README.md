@@ -49,64 +49,61 @@ myCar.get('make'); // returns an empty string immediately
 
 ## API
 
-### Cannery.Model
+#### Cannery.Model
 
-#### <static> all(:options)
+#### Static
 
-#### <static> create(:data, :options) **depricated**
+##### <static> all(:options)
 
-#### <static> destroy(:model) **depricated**
+##### <static> create(:data, :options) **depricated**
 
-#### <static> getName()
+##### <static> destroy(:model) **depricated**
 
-#### <static> getNamePlural()
+##### <static> getName()
 
-#### <static> getNestedKey() **depricated**
+##### <static> getNamePlural()
 
-#### <static> getUrl()
+##### <static> getNestedKey() **depricated**
 
-#### applyFields()
-TODO: Make Private
+##### <static> getUrl()
 
-#### applyHook()
-TODO: Make Private
+#### Methods
 
-#### getAdapter()
-TODO: Make Private
+##### add(field, item, index)
 
-#### add(field, item, index)
+##### create(:options)
 
-#### create(:options)
+##### get(field, options, forceReload)
 
-#### get(field, options, forceReload)
+##### getAdapter()
 
-#### getAsync(field, options, forceReload)
+##### getAsync(field, options, forceReload)
 
-#### getFields()
+##### getFields()
 
-#### hasArray(fields)
+##### hasArray(fields)
 
-#### hasMany(Model, options)
+##### hasMany(Model, options)
 
-#### hasObject(fields)
+##### hasObject(fields)
 
-#### hasOne(Model, options)
+##### hasOne(Model, options)
 
-#### move(field, oldIndex, newIndex)
+##### move(field, oldIndex, newIndex)
 
-#### refresh()
+##### refresh()
 
-#### remove(field, item)
+##### remove(field, item)
 
-#### removeAll(field)
+##### removeAll(field)
 
-#### set(field, value)
+##### set(field, value)
 
-#### save()
+##### save()
 
-#### toJSON()
+##### toJSON()
 
-#### validate(field)
+##### validate(field)
 
 ## Contributing
 
