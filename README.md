@@ -49,7 +49,64 @@ myCar.get('make'); // returns an empty string immediately
 
 ## API
 
-Coming Soon.
+### Cannery.Model
+
+#### <static> all(:options)
+
+#### <static> create(:data, :options) **depricated**
+
+#### <static> destroy(:model) **depricated**
+
+#### <static> getName()
+
+#### <static> getNamePlural()
+
+#### <static> getNestedKey() **depricated**
+
+#### <static> getUrl()
+
+#### applyFields()
+TODO: Make Private
+
+#### applyHook()
+TODO: Make Private
+
+#### getAdapter()
+TODO: Make Private
+
+#### add(field, item, index)
+
+#### create(:options)
+
+#### get(field, options, forceReload)
+
+#### getAsync(field, options, forceReload)
+
+#### getFields()
+
+#### hasArray(fields)
+
+#### hasMany(Model, options)
+
+#### hasObject(fields)
+
+#### hasOne(Model, options)
+
+#### move(field, oldIndex, newIndex)
+
+#### refresh()
+
+#### remove(field, item)
+
+#### removeAll(field)
+
+#### set(field, value)
+
+#### save()
+
+#### toJSON()
+
+#### validate(field)
 
 ## Contributing
 
