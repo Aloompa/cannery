@@ -20,7 +20,7 @@ class Car extends Cannery.Model {
             make: {},
             model: {},
             year: {
-                type: 'number'
+                type 'number'
             }
         }
     }
@@ -49,65 +49,90 @@ myCar.get('make'); // returns an empty string immediately
 
 ## API
 
-#### Cannery.Model
+    ### Cannery.Adapter
 
-#### Static
+        #### Methods
 
-##### <static> all(:options)
+            ##### create(data)
 
-##### <static> create(:data, :options) **depricated**
+            ##### destroy(id)
 
-##### <static> destroy(:model) **depricated**
+            ##### findAll()
 
-##### <static> getName()
+            ##### findOne(id)
 
-##### <static> getNamePlural()
+            ##### search(query)
 
-##### <static> getNestedKey() **depricated**
+            ##### update(id, data)
 
-##### <static> getUrl()
+    ### Cannery.Model
 
-#### Methods
+        #### Static
 
-##### add(field, item, index)
+            ##### <static> all(options)
 
-##### create(:options)
+            ##### <static> create(data, options)
+            **depricated**
 
-##### get(field, options, forceReload)
+            ##### <static> destroy(model)
+            **depricated**
 
-##### getAdapter()
+            ##### <static> getName()
 
-##### getAsync(field, options, forceReload)
+            ##### <static> getNamePlural()
 
-##### getFields()
+            ##### <static> getNestedKey()
+            **depricated**
 
-##### hasArray(fields)
+            ##### <static> getUrl()
 
-##### hasMany(Model, options)
+        #### Methods
 
-##### hasObject(fields)
+            ##### add(field, item, index)
 
-##### hasOne(Model, options)
+            ##### allOff(eventName)
 
-##### move(field, oldIndex, newIndex)
+            ##### create(options)
 
-##### refresh()
+            ##### get(field, options, forceReload)
 
-##### remove(field, item)
+            ##### getAdapter()
 
-##### removeAll(field)
+            ##### getAsync(field, options, forceReload)
 
-##### set(field, value)
+            ##### getFields()
 
-##### save()
+            ##### hasArray(fields)
 
-##### toJSON()
+            ##### hasMany(Model, options)
 
-##### validate(field)
+            ##### hasObject(fields)
+
+            ##### hasOne(Model, options)
+
+            ##### move(field, oldIndex, newIndex)
+
+            ##### off(eventName, listener)
+
+            ##### on(eventName, callback)
+
+            ##### refresh()
+
+            ##### remove(field, item)
+
+            ##### removeAll(field)
+
+            ##### set(field, value)
+
+            ##### save()
+
+            ##### toJSON()
+
+            ##### validate(field)
 
 ## Contributing
 
-We encourage you to contribute to Cannery by submitting bug reports and pull requests through [Github](http://github.com).
+We encourage you to contribute to Cannery by submitting bug reports and pull requests through [Github](http//github.com).
 
 ## License
 
@@ -120,7 +145,7 @@ of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+furnished to do so, subject to the following conditions
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
