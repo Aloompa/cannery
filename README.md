@@ -51,19 +51,109 @@ myCar.get('make'); // returns an empty string immediately
 
 ### Cannery.Adapter
 
+The base Cannery Adapter is an extendable class that can be used to create various strategies for retrieving and setting data. We plan to open-source many of our adapters for data sources like Ajax, WebSockets, Mocking, MongoDB, etc, but we wrote the adapter in such a way that it is pluggable and intended to be overridden with custom logic for specific use-cases. Each model has a `getAdapter()` method where the adapter for the specific model can be provided. For example:
+
+```
+const Cannery = require('cannery');
+const AjaxAdapter = require('cannery-ajax-adapter');
+
+class Car extends Cannery.Model {
+
+    getAdapter () {
+        return AjaxAdapter;
+    }
+
+    getFields () {
+        // ...
+    }
+}
+```
+
 #### Methods
 
 ##### create(data)
 
+Send data to a data store to get created. This must accept an object to send to the data store.
+
+```
+create (data) {
+    return new Promise((resolve, reject) {
+        // Save the data and resolve or reject the promise
+    });
+}
+```
+
+Returns: A promise, which resolves with the newly created data
+
 ##### destroy(id)
 
-##### findAll()
+Remove data from a data store.
+
+```
+destroy (id) {
+    return new Promise((resolve, reject) {
+        // Delete the data and resolve or reject the promise
+    });
+}
+```
+
+Returns: A promise
+
+##### findAll(query)
+
+Find all of the data for a model.
+
+```
+findAll ({ page, per }) {
+    return new Promise((resolve, reject) {
+        // Retrieve the data and resolve or reject the promise
+    });
+}
+```
+
+Returns: A promise with an array of data
 
 ##### findOne(id)
 
+Find one record.
+
+```
+findOne (id) {
+    return new Promise((resolve, reject) {
+        // Retrieve the data and resolve or reject the promise
+    });
+}
+```
+
+Returns: A promise with an object of data
+
 ##### search(query)
 
+Search all of the data for a model.
+
+```
+search (query) {
+    return new Promise((resolve, reject) {
+        // Retrieve the data and resolve or reject the promise
+    });
+}
+```
+
+Returns: A promise with an array of data
+
 ##### update(id, data)
+
+Updates the data for a model
+
+```
+update (id, data) {
+    return new Promise((resolve, reject) {
+        // Save the data and resolve or reject the promise
+    });
+}
+```
+
+Returns: A promise with the object of updated data
 
 ### Cannery.Model
 
