@@ -1,10 +1,51 @@
 ## Welcome to Cannery
 
-An event-driven model layer for JavaScript.
+A modern ES6-class-based event-driven model layer for JavaScript.
 
 ## Where Is The Code?
 
 We have not published the code yet. We want to get the documentation in place before we publish the code. It should be coming along soon.
+
+##  Getting Started
+
+Getting started with Cannery is easy. You just need to extend the Cannery base Model class and provide a `getFields()` method that returns an object describing the fields on the model. From there, we can instantiate the model and use `get()` and `set()` to set and get data on the model fields.
+
+```
+const Cannery = require('cannery');
+
+class Car extends Cannery.Model {
+
+    getFields () {
+        return {
+            make: {},
+            model: {},
+            year: {
+                type: 'number'
+            }
+        }
+    }
+
+}
+
+const myCar = new Car();
+
+myCar.set('make', 'Ford');
+
+console.log(myCar.get('make')); // Ford
+```
+
+So far, this is all pretty much what you might expect from any JavaScript model layer, but it gets better when you start handling async data. We'll get into how to define where our data is coming from (ajax, websockets, localStorage, some database, etc...) in the documentation, but for now, let's just say that the secret sauce of Cannery is that every field is return synchronously at first, and then events are triggered once the data is retrieved so that the UI layer can redraw with the updated data.
+
+```
+const myCar = new Car(1);
+
+// This is triggered any time data is retrieved from some remote source such as an Ajax call
+myCar.on('change', () => {
+    myCar.get('make'); // returns the value of the make retrieved from the server
+});
+
+myCar.get('make'); // returns an empty string immediately
+```
 
 ## API
 
