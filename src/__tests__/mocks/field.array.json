@@ -1,0 +1,20 @@
+{
+    "data": {
+        "clues": [{
+            "id": 1,
+            "name": "Sherlock"
+        }, {
+            "id": 2,
+            "name": "Watson"
+        }]
+    },
+    "fields": {
+        "clues": {
+            "type": "array",
+            "fields": {
+                "id": {},
+                "name": {}
+            }
+        }
+    }
+}

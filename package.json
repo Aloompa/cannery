@@ -33,9 +33,15 @@
     "jshint": "^2.8.0",
     "mocha": "^2.3.3",
     "questy": "^1.1.0",
+    "rewire": "^2.5.1",
     "webpack": "^1.12.6"
   },
   "dependencies": {
-    "cannery-event-emitter": "^1.0.1"
+    "cannery-event-emitter": "^1.0.1",
+    "debug": "^2.2.0",
+    "lodash.clone": "^3.0.3",
+    "lodash.defer": "^3.1.0",
+    "lodash.has": "^3.2.1",
+    "valid-point": "^1.0.1"
   }
 }
