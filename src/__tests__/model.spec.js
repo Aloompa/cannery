@@ -1,6 +1,5 @@
-const rewire = require('rewire');
 const assert = require('assert');
-const BaseModel = rewire('../model');
+const BaseModel = require('../model');
 let hookSpy = 1;
 
 class DummyRelatedModel extends BaseModel {
