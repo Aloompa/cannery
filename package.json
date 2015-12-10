@@ -6,7 +6,7 @@
   "scripts": {
     "coverage": "node_modules/.bin/istanbul cover --hook-run-in-context node_modules/.bin/_mocha -- -R spec",
     "test": "npm run mocha; npm run jshint; npm run jscs",
-    "mocha": "node_modules/.bin/_mocha",
+    "mocha": "node_modules/.bin/_mocha --compilers js:babel-core/register",
     "compile": "node_modules/.bin/babel --presets es2015,stage-0 -d lib/ src/",
     "build": "./node_modules/.bin/webpack",
     "prepublish": "npm run test; npm run compile; npm run build",
@@ -34,5 +34,8 @@
     "mocha": "^2.3.3",
     "questy": "^1.1.0",
     "webpack": "^1.12.6"
+  },
+  "dependencies": {
+    "cannery-event-emitter": "^1.0.1"
   }
 }

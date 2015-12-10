@@ -127,20 +127,6 @@ findOne (id) {
 
 Returns: A promise with an object of data
 
-##### search(query)
-
-Search all of the data for a model.
-
-```
-search (query) {
-    return new Promise((resolve, reject) {
-        // Retrieve the data and resolve or reject the promise
-    });
-}
-```
-
-Returns: A promise with an array of data
-
 ##### update(id, data)
 
 Updates the data for a model
@@ -162,17 +148,17 @@ Returns: A promise with the object of updated data
 ##### <static> all(options)
 
 ##### <static> create(data, options)
-**depricated**
+depricated - The model create method is better
 
 ##### <static> destroy(model)
-**depricated**
+depricated - The model destroy method is better
 
 ##### <static> getName()
 
 ##### <static> getNamePlural()
 
 ##### <static> getNestedKey()
-**depricated**
+depricated - This only gets used in the adapter. There has to be a better way to pass that in.
 
 ##### <static> getUrl()
 
