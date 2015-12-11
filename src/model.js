@@ -217,11 +217,14 @@ class Model extends EventEmitter {
         this._fetched = true;
 
         if (has(this.fields[field], 'hooks.pull')) {
+            this.emit('fetching');
+            
             return this.fields.applyHook('pull', field).then((data) => {
                 const hookedData = this.fields.applyHook('pullFilter', field, data);
                 this.fields.set(field, hookedData);
             })
             .then(() => {
+                this.emit('fetchSuccess');
                 return this.get(field, options, forceReload);
             })
             .catch((e) => {
@@ -232,6 +235,8 @@ class Model extends EventEmitter {
         } else {
             options = this;
             options.url = this.constructor.getUrl();
+            this.emit('fetching');
+
             return this.getAdapter()
                 .findOne(this.id)
                 .then((data) => {
@@ -239,6 +244,7 @@ class Model extends EventEmitter {
                     this.emit('change');
                 })
                 .then(() => {
+                    this.emit('fetchSuccess');
                     return this.get(field, options, forceReload);
                 })
                 .catch((e) => {

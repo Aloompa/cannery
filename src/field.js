@@ -1,6 +1,10 @@
-const debug              = require('debug')('cannery-field');
-const validate           = require('valid-point');
-const EventEmitter       = require('cannery-event-emitter');
+const debug = require('debug')('cannery-field');
+const validate = require('valid-point');
+const EventEmitter = require('cannery-event-emitter');
+
+const addListeners = Symbol();
+const applyData = Symbol();
+const initialize = Symbol();
 
 const noop = () => {};
 
@@ -17,21 +21,42 @@ class Field extends EventEmitter {
         this._fields = fields;
         this._objectFields = {};
 
-        this.initialize(data);
+        this[initialize](data);
     }
 
-    initialize (data) {
-        this._data = this.applyData(data);
+    [addListeners] (model) {
+        model.on('change', () => {
+            this.emit('change');
+        });
+
+        model.on('userChange', () => {
+            this.emit('userChange');
+        });
+
+        model.on('fetching', () => {
+            this.emit('fetching');
+        });
+
+        model.on('fetchSuccess', () => {
+            this.emit('fetchSuccess');
+        });
+
+        model.on('fetchError', () => {
+            this.emit('fetchError');
+        });
+    }
+
+    [initialize] (data) {
+        this._data = this[applyData](data);
 
         for (let field in this._objectFields) {
             if (!this._fields[field].model) {
-                this._objectFields[field].initialize(this._data[field]);
+                this._objectFields[field][initialize](this._data[field]);
             }
         }
     }
 
-    // TOOD: Make private
-    applyData (data) {
+    [applyData] (data) {
         let obj = {};
         for (let key in data) {
 
@@ -51,17 +76,6 @@ class Field extends EventEmitter {
         }
 
         return obj;
-    }
-
-    // TOOD: Make private
-    applyHook (hook, field, value) {
-        let hooks = this._fields[field].hooks;
-
-        if (hooks && hooks[hook]) {
-            return hooks[hook](value, field);
-        } else {
-            return value;
-        }
     }
 
     // TOOD: Make private
@@ -110,13 +124,23 @@ class Field extends EventEmitter {
         return Promise.all(promises);
     }
 
-    getType (field) {
-        return this._fields[field].type;
-    }
-
     // TOOD: Make private
     findModel (field) {
         return this._fields[field].model;
+    }
+
+    applyHook (hook, field, value) {
+        let hooks = this._fields[field].hooks;
+
+        if (hooks && hooks[hook]) {
+            return hooks[hook](value, field);
+        } else {
+            return value;
+        }
+    }
+
+    getType (field) {
+        return this._fields[field].type;
     }
 
     isType (field, type) {
@@ -206,13 +230,10 @@ class Field extends EventEmitter {
                     this.emit('change');
 
                     this._data[field].forEach((model) => {
-                        model.on('change', () => {
-                            this.emit('change');
-                        });
+                        this[addListeners](model);
 
                         model.on('userChange', () => {
                             this._fields[field].userChanged = true;
-                            this.emit('userChange');
                         });
                     });
 
@@ -248,13 +269,7 @@ class Field extends EventEmitter {
                 this._objectFields[field][id] = true;
                 this._data[field].push(model);
 
-                model.on('change', () => {
-                    this.emit('change');
-                });
-
-                model.on('userChange', () => {
-                    this.emit('userChange');
-                });
+                this[addListeners](model);
             }
         });
 
@@ -279,14 +294,11 @@ class Field extends EventEmitter {
             let Model = this.findModel(field);
             let model = new Model(id);
 
-            model.on('change', () => {
-                this.emit('change');
-            });
-
             model.on('userChange', () => {
                 this._fields[field].userChanged = true;
-                this.emit('userChange');
             });
+
+            this[addListeners](model);
 
             this._objectFields[field] = model;
         }
@@ -328,12 +340,7 @@ class Field extends EventEmitter {
                 fields: this.getFields(field)
             });
 
-            this._objectFields[field].on('change', () => {
-                this.emit('change');
-            });
-            this._objectFields[field].on('userChange', () => {
-                this.emit('userChange');
-            });
+            this[addListeners](this._objectFields[field]);
         }
 
         return this._objectFields[field];
