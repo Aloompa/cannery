@@ -1,6 +1,5 @@
 const Cannery = {
-    Model: require('./model'),
-    Adapter: require('./adapter')
+    Model: require('./model')
 };
 
 module.exports = Cannery;

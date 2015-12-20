@@ -24,7 +24,7 @@ class Field extends EventEmitter {
         this[initialize](data);
     }
 
-    [addListeners] (model) {
+    [ addListeners ] (model) {
         model.on('change', () => {
             this.emit('change');
         });
@@ -46,7 +46,7 @@ class Field extends EventEmitter {
         });
     }
 
-    [initialize] (data) {
+    [ initialize ] (data) {
         this._data = this[applyData](data);
 
         for (let field in this._objectFields) {
@@ -56,7 +56,7 @@ class Field extends EventEmitter {
         }
     }
 
-    [applyData] (data) {
+    [ applyData ] (data) {
         let obj = {};
         for (let key in data) {
 

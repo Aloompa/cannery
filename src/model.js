@@ -2,7 +2,7 @@ const defer = require('lodash.defer');
 const has = require('lodash.has');
 const clone = require('lodash.clone');
 const EventEmitter = require('cannery-event-emitter');
-const Adapter = require('./adapter');
+const Adapter = require('cannery-adapter');
 const Field = require('./field');
 const debug = require('debug')('cannery-model');
 
@@ -218,7 +218,7 @@ class Model extends EventEmitter {
 
         if (has(this.fields[field], 'hooks.pull')) {
             this.emit('fetching');
-            
+
             return this.fields.applyHook('pull', field).then((data) => {
                 const hookedData = this.fields.applyHook('pullFilter', field, data);
                 this.fields.set(field, hookedData);
