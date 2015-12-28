@@ -6,17 +6,13 @@ const addListeners = Symbol();
 const applyData = Symbol();
 const initialize = Symbol();
 
-const noop = () => {};
-
 class Field extends EventEmitter {
 
-    constructor ({ fields, data, change, userChange, rootUrl }) {
+    constructor ({ fields, data, rootUrl }) {
         super({
             throttle: 50
         });
 
-        this.on('change', change || noop);
-        this.on('userChange', userChange || noop);
         this.rootUrl = rootUrl;
         this._fields = fields;
         this._objectFields = {};

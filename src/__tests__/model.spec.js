@@ -1,5 +1,8 @@
+'use strict';
+
 const assert = require('assert');
 const BaseModel = require('../model');
+const Types = require('../types');
 let hookSpy = 1;
 
 class DummyRelatedModel extends BaseModel {
@@ -36,14 +39,14 @@ class DummyModel extends BaseModel {
                 }
             },
             sub_ids: {},
-            sub: this.hasMany(DummyRelatedModel, {
+            sub: Types.HasMany(DummyRelatedModel, {
                 map: 'sub_ids'
             }),
             politics: {},
-            favoriteMovies: this.hasArray({
+            favoriteMovies: Types.Array({
                 name: {}
             }),
-            images: this.hasObject({
+            images: Types.Object({
                 original: {},
                 eight_five: {}
             }),

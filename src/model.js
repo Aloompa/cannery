@@ -84,11 +84,6 @@ class Model extends EventEmitter {
             return models;
         }
 
-        options = options || {
-            per: 25,
-            page: 1
-        };
-
         // TODO: There is some leak where a second call is made with the options being the model itself
         // We need to hunt this down and see where the issue is originating
         if (options && options.options) {
@@ -146,21 +141,21 @@ class Model extends EventEmitter {
     }
 
     applyFields (data) {
-        const options = {
+        const field = new Field({
             fields: this.getFields(),
             data: data,
-            rootUrl: this.constructor.getUrl(),
+            rootUrl: this.constructor.getUrl()
+        });
 
-            change: () => {
-                this.emit('change');
-            },
+        field.on('change', () => {
+            this.emit('change');
+        });
 
-            userChange: () => {
-                this.emit('userChange');
-            }
-        };
+        field.on('userChange', () => {
+            this.emit('userChange');
+        });
 
-        return new Field(options);
+        return field;
     }
 
     applyHook (field, hook, value, fields) {
@@ -287,46 +282,6 @@ class Model extends EventEmitter {
 
     validate (name) {
         return this.fields.validate(name);
-    }
-
-    hasOne (Model, options) {
-        let modelName = Model.getName().toLowerCase();
-        return Object.assign({
-            model: Model,
-            type: 'object',
-            map: `${modelName}_id`
-        }, options);
-    }
-
-    hasMany (Model, options) {
-        options = options || {};
-
-        if (typeof Model === 'object') {
-            return debug(`Invalid hasMany mapped to ${options.map} for ${this.name}`);
-        }
-
-        let modelName = Model.getName().toLowerCase();
-
-        return Object.assign({
-            model: Model,
-            type: 'array',
-            map: `${modelName}_ids`,
-            requestType: 'multiple'
-        }, options);
-    }
-
-    hasArray (fields) {
-        return {
-            type: 'array',
-            fields: fields
-        };
-    }
-
-    hasObject (fields) {
-        return {
-            type: 'object',
-            fields: fields
-        };
     }
 
     toJSON () {

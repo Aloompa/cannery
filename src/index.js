@@ -1,5 +1,8 @@
 const Cannery = {
-    Model: require('./model')
+    Model: require('./model'),
+    Type: require('./types')
 };
+
+Cannery.registerType = require('./util/registerType')(Cannery);
 
 module.exports = Cannery;

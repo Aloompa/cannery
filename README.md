@@ -1,28 +1,23 @@
 ## Welcome to Cannery
 
-A modern ES6-class-based event-driven model layer for JavaScript.
-
-## Where Is The Code?
-
-We have not published the code yet. We want to get the documentation in place before we publish the code. It should be coming along soon.
+A modern ES6 class-based event-driven ORM for client-side or server-side JavaScript.
 
 ##  Getting Started
 
 Getting started with Cannery is easy. You just need to extend the Cannery base Model class and provide a `getFields()` method that returns an object describing the fields on the model. From there, we can instantiate the model and use `get()` and `set()` to set and get data on the model fields.
 
 ```
-const Cannery = require('cannery');
+const { Model, Type } = require('cannery');
+const { string, number } = Type;
 
-class Car extends Cannery.Model {
+class Car extends Model {
 
     getFields () {
         return {
-            make: {},
-            model: {},
-            year: {
-                type 'number'
-            }
-        }
+            make: string,
+            model: string,
+            year: number
+        };
     }
 
 }
@@ -70,6 +65,14 @@ class User extends Cannery.Model {
 
 module.exports = User;
 ```
+
+### Cannery.Type
+
+Fields in cannery can have types. Different types operate in different ways to handle data that is set and gotten from the model.
+
+##### Cannery.Type.array (:object fields)
+
+
 
 ### Cannery.Model
 

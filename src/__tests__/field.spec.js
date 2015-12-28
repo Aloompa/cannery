@@ -1,3 +1,5 @@
+'use strict';
+
 const Field      = require('../field');
 const Model      = require('../model');
 const assert     = require('assert');
