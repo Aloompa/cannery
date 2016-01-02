@@ -13,26 +13,35 @@ describe('The Boolean type', () => {
         it('Should not modify existing booleans', () => {
             const field = booleanType();
 
-            assert.equal(field.hooks.get(true), true);
-            assert.equal(field.hooks.get(false), false);
+            field.hooks.set(true);
+            assert.equal(field.hooks.get(), true);
+
+            field.hooks.set(false);
+            assert.equal(field.hooks.get(), false);
         });
 
         it('Should convert a string "false" to false', () => {
             const field = booleanType();
 
-            assert.equal(field.hooks.get('false'), false);
+            field.hooks.set('false');
+
+            assert.equal(field.hooks.get(), false);
         });
 
         it('Should convert a number 1 to true', () => {
             const field = booleanType();
 
-            assert.equal(field.hooks.get(1), true);
+            field.hooks.set(1);
+
+            assert.equal(field.hooks.get(), true);
         });
 
         it('Should convert a number 0 to true', () => {
             const field = booleanType();
 
-            assert.equal(field.hooks.get(0), false);
+            field.hooks.set(0);
+
+            assert.equal(field.hooks.get(), false);
         });
 
         it('Should fire additional get hooks after the first one', () => {
@@ -44,7 +53,9 @@ describe('The Boolean type', () => {
                 }
             });
 
-            assert.equal(field.hooks.get('false'), true);
+            field.hooks.set('false');
+
+            assert.equal(field.hooks.get(), true);
         });
 
     });

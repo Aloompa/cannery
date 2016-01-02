@@ -1,11 +1,19 @@
+'use strict';
+
 const hasOne = require('../hasOne');
 const assert = require('assert');
 
-const MyModel = () => {};
+class MyModel {
 
-MyModel.getName = () => {
-    return 'myModel';
-};
+    static getName () {
+        return 'myModel';
+    }
+
+    getFields () {
+        return {};
+    }
+
+}
 
 describe('The hasOne type', () => {
 
@@ -15,12 +23,6 @@ describe('The hasOne type', () => {
             const association = hasOne(MyModel, {});
 
             assert.equal(association.type, 'object');
-        });
-
-        it('Should accept the passed in model and add it to the definition object', () => {
-            const association = hasOne(MyModel, {});
-
-            assert.equal(MyModel.getName(), association.model.getName());
         });
 
         it('Should default the mapping to the model name with _ids', () => {

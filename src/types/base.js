@@ -1,19 +1,22 @@
 const extendHooks = require('../util/extendHooks');
-const baseType = require('./base');
 
 module.exports = (options = {}) => {
+    let value;
 
-    const config = Object.assign({
-        type: 'number'
+    return Object.assign({
+        type: 'any'
     }, options, {
         hooks: extendHooks(options.hooks, {
 
-            get: (val) => {
-                return parseFloat(val);
+            get: () => {
+                return value;
+            },
+
+            set: (val) => {
+                value = val;
             }
 
         })
     });
 
-    return baseType(config);
 };

@@ -13,13 +13,17 @@ describe('The String type', () => {
         it('Should not alter existing strings', () => {
             const field = stringType();
 
-            assert.equal(field.hooks.get('number 100'), 'number 100');
+            field.hooks.set('number 100');
+
+            assert.equal(field.hooks.get(), 'number 100');
         });
 
         it('Should use a get hook to convert numbers to strings', () => {
             const field = stringType();
 
-            assert.equal(field.hooks.get(100), '100');
+            field.hooks.set(100);
+
+            assert.equal(field.hooks.get(), '100');
         });
 
         it('Should call additional get hooks after string conversion', () => {
@@ -31,7 +35,9 @@ describe('The String type', () => {
                 }
             });
 
-            assert.equal(field.hooks.get(100), '100100');
+            field.hooks.set(100);
+
+            assert.equal(field.hooks.get(), '100100');
         });
 
     });

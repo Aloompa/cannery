@@ -28,6 +28,7 @@ class Model extends EventEmitter {
         this.name = this.constructor.getName();
 
         this.fields = this.applyFields(data);
+        this.hooks = this.getHooks();
     }
 
     static getName () {
@@ -113,6 +114,48 @@ class Model extends EventEmitter {
         const id = instance.id || instance;
         model.url = this.getUrl();
         return model.getAdapter().destroy(id);
+    }
+
+    getHooks () {
+        return {
+
+            get: () => {
+
+            },
+
+            set: () => {
+
+            },
+
+            pull: () => {
+
+            },
+
+            pullFilter: () => {
+
+            },
+
+            push: () => {
+
+            },
+
+            pushFilter: () => {
+
+            },
+
+            fetching: () => {
+
+            },
+
+            fetchSuccess: () => {
+
+            },
+
+            fetchError: () => {
+
+            }
+
+        };
     }
 
     getAdapter () {

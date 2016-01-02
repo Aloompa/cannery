@@ -9,8 +9,8 @@ class DummyRelatedModel extends BaseModel {
 
     getFields () {
         return {
-            id: {},
-            name: {}
+            id: Types.number(),
+            name: Types.string()
         };
     }
 
@@ -27,30 +27,30 @@ class DummyModel extends BaseModel {
 
     getFields () {
         return {
-            id: {
+            id: Types.number({
                 validation: {
                     required: true
                 }
-            },
-            name: {
+            }),
+            name: Types.string({
                 validation: {
                     required: true,
                     string: true
                 }
-            },
-            sub_ids: {},
-            sub: Types.HasMany(DummyRelatedModel, {
+            }),
+            sub_ids: Types.array(),
+            sub: Types.hasMany(DummyRelatedModel, {
                 map: 'sub_ids'
             }),
-            politics: {},
-            favoriteMovies: Types.Array({
-                name: {}
+            politics: Types.string(),
+            favoriteMovies: Types.array({
+                name: Types.string()
             }),
-            images: Types.Object({
-                original: {},
-                eight_five: {}
+            images: Types.object({
+                original: Types.string(),
+                eight_five: Types.string()
             }),
-            captainHook: {
+            captainHook: Types.string({
                 hooks: {
                     pull: () => {
 
@@ -75,7 +75,7 @@ class DummyModel extends BaseModel {
                         return true;
                     }
                 }
-            }
+            })
         };
     }
 }

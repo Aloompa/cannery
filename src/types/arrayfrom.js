@@ -1,14 +1,15 @@
 const parseFields = require('../util/parseFields');
 const Field = require('../field');
 
-module.exports = (options = {}) => {
+module.exports = (fields = {}) => {
+    const parsedFields = parseFields(fields);
 
     let array = [];
 
-    return Object.assign({
-        type: 'array'
-    }, options, {
-        hooks: Object.assign({}, options.hooks, {
+    return {
+        type: 'arrayfrom',
+        fields: parsedFields,
+        hooks: Object.assign({}, fields.hooks, {
 
             add: (item, index) => {
                 if (typeof index !== 'number') {
@@ -30,12 +31,8 @@ module.exports = (options = {}) => {
 
             remove: (index) => {
                 array.splice(index, 1);
-            },
-
-            removeAll: () => {
-                array = [];
             }
 
         })
-    });
+    };
 };

@@ -1,10 +1,13 @@
+const extendHooks = require('../util/extendHooks');
+const baseType = require('./base');
+
 module.exports = (options = {}) => {
 
-    const hooks = options.hooks || {};
+    const config = Object.assign({
+        type: 'boolean'
+    }, options, {
+        hooks: extendHooks(options.hooks, {
 
-    return Object.assign({}, options, {
-        type: 'boolean',
-        hooks: Object.assign({}, hooks, {
             get: (val) => {
                 let parseVal = Boolean(val);
 
@@ -12,12 +15,11 @@ module.exports = (options = {}) => {
                     parseVal = false;
                 }
 
-                if (hooks.get) {
-                    parseVal = hooks.get(parseVal);
-                }
-
                 return parseVal;
             }
+
         })
     });
+
+    return baseType(config);
 };
