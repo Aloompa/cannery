@@ -3,7 +3,7 @@ module.exports = (fields) => {
         /* istanbul ignore else */
         if (fields.hasOwnProperty(field)) {
             if (typeof fields[field] === 'function') {
-                fields[field] = fields[field]();
+                fields[field] = new fields[field]();
             }
         }
     }

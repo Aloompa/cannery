@@ -1,11 +1,11 @@
-const baseType = require('../base');
+const BaseType = require('../base');
 const assert = require('assert');
 
 describe('Any type', () => {
     describe('When we create any type', () => {
 
         it('Should mirror the passed in options', () => {
-            const field = baseType({
+            const field = new BaseType({
                 foo: 'bar'
             });
 
@@ -13,15 +13,15 @@ describe('Any type', () => {
         });
 
         it('Should get and set the same value', () => {
-            const field = baseType();
+            const field = new BaseType();
 
-            field.hooks.set('bar');
+            field.set('bar');
 
-            assert.equal(field.hooks.get(), 'bar');
+            assert.equal(field.get(), 'bar');
         });
 
         it('Should allow us to extend the get hook', () => {
-            const field = baseType({
+            const field = new BaseType({
                 hooks: {
                     get: (val) => {
                         return `${val}!`;
@@ -29,9 +29,9 @@ describe('Any type', () => {
                 }
             });
 
-            field.hooks.set('bar');
+            field.set('bar');
 
-            assert.equal(field.hooks.get(), 'bar!');
+            assert.equal(field.get(), 'bar!');
         });
 
     });

@@ -1,19 +1,12 @@
-const extendHooks = require('../util/extendHooks');
-const baseType = require('./base');
+const BaseType = require('./base');
 
-module.exports = (options = {}) => {
+class NumberType extends BaseType {
 
-    const config = Object.assign({
-        type: 'number'
-    }, options, {
-        hooks: extendHooks(options.hooks, {
+    get () {
+        const val = super.get();
+        return parseFloat(val);
+    }
 
-            get: (val) => {
-                return parseFloat(val);
-            }
+}
 
-        })
-    });
-
-    return baseType(config);
-};
+module.exports = NumberType;

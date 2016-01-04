@@ -1,22 +1,30 @@
-const extendHooks = require('../util/extendHooks');
+const value = Symbol();
 
-module.exports = (options = {}) => {
-    let value;
+class BaseType {
 
-    return Object.assign({
-        type: 'any'
-    }, options, {
-        hooks: extendHooks(options.hooks, {
+    constructor (options = {}) {
 
-            get: () => {
-                return value;
-            },
+        Object.assign(this, options);
 
-            set: (val) => {
-                value = val;
-            }
+        Object.keys(options.hooks || {}).forEach((key) => {
+            const originalMethod = this[key];
 
-        })
-    });
+            this[key] = function () {
+                const val = originalMethod.apply(this, arguments);
+                return options.hooks[key](val);
+            };
+        });
+    }
 
-};
+    get () {
+        return this[value];
+    }
+
+    set (val) {
+        this[value] = val;
+        return this;
+    }
+
+}
+
+module.exports = BaseType;

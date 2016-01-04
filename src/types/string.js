@@ -1,19 +1,12 @@
-const extendHooks = require('../util/extendHooks');
-const baseType = require('./base');
+const BaseType = require('./base');
 
-module.exports = (options = {}) => {
+class StringType extends BaseType {
 
-    const config = Object.assign({
-        type: 'string'
-    }, options, {
-        hooks: extendHooks(options.hooks, {
+    get () {
+        const val = super.get();
+        return String(val);
+    }
 
-            get: (val) => {
-                return String(val);
-            }
+}
 
-        })
-    });
-
-    return baseType(config);
-};
+module.exports = StringType;

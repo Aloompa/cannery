@@ -1,41 +1,24 @@
+const BaseType = require('./base');
 const parseFields = require('../util/parseFields');
-const extendHooks = require('../util/extendHooks');
-const EventEmitter = require('cannery-event-emitter');
+const fields = Symbol();
 
-module.exports = (fields, options = {}) => {
+class ObjectType extends BaseType {
 
-    class ObjectType extends EventEmitter {
+    constructor (initalFields = {}, options = {}) {
+        super(options);
 
-        constructor () {
-            super();
-
-            this.type = 'object';
-
-            Object.assign(this, options);
-
-            this.fields = parseFields(fields);
-
-            this.hooks = this.getHooks();
-        }
-
-        getHooks () {
-            return extendHooks(options.hooks, {
-
-                get: (key) => {
-                    return this.fields[key].hooks.get();
-                },
-
-                set: (key, value) => {
-                    this.fields[key].hooks.set(value);
-                    this.emit('change');
-                    this.emit('userChange');
-                    return this;
-                }
-
-            });
-        }
-
+        this[fields] = parseFields(initalFields);
     }
 
-    return new ObjectType();
-};
+    get (key) {
+        return this[fields][key].get();
+    }
+
+    set (key, value) {
+        this[fields][key].set(value);
+        return this;
+    }
+
+}
+
+module.exports = ObjectType;

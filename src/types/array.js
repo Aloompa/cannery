@@ -1,41 +1,45 @@
-const parseFields = require('../util/parseFields');
-const Field = require('../field');
+const BaseType = require('./base');
 
-module.exports = (options = {}) => {
+class ArrayType extends BaseType {
 
-    let array = [];
+    get () {
+        const val = super.get();
 
-    return Object.assign({
-        type: 'array'
-    }, options, {
-        hooks: Object.assign({}, options.hooks, {
+        return val || [];
+    }
 
-            add: (item, index) => {
-                if (typeof index !== 'number') {
-                    index = array.length;
-                }
+    add (item, index) {
+        let array = this.get();
 
-                array.splice(index, 0, item);
-            },
+        if (typeof index !== 'number') {
+            index = array.length;
+        }
 
-            get: () => {
-                return array;
-            },
+        array.splice(index, 0, item);
 
-            move: (oldIndex, newIndex) => {
-                const item = array[oldIndex];
-                array.splice(oldIndex, 1);
-                array.splice(newIndex, 0, item);
-            },
+        this.set(array);
+    }
 
-            remove: (index) => {
-                array.splice(index, 1);
-            },
+    move (oldIndex, newIndex) {
+        let array = this.get();
+        const item = array[oldIndex];
 
-            removeAll: () => {
-                array = [];
-            }
+        array.splice(oldIndex, 1);
+        array.splice(newIndex, 0, item);
 
-        })
-    });
-};
+        this.set(array);
+    }
+
+    remove (index) {
+        let array = this.get();
+        array.splice(index, 1);
+        this.set(array);
+    }
+
+    removeAll () {
+        this.set([]);
+    }
+
+}
+
+module.exports = ArrayType;

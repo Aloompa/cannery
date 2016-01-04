@@ -1,25 +1,19 @@
-const extendHooks = require('../util/extendHooks');
-const baseType = require('./base');
+const BaseType = require('./base');
 
-module.exports = (options = {}) => {
+class BooleanType extends BaseType {
 
-    const config = Object.assign({
-        type: 'boolean'
-    }, options, {
-        hooks: extendHooks(options.hooks, {
+    get () {
+        const val = super.get();
 
-            get: (val) => {
-                let parseVal = Boolean(val);
+        let parseVal = Boolean(val);
 
-                if (val === 'false') {
-                    parseVal = false;
-                }
+        if (val === 'false') {
+            parseVal = false;
+        }
 
-                return parseVal;
-            }
+        return parseVal;
+    }
 
-        })
-    });
+}
 
-    return baseType(config);
-};
+module.exports = BooleanType;
