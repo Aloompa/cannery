@@ -2,8 +2,82 @@
 
 const Model = require('../model');
 const assert = require('assert');
-const Artist = require('./mocks/artistModel');
-const MockErrorAdapter = require('./mocks/mockErrorAdapter');
+const StringType = require('../types/string');
+const ObjectType = require('../types/object');
+const NumberType = require('../types/number');
+
+class MockAdapter {
+
+    create (model) {
+        let data = model.toJSON();
+        data.id = 1;
+        return Promise.resolve(data);
+    }
+
+    destroy (model) {
+        return Promise.resolve(null);
+    }
+
+    fetch (model) {
+        return Promise.resolve({
+            name: 'Edvard Munch',
+            id: 3
+        });
+    }
+
+    findAll (Model, options) {
+        return Promise.resolve([{
+            name: 'Mark Rothko',
+            id: 4
+        }, {
+            name: 'Francisco Goya',
+            id: 5
+        }]);
+    }
+
+    update (model) {
+        return Promise.resolve(model.toJSON());
+    }
+
+}
+
+class MockErrorAdapter {
+
+    create () {
+        return Promise.reject('Error Message');
+    }
+
+    destroy () {
+        return Promise.reject('Error Message');
+    }
+
+    fetch () {
+        return Promise.reject('Error Message');
+    }
+
+    update () {
+        return Promise.reject('Error Message');
+    }
+
+}
+
+class Artist extends Model {
+
+    getAdapter () {
+        return new MockAdapter();
+    }
+
+    getFields () {
+        return {
+            name: StringType,
+            id: NumberType,
+            bio: new ObjectType({
+                medium: StringType
+            })
+        };
+    }
+
+}
 
 describe('The Cannery Base Model', () => {
     describe('When no fields are defined', () => {
@@ -168,6 +242,43 @@ describe('The Cannery Base Model', () => {
                 done();
             });
         });
+
+        it('Should catch update errors', (done) => {
+            const artist = new Artist(1);
+
+            artist.getAdapter = () => {
+                return new MockErrorAdapter();
+            };
+
+            artist.save().catch((message) => {
+                assert.equal(message, 'Error Message');
+                done();
+            });
+        });
+
+        it('Should reject models with invalid fields', (done) => {
+
+            class FooClass extends Model {
+
+                getFields () {
+                    return {
+                        name: new StringType({
+                            validations: {
+                                required: true
+                            }
+                        })
+                    };
+                }
+
+            }
+
+            const fooClass = new FooClass();
+
+            fooClass.save().catch((e) => {
+                done();
+            });
+
+        });
     });
 
     describe('When we destroy a model', () => {
@@ -191,5 +302,79 @@ describe('The Cannery Base Model', () => {
                 done();
             });
         });
+    });
+
+    describe('When we get the parent model', () => {
+        it('Should be null if it is the root model', () => {
+            const artist = new Artist();
+
+            assert.equal(artist.getParent(), null);
+        });
+    });
+
+    describe('When we validate the model', () => {
+
+        it('Should throw an error if there are any invalid fields', () => {
+            class MockModel extends Model {
+                getFields () {
+                    return {
+                        name: new StringType({
+                            validations: {
+                                required: true
+                            }
+                        })
+                    };
+                }
+            }
+
+            const model = new MockModel();
+
+            assert.throws(() => {
+                model.validate();
+            }, Error);
+        });
+
+        it('Should not throw an error if everything is valid', () => {
+            class MockModel extends Model {
+                getFields () {
+                    return {
+                        name: new StringType({
+                            validations: {
+                                required: true
+                            }
+                        })
+                    };
+                }
+            }
+
+            const model = new MockModel();
+
+            model.set('name', 'Carrivagio');
+
+            model.validate();
+        });
+
+    });
+
+    describe('When we get all of the models', () => {
+
+        it('Should return a promise with all of the instantiated models', (done) => {
+            Artist.all().then((artists) => {
+                assert.equal(artists[0].get('name'), 'Mark Rothko');
+                assert.equal(artists[0].get('id'), 4);
+                done();
+            });
+        });
+
+        it('Should apply events down the tree', (done) => {
+            Artist.all().then((artists) => {
+                artists.on('change', () => {
+                    done();
+                });
+
+                artists[0].set('name', 'Raphael');
+            });
+        });
+
     });
 });

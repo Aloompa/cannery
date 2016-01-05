@@ -1,4 +1,5 @@
 const EventEmitter = require('cannery-event-emitter');
+const validate = require('valid-point');
 const value = Symbol();
 
 class BaseType extends EventEmitter {
@@ -17,6 +18,13 @@ class BaseType extends EventEmitter {
                 return options.hooks[key](val);
             };
         });
+
+        this.validations = options.validations;
+    }
+
+    apply (val) {
+        this[value] = val;
+        return this;
     }
 
     get () {
@@ -30,13 +38,21 @@ class BaseType extends EventEmitter {
         return this;
     }
 
-    apply (val) {
-        this[value] = val;
-        return this;
-    }
-
     toJSON () {
         return this.get();
+    }
+
+    validate () {
+        if (this.validations) {
+            return validate({
+                data: {
+                    [ this.fieldName ]: this.get()
+                },
+                validations: {
+                    [ this.fieldName ]: this.validations
+                }
+            });
+        }
     }
 
 }

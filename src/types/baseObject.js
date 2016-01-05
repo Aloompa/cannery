@@ -1,8 +1,10 @@
 const BaseType = require('./base');
 const parseFields = require('../util/parseFields');
 const addListenersUtil = require('../util/addListeners');
+const validate = require('valid-point');
 const fields = Symbol();
 const addListeners = Symbol();
+const applyFieldNames = Symbol();
 
 class BaseObject extends BaseType {
 
@@ -10,6 +12,12 @@ class BaseObject extends BaseType {
         Object.keys(this[fields]).forEach((key) => {
             const field = this[fields][key];
             addListenersUtil(this, field);
+        });
+    }
+
+    [ applyFieldNames ] () {
+        Object.keys(this[fields]).forEach((key) => {
+            this[fields][key].fieldName = key;
         });
     }
 
@@ -23,6 +31,7 @@ class BaseObject extends BaseType {
 
     initialize (initalFields) {
         this[fields] = parseFields(initalFields);
+        this[applyFieldNames]();
         this[addListeners]();
     }
 
@@ -43,6 +52,12 @@ class BaseObject extends BaseType {
         });
 
         return json;
+    }
+
+    validate () {
+        return Object.keys(this[fields]).map((key) => {
+            return this[fields][key].validate();
+        });
     }
 
 }

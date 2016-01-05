@@ -9,13 +9,9 @@ module.exports = (base, field) => {
     ];
 
     events.forEach((evt) => {
-        if (!field.on) {
-            return;
-        }
-
         field.on(evt, () => {
             base.emit(evt);
         });
     });
-    
+
 };

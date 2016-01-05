@@ -1,6 +1,7 @@
 const ObjectType = require('../object');
 const StringType = require('../string');
 const NumberType = require('../number');
+const BaseType = require('../base');
 const assert = require('assert');
 
 describe('The Object type', () => {
@@ -125,6 +126,47 @@ describe('The Object type', () => {
 
             assert.equal(field.get('name'), 'Tyson');
             assert.equal(field.get('id'), 12);
+        });
+
+        it('Should apply the field names to all of the nested types', () => {
+            const fullName = new StringType();
+            const field = new ObjectType({
+                fullName: fullName
+            });
+
+            assert.equal(fullName.fieldName, 'fullName');
+        });
+
+    });
+
+    describe('When we validate an object', () => {
+
+        it('Should validate all of the nested fields', () => {
+            const field = new ObjectType({
+                fullName: new BaseType({
+                    validations: {
+                        required: true
+                    }
+                })
+            });
+
+            assert.throws(() => {
+                field.validate();
+            }, Error);
+        });
+
+        it('Should pass if all of the fields are valid', () => {
+            const field = new ObjectType({
+                fullName: new BaseType({
+                    validations: {
+                        required: true
+                    }
+                })
+            });
+
+            field.set('fullName', 'Bartholomew the Clown');
+
+            field.validate();
         });
 
     });

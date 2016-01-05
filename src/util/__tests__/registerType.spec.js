@@ -5,7 +5,7 @@ describe('The registerType util', () => {
     describe('When we we register a type', () => {
         it('Should add the type to the Type field on the passed in object', () => {
             const Cannery = {
-                Type: {}
+                Types: {}
             };
 
             registerType(Cannery)('FooType', () => {
@@ -14,7 +14,7 @@ describe('The registerType util', () => {
                 };
             });
 
-            assert.equal(Cannery.Type.FooType().type, 'foo');
+            assert.equal(Cannery.Types.FooType().type, 'foo');
         });
     });
 });

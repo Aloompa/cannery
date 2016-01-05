@@ -64,6 +64,10 @@ class Model extends EventEmitter {
         return new Adapter();
     }
 
+    getParent () {
+        return null;
+    }
+
     getFields () {
         throw new Error('The getFields() method is not defined');
     }
@@ -90,6 +94,12 @@ class Model extends EventEmitter {
     save (options) {
         const requestType = (this.id) ? 'update' : 'create';
 
+        try {
+            this.validate();
+        } catch (e) {
+            return Promise.reject(e);
+        }
+
         return this.getAdapter()[requestType](this, options).then((data) => {
             if (!this.id) {
                 this.id = data.id;
@@ -97,14 +107,15 @@ class Model extends EventEmitter {
 
             return this.apply(data);
         });
+
     }
 
     toJSON () {
         return this[fields].toJSON();
     }
 
-    validate (key) {
-        return this[fields].validate(key);
+    validate () {
+        return this[fields].validate();
     }
 
 }
