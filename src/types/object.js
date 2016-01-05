@@ -1,22 +1,10 @@
-const BaseType = require('./base');
-const parseFields = require('../util/parseFields');
-const fields = Symbol();
+const BaseObject = require('./baseObject');
 
-class ObjectType extends BaseType {
+class ObjectType extends BaseObject {
 
-    constructor (initalFields = {}, options = {}) {
+    constructor (fields, options = {}) {
         super(options);
-
-        this[fields] = parseFields(initalFields);
-    }
-
-    get (key) {
-        return this[fields][key].get();
-    }
-
-    set (key, value) {
-        this[fields][key].set(value);
-        return this;
+        this.initialize(fields);
     }
 
 }

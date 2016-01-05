@@ -1,65 +1,28 @@
-const extendHooks = require('../util/extendHooks');
-const parseFields = require('../util/parseFields');
+const BaseObject = require('./baseObject');
+const isFetched = Symbol();
 
-module.exports = (Model, options) => {
-    if (!options.map) {
-        const modelName = Model.getName().toLowerCase();
-        options.map = `${modelName}_ids`;
+class HasOne extends BaseObject {
+
+    constructor (Model, options = {}) {
+        super(options);
+        this[isFetched] = false;
+        this.map = options.map || `${Model.getName().toLowerCase()}_ids`;
     }
 
-    const model = new Model();
+    get (key) {
+        const val = super.get(key);
 
-    const fields = model.getFields();
+        if (!this[isFetched]) {
+            this.fetch();
+        }
 
-    const parsedFields = parseFields(fields);
+        return key;
+    }
 
-    let isFetched = false;
+    fetch () {
+        
+    }
 
-    const config = Object.assign({
-        type: 'object'
-    }, options, {
-        hooks: extendHooks(options.hooks, {
+}
 
-            get: (key) => {
-                return parsedFields[key].hooks.get();
-            },
-
-            set: (key, value) => {
-                parsedFields[key].hooks.set(value);
-                return this;
-            },
-
-            pull: () => {
-
-            },
-
-            pullFilter: () => {
-
-            },
-
-            push: () => {
-
-            },
-
-            pushFilter: () => {
-
-            },
-
-            fetching: () => {
-
-            },
-
-            fetchSuccess: () => {
-
-            },
-
-            fetchError: () => {
-
-            }
-
-        })
-    });
-
-    return config;
-
-};
+module.exports = HasOne;

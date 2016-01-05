@@ -1,10 +1,10 @@
 module.exports = {
-    any: require('./types/base'),
-    array: require('./types/array'),
-    boolean: require('./types/boolean'),
-    hasMany: require('./types/hasMany'),
-    hasOne: require('./types/hasOne'),
-    number: require('./types/number'),
-    object: require('./types/object'),
-    string: require('./types/string')
+    AnyType: require('./types/base'),
+    ArrayType: require('./types/array'),
+    BooleanType: require('./types/boolean'),
+    HasMany: require('./types/hasMany'),
+    HasOne: require('./types/hasOne'),
+    Number: require('./types/number'),
+    Object: require('./types/object'),
+    String: require('./types/string')
 };

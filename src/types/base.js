@@ -1,8 +1,11 @@
+const EventEmitter = require('cannery-event-emitter');
 const value = Symbol();
 
-class BaseType {
+class BaseType extends EventEmitter {
 
     constructor (options = {}) {
+
+        super();
 
         Object.assign(this, options);
 
@@ -22,7 +25,18 @@ class BaseType {
 
     set (val) {
         this[value] = val;
+        this.emit('change');
+        this.emit('userChange');
         return this;
+    }
+
+    apply (val) {
+        this[value] = val;
+        return this;
+    }
+
+    toJSON () {
+        return this.get();
     }
 
 }

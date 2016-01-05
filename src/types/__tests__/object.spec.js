@@ -42,5 +42,90 @@ describe('The Object type', () => {
             assert.equal(field.get('name'), 'Phillip');
         });
 
+        it('Should emit a change event up from fields underneath', (done) => {
+            const name = new StringType();
+
+            const field = new ObjectType({
+                name: name
+            });
+
+            field.on('change', () => {
+                done();
+            });
+
+            name.emit('change');
+        });
+
+        it('Should emit a userChange event up from fields underneath', (done) => {
+            const name = new StringType();
+
+            const field = new ObjectType({
+                name: name
+            });
+
+            field.on('userChange', () => {
+                done();
+            });
+
+            name.emit('userChange');
+        });
+
+        it('Should emit a fetching event up from fields underneath', (done) => {
+            const name = new StringType();
+
+            const field = new ObjectType({
+                name: name
+            });
+
+            field.on('fetching', () => {
+                done();
+            });
+
+            name.emit('fetching');
+        });
+
+        it('Should emit a fetchSuccess event up from fields underneath', (done) => {
+            const name = new StringType();
+
+            const field = new ObjectType({
+                name: name
+            });
+
+            field.on('fetchSuccess', () => {
+                done();
+            });
+
+            name.emit('fetchSuccess');
+        });
+
+        it('Should emit a fetchError event up from fields underneath', (done) => {
+            const name = new StringType();
+
+            const field = new ObjectType({
+                name: name
+            });
+
+            field.on('fetchError', () => {
+                done();
+            });
+
+            name.emit('fetchError');
+        });
+
+        it('Should allow us to apply an entire object of data', () => {
+            const field = new ObjectType({
+                name: StringType,
+                id: NumberType
+            });
+
+            field.apply({
+                id: 12,
+                name: 'Tyson'
+            });
+
+            assert.equal(field.get('name'), 'Tyson');
+            assert.equal(field.get('id'), 12);
+        });
+
     });
 });
