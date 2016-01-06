@@ -4,6 +4,11 @@ class NumberType extends BaseType {
 
     get () {
         const val = super.get();
+
+        if (val === undefined || val === null) {
+            return;
+        }
+
         return parseFloat(val);
     }
 

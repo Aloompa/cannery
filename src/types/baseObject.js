@@ -5,6 +5,7 @@ const validate = require('valid-point');
 const fields = Symbol();
 const addListeners = Symbol();
 const applyFieldNames = Symbol();
+const applyFieldParent = Symbol();
 
 class BaseObject extends BaseType {
 
@@ -21,6 +22,15 @@ class BaseObject extends BaseType {
         });
     }
 
+    [ applyFieldParent ] () {
+        Object.keys(this[fields]).forEach((key) => {
+            if (typeof this[fields][key].setParent === 'function') {
+                this[fields][key].parent = this.parent;
+                this[fields][key].setParent();
+            }
+        });
+    }
+
     apply (data) {
         Object.keys(data).forEach((key) => {
             this[fields][key].apply(data[key]);
@@ -32,6 +42,7 @@ class BaseObject extends BaseType {
     initialize (initalFields) {
         this[fields] = parseFields(initalFields);
         this[applyFieldNames]();
+        this[applyFieldParent]();
         this[addListeners]();
     }
 

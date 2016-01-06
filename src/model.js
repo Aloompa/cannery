@@ -11,7 +11,9 @@ class Model extends EventEmitter {
         super();
 
         this.id = id;
-        this[fields] = new ObjectType(this.getFields());
+        this[fields] = new ObjectType(this.getFields(), {
+            parent: this
+        });
         this[isFetched] = false;
 
         addListenersUtil(this, this[fields]);
@@ -53,6 +55,7 @@ class Model extends EventEmitter {
     }
 
     get (key) {
+
         if (!this[isFetched] && this.id) {
             this.refresh();
         }
