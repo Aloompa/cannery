@@ -1,6 +1,8 @@
 const BaseType = require('./base');
+const addListenersUtil = require('../util/addListeners');
 const model = Symbol();
 const map = Symbol();
+const updateMapping = Symbol();
 
 class HasOne extends BaseType {
 
@@ -15,10 +17,23 @@ class HasOne extends BaseType {
         this[model] = new Model(this[map].get());
     }
 
+    [ updateMapping ] () {
+        if (this[map].get() !== this[model].id) {
+            this[model].id = this[map].get();
+            this[model].emit('change');
+        }
+    }
+
     setParent () {
         this[model].getParent = () => {
             return this.parent;
         };
+
+        this[updateMapping]();
+
+        this.parent.on('change', this[updateMapping].bind(this));
+
+        addListenersUtil(this.parent, this[model]);
     }
 
     get () {

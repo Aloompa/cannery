@@ -6,17 +6,17 @@ const NumberType = require('../number');
 const assert = require('assert');
 const Model = require('../../model');
 
-class FarmerAdapter {
+class FarmAdapter {
 
     fetch () {
         return Promise.resolve({
-            farmId: 2
+            farmerId: 2
         });
     }
 
 }
 
-class FarmAdapter {
+class FarmerAdapter {
 
     fetch () {
         return Promise.resolve({
@@ -92,6 +92,28 @@ describe('The hasOne type', () => {
             const farm = new Farm();
 
             assert.equal(farm.get('farmer').getParent(), farm);
+        });
+
+        it('Should emit changes to the parent', (done) => {
+            const farm = new Farm(1);
+            let calledCount = 0;
+
+            farm.on('change', () => {
+                if (!calledCount) {
+                    done();
+                }
+                calledCount++;
+            });
+
+            farm.get('farmer').set('name', 'Farmer Bill');
+        });
+
+        it('Should update the child model when the mapping changes', (done) => {
+            const farm = new Farm(1);
+
+            farm.get('farmer').on('change', () => {
+                done();
+            });
         });
 
     });
