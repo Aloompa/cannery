@@ -8,15 +8,15 @@ Getting started with Cannery is easy. You just need to extend the Cannery base M
 
 ```
 const { Model, Type } = require('cannery');
-const { string, number } = Type;
+const { StringType, NumberType } = Type;
 
 class Car extends Model {
 
     getFields () {
         return {
-            make: string,
-            model: string,
-            year: number
+            make: StringType,
+            model: StringType,
+            year: NumberType
         };
     }
 
@@ -70,7 +70,7 @@ module.exports = User;
 
 Fields in cannery can have types. Different types operate in different ways to handle data that is set and gotten from the model.
 
-##### Cannery.Type.array (:object fields)
+##### Cannery.Type.ArrayType (:method Type, :object fields, :object options)
 
 
 
@@ -80,64 +80,21 @@ Fields in cannery can have types. Different types operate in different ways to h
 
 ##### <static> all(options)
 
-##### <static> create(data, options)
-depricated - The model create method is better
-
-##### <static> destroy(model)
-depricated - The model destroy method is better
-
-##### <static> getName()
-
-##### <static> getNamePlural()
-
-##### <static> getNestedKey()
-depricated - This only gets used in the adapter. There has to be a better way to pass that in.
-
-##### <static> getUrl()
-
 #### Methods
 
-##### add(field, item, index)
+##### apply (data)
 
-##### allOff(eventName)
+Takes an object of data and applies it to the model. Triggers a `change` event, but not a `userChange` event. This is typically used internally to set a large object of data on the model. This is destructive in that it will wipe out any current data in the model. User changes should use the `set()` method.
 
-##### create(options)
-
-##### get(field, options, forceReload)
-
-##### getAdapter()
-
-##### getAsync(field, options, forceReload)
-
-##### getFields()
-
-##### hasArray(fields)
-
-##### hasMany(Model, options)
-
-##### hasObject(fields)
-
-##### hasOne(Model, options)
-
-##### move(field, oldIndex, newIndex)
-
-##### off(eventName, listener)
-
-##### on(eventName, callback)
-
-##### refresh()
-
-##### remove(field, item)
-
-##### removeAll(field)
-
-##### set(field, value)
-
-##### save()
-
-##### toJSON()
-
-##### validate(field)
+```
+myModel.apply({
+    id: 1,
+    name: 'Some name',
+    images: {
+        thumb: '1.jpg'
+    }
+});
+```
 
 ## Contributing
 

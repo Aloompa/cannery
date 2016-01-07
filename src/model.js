@@ -57,6 +57,7 @@ class Model extends EventEmitter {
     get (key) {
 
         if (!this[isFetched] && this.id) {
+            this[isFetched] = true;
             this.refresh();
         }
 
@@ -118,7 +119,8 @@ class Model extends EventEmitter {
     }
 
     validate () {
-        return this[fields].validate();
+        this[fields].validate();
+        return this;
     }
 
 }

@@ -11,7 +11,8 @@
     "build": "./node_modules/.bin/webpack",
     "prepublish": "npm run test; npm run compile; npm run build",
     "jscs": "./node_modules/.bin/jscs src --esnext",
-    "jshint": "./node_modules/.bin/jshint src --verbose"
+    "jshint": "./node_modules/.bin/jshint src --verbose",
+    "watch": "node_modules/.bin/_mocha --watch --compilers js:babel-core/register"
   },
   "repository": {
     "type": "git",

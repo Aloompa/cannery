@@ -9,7 +9,7 @@ const typeOptions = Symbol();
 class ArrayType extends BaseType {
 
     constructor (ArrayType, arrayFields, options) {
-        super();
+        super(options);
 
         this[Type] = ArrayType || BaseType;
         this[fields] = arrayFields;
@@ -21,30 +21,12 @@ class ArrayType extends BaseType {
         return val || [];
     }
 
-    get (index) {
-        const val = this[getTyped]();
-
-        const arr = val.map((item) => {
-            if (item instanceof ObjectType) {
-                return item;
-            }
-
-            return item.get();
-        });
-
-        if (typeof index === 'number') {
-            return arr[index];
-        }
-
-        return arr;
-    }
-
     add (item, index) {
-        const typedItem = new this[Type](this[fields], this[typeOptions]);
+        const typedItem = this.instantiateItem(item);
         let array = this[getTyped]();
 
         typedItem.apply(item);
-        
+
         addListenersUtil(this, typedItem);
 
         if (typeof index !== 'number') {
@@ -56,6 +38,70 @@ class ArrayType extends BaseType {
         this.set(array);
 
         return this;
+    }
+
+    all () {
+        const Model = require('../model');
+        const val = this[getTyped]();
+
+        const arr = val.map((item) => {
+
+            // Object
+            if (item instanceof ObjectType) {
+                return item;
+            }
+
+            // Model
+            if (item instanceof Model) {
+                return item;
+            }
+
+            return item.get();
+        });
+
+        return arr;
+    }
+
+    apply (data) {
+        const array = data.map((item) => {
+            const typedItem = this.instantiateItem(item);
+
+            typedItem.apply(item);
+
+            return typedItem;
+        });
+
+        this.set(array);
+
+        return this;
+    }
+
+    forEach (callback) {
+        return this.all().forEach(callback);
+    }
+
+    get (index) {
+        return this.all()[index];
+    }
+
+    getOptions () {
+        return this[typeOptions];
+    }
+
+    getType () {
+        return this[Type];
+    }
+
+    instantiateItem () {
+        return new this[Type](this[fields], this[typeOptions]);
+    }
+
+    length () {
+        return this.all().length;
+    }
+
+    map (callback) {
+        return this.all().map(callback);
     }
 
     move (oldIndex, newIndex) {
@@ -82,6 +128,12 @@ class ArrayType extends BaseType {
         this.set([]);
 
         return this;
+    }
+
+    toJSON () {
+        return this[getTyped]().map((field) => {
+            return field.toJSON();
+        });
     }
 
 }

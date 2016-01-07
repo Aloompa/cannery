@@ -30,8 +30,8 @@ class ObjectType extends BaseType {
 
     [ applyFieldParent ] () {
         Object.keys(this[fields]).forEach((key) => {
+            this[fields][key].parent = this.parent;
             if (typeof this[fields][key].setParent === 'function') {
-                this[fields][key].parent = this.parent;
                 this[fields][key].setParent();
             }
         });
@@ -53,9 +53,16 @@ class ObjectType extends BaseType {
     }
 
     get (key) {
+        const ArrayType = require('./array');
         const field = this[fields][key];
 
+        // Objects
         if (field instanceof this.constructor) {
+            return field;
+        }
+
+        // Arrays
+        if (field instanceof ArrayType) {
             return field;
         }
 
