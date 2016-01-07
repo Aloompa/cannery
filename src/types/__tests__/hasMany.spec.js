@@ -26,7 +26,7 @@ class CowAdapter {
         }, {
             name: 'Bluebell',
             id: 2
-        }])
+        }]);
     }
 
     fetch () {
@@ -135,7 +135,6 @@ describe('The hasMany type', () => {
             farm.get('cows').all();
         });
 
-
         it('Should allow us to reload the data', (done) => {
             const farm = new Farm(1);
             let calledCount = 0;
@@ -164,7 +163,6 @@ describe('The hasMany type', () => {
 
             farm.get('cows').all();
         });
-
 
         it('Should emit an error message if there is an adapter error on findAllWithin', (done) => {
             const farm = new Farm(1);
