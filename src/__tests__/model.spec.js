@@ -406,4 +406,33 @@ describe('The Cannery Base Model', () => {
         });
 
     });
+
+    describe('When we fetch with a parent', () => {
+        it('Should call fetchWithin on the adapter', (done) => {
+            const artist = new Artist(1);
+
+            class MyParent {}
+
+            class CustomAdapter {
+                fetchWithin (model, parent) {
+                    assert.ok(parent instanceof MyParent);
+                    assert.ok(model instanceof Artist);
+
+                    return Promise.resolve({});
+                }
+            }
+
+            artist.getParent = () => {
+                return new MyParent();
+            };
+
+            artist.getAdapter = () => {
+                return new CustomAdapter();
+            };
+
+            artist.refresh().then(() => {
+                done();
+            });
+        });
+    });
 });
