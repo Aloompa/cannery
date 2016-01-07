@@ -19,6 +19,16 @@ class FarmAdapter {
 
 class CowAdapter {
 
+    findAllWithin (model, Parent) {
+        return Promise.resolve([{
+            name: 'Sally',
+            id: 1
+        }, {
+            name: 'Bluebell',
+            id: 2
+        }])
+    }
+
     fetch () {
         return Promise.resolve({
             name: 'Sally',
@@ -114,8 +124,61 @@ describe('The hasMany type', () => {
             assert.ok(parent instanceof Farm);
         });
 
-        it('Should perform a findAllWithin call to the adapter to get data', () => {
-            
+        it('Should perform a findAllWithin call to the adapter to get data', (done) => {
+            const farm = new Farm(1);
+
+            farm.get('cows').on('fetchSuccess', () => {
+                assert.equal(farm.get('cows').get(1).get('name'), 'Bluebell');
+                done();
+            });
+
+            farm.get('cows').all();
+        });
+
+
+        it('Should allow us to reload the data', (done) => {
+            const farm = new Farm(1);
+            let calledCount = 0;
+
+            farm.get('cows').on('fetchSuccess', () => {
+
+                if (!calledCount) {
+                    assert.equal(farm.get('cows').get(0).get('name'), 'Sally');
+
+                    CowAdapter.prototype.findAllWithin = () => {
+                        return Promise.resolve([{
+                            id: 1,
+                            name: 'Bluebell'
+                        }]);
+                    };
+
+                    farm.get('cows').refresh();
+
+                } else {
+                    assert.equal(farm.get('cows').get(0).get('name'), 'Bluebell');
+                    done();
+                }
+
+                calledCount++;
+            });
+
+            farm.get('cows').all();
+        });
+
+
+        it('Should emit an error message if there is an adapter error on findAllWithin', (done) => {
+            const farm = new Farm(1);
+
+            CowAdapter.prototype.findAllWithin = () => {
+                return Promise.reject('Oops');
+            };
+
+            farm.get('cows').on('fetchError', (err) => {
+                assert.equal(err, 'Oops');
+                done();
+            });
+
+            farm.get('cows').all();
         });
 
     });
