@@ -26,27 +26,29 @@ class Model extends EventEmitter {
     }
 
     static all (options) {
-        return new this().getAdapter().findAll(this, options).then((arr) => {
-            let models = [];
+        return new this().getAdapter().findAll(this, options).then(this.applyModels.bind(this));
+    }
 
-            arr.forEach((obj) => {
-                const model = new this(obj.id);
-                model.apply(obj);
-                models.push(model);
+    static applyModels (arr) {
+        let models = [];
+
+        arr.forEach((obj) => {
+            const model = new this(obj.id);
+            model.apply(obj);
+            models.push(model);
+        });
+
+        models.on = (evt, callback) => {
+            let subscriptions = [];
+
+            models.forEach((model) => {
+                subscriptions.push(model.on(evt, callback));
             });
 
-            models.on = (evt, callback) => {
-                let subscriptions = [];
+            return subscriptions;
+        };
 
-                models.forEach((model) => {
-                    subscriptions.push(model.on(evt, callback));
-                });
-
-                return subscriptions;
-            };
-
-            return models;
-        });
+        return models;
     }
 
     [ doFetch ] (options) {

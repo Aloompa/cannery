@@ -103,21 +103,6 @@ describe('The hasMany type', () => {
             assert.ok(!farm.get('cows').toJSON());
         });
 
-        it('Should automatically fetch the models described in the mapped field', (done) => {
-            const farm = new Farm(1);
-
-            farm.on('fetchSuccess', () => {
-                assert.equal(farm.get('cows').length(), 3);
-                assert.equal(farm.get('cows').get(0).id, 1);
-                assert.equal(farm.get('cows').get(1).id, 2);
-                assert.equal(farm.get('cows').get(2).id, 3);
-
-                done();
-            });
-
-            farm.get('cows').all();
-        });
-
         it('Should set the parent of nested models to the root model', () => {
             const farm = new Farm(1);
 
@@ -128,5 +113,10 @@ describe('The hasMany type', () => {
 
             assert.ok(parent instanceof Farm);
         });
+
+        it('Should perform a findAllWithin call to the adapter to get data', () => {
+            
+        });
+
     });
 });

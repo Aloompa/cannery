@@ -1,6 +1,5 @@
 const ArrayType = require('./array');
 const mapping = Symbol();
-const applyMapping = Symbol();
 const addById = Symbol();
 
 class HasMany extends ArrayType {
@@ -17,14 +16,6 @@ class HasMany extends ArrayType {
         };
     }
 
-    [ applyMapping ] () {
-        const array = this[mapping].map(this.instantiateItem.bind(this));
-
-        this.set(array);
-
-        return this;
-    }
-
     instantiateItem (id) {
         const Model = this.getType();
         const model = new Model(id, this.getOptions());
@@ -34,16 +25,6 @@ class HasMany extends ArrayType {
         };
 
         return model;
-    }
-
-    setParent () {
-        this.parent.on('change', () => {
-            if (!this.length()) {
-                this[applyMapping]();
-            }
-        });
-
-        this[applyMapping]();
     }
 
     toJSON () {
