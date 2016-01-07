@@ -85,7 +85,9 @@ describe('The Array type', () => {
         it('Should use the base type if no type is passed in', () => {
             const arr = new ArrayType();
 
-            arr.add({ foo: 'bar' });
+            arr.add({
+                foo: 'bar'
+            });
 
             assert.equal(arr.get(0).foo, 'bar');
         });

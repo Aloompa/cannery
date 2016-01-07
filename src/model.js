@@ -5,7 +5,7 @@ const ObjectType = require('./types/object');
 const fields = Symbol();
 const isFetched = Symbol();
 const isChanged = Symbol();
-const fetch = Symbol();
+const doFetch = Symbol();
 
 class Model extends EventEmitter {
 
@@ -49,7 +49,7 @@ class Model extends EventEmitter {
         });
     }
 
-    [ fetch ] (options) {
+    [ doFetch ] (options) {
         const parent = this.getParent();
         const adapter = this.getAdapter();
 
@@ -102,7 +102,7 @@ class Model extends EventEmitter {
     refresh (options) {
         this.emit('fetching');
 
-        return this[fetch](options).then((data) => {
+        return this[doFetch](options).then((data) => {
             this.apply(data);
             this.emit('fetchSuccess');
             return this;

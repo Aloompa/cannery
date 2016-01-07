@@ -102,6 +102,7 @@ describe('The hasOne type', () => {
                 if (!calledCount) {
                     done();
                 }
+                
                 calledCount++;
             });
 
