@@ -46,19 +46,15 @@ myCar.get('make'); // returns an empty string immediately
 
 ### Adapters
 
-To change what type of data store you set and get data from, just switch out the adapter. For example, you may want to get data from ajax, mongoDB, localStorage, etc. No problem, just replace the base adapter with your own:
+To change what type of data store you set and get data from, just switch out the adapter. For example, you may want to get data from ajax, mongoDB, localStorage, etc. No problem, just replace the `getAdapter()` method with your own:
 
 ```
 const Cannery = require('cannery');
 
 class User extends Cannery.Model {
 
-    static adapter = MyAdapter;
-
-    getFields () {
-        return {
-            // ...
-        };
+    getAdapter () {
+        return new MyAdapter();
     }
 
 }
@@ -70,31 +66,9 @@ module.exports = User;
 
 Fields in cannery can have types. Different types operate in different ways to handle data that is set and gotten from the model.
 
-##### Cannery.Type.ArrayType (:method Type, :object fields, :object options)
-
-
-
 ### Cannery.Model
 
-#### Static
-
-##### <static> all(options)
-
-#### Methods
-
-##### apply (data)
-
-Takes an object of data and applies it to the model. Triggers a `change` event, but not a `userChange` event. This is typically used internally to set a large object of data on the model. This is destructive in that it will wipe out any current data in the model. User changes should use the `set()` method.
-
-```
-myModel.apply({
-    id: 1,
-    name: 'Some name',
-    images: {
-        thumb: '1.jpg'
-    }
-});
-```
+This is the base model class where all the magic happens.
 
 ## Contributing
 
