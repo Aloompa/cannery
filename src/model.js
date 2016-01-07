@@ -4,6 +4,7 @@ const Adapter = require('cannery-adapter');
 const ObjectType = require('./types/object');
 const fields = Symbol();
 const isFetched = Symbol();
+const isChanged = Symbol();
 
 class Model extends EventEmitter {
 
@@ -17,6 +18,10 @@ class Model extends EventEmitter {
         this[isFetched] = false;
 
         addListenersUtil(this, this[fields]);
+
+        this.on('userChange', () => {
+            this[isChanged] = true;
+        });
     }
 
     static all (options) {
@@ -76,6 +81,10 @@ class Model extends EventEmitter {
         throw new Error('The getFields() method is not defined');
     }
 
+    isChanged () {
+        return this[isChanged];
+    }
+
     refresh (options) {
         this.emit('fetching');
 
@@ -108,6 +117,8 @@ class Model extends EventEmitter {
             if (!this.id) {
                 this.id = data.id;
             }
+
+            this[isChanged] = false;
 
             return this.apply(data);
         });

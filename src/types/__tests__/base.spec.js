@@ -58,5 +58,47 @@ describe('Any type', () => {
             assert.equal(field.get(), 'bar!');
         });
 
+        it('Should allow us to hook into toJSON', () => {
+            const field = new BaseType({
+                hooks: {
+                    toJSON: (val) => {
+                        return `${val}!`;
+                    }
+                }
+            });
+
+            field.set('bar');
+
+            assert.equal(field.toJSON(), 'bar!');
+        });
+
+        it('Should allow us to hook into apply', () => {
+            const field = new BaseType({
+                hooks: {
+                    apply: (val) => {
+                        return `${val}!`;
+                    }
+                }
+            });
+
+            field.apply('bar');
+
+            assert.equal(field.get(), 'bar!');
+        });
+
+        it('Should allow us to hook into set', () => {
+            const field = new BaseType({
+                hooks: {
+                    set: (val) => {
+                        return `${val}!`;
+                    }
+                }
+            });
+
+            field.set('bar');
+
+            assert.equal(field.get(), 'bar!');
+        });
+
     });
 });

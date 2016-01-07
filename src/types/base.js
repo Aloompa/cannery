@@ -13,6 +13,14 @@ class BaseType extends EventEmitter {
         Object.keys(options.hooks || {}).forEach((key) => {
             const originalMethod = this[key];
 
+            if (key === 'apply' || key === 'set') {
+                this[key] = function (val) {
+                    return originalMethod.call(this, options.hooks[key](val));
+                };
+
+                return;
+            }
+
             this[key] = function () {
                 const val = originalMethod.apply(this, arguments);
                 return options.hooks[key](val);

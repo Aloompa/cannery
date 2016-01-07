@@ -377,4 +377,33 @@ describe('The Cannery Base Model', () => {
         });
 
     });
+
+    describe('When the user changes a field', () => {
+
+        it('Should not be marked as changed initially', () => {
+            const artist = new Artist(1);
+
+            assert.ok(!artist.isChanged());
+        });
+
+        it('Should set isChanged to return true', () => {
+            const artist = new Artist(1);
+
+            artist.set('name', 'Henry Mattise');
+
+            assert.ok(artist.isChanged());
+        });
+
+        it('Should go back to being marked as unchanged after a save', (done) => {
+            const artist = new Artist(1);
+
+            artist.set('name', 'Henry Mattise');
+
+            artist.save().then(() => {
+                assert.ok(!artist.isChanged());
+                done();
+            });
+        });
+
+    });
 });
