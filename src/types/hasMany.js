@@ -1,3 +1,5 @@
+'use strict';
+
 const ArrayType = require('./array');
 const isFetched = Symbol();
 const mapping = Symbol();

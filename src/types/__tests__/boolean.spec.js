@@ -1,3 +1,5 @@
+'use strict';
+
 const BooleanType = require('../boolean');
 const assert = require('assert');
 

@@ -1,3 +1,5 @@
+'use strict';
+
 const DateType = require('../date');
 const assert = require('assert');
 

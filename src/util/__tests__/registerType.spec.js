@@ -1,3 +1,5 @@
+'use strict';
+
 const registerType = require('../registerType');
 const assert = require('assert');
 

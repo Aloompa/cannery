@@ -1,3 +1,5 @@
+'use strict';
+
 const BaseType = require('./base');
 const parseFields = require('../util/parseFields');
 const addListenersUtil = require('../util/addListeners');

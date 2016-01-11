@@ -1,3 +1,5 @@
+'use strict';
+
 const NumberType = require('../number');
 const assert = require('assert');
 

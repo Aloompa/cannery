@@ -1,3 +1,5 @@
+'use strict';
+
 const StringType = require('../string');
 const assert = require('assert');
 

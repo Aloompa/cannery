@@ -1,3 +1,5 @@
+'use strict';
+
 const BaseType = require('./base');
 const addListenersUtil = require('../util/addListeners');
 const model = Symbol();

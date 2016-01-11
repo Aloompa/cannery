@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = (fields) => {
     for (let field in fields) {
         /* istanbul ignore else */

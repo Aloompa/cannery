@@ -1,3 +1,5 @@
+'use strict';
+
 const ObjectType = require('../object');
 const StringType = require('../string');
 const NumberType = require('../number');

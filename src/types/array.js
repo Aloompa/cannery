@@ -1,3 +1,5 @@
+'use strict';
+
 const BaseType = require('./base');
 const ObjectType = require('./object');
 const addListenersUtil = require('../util/addListeners');

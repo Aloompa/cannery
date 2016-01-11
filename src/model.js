@@ -1,3 +1,5 @@
+'use strict';
+
 const EventEmitter = require('cannery-event-emitter');
 const addListenersUtil = require('./util/addListeners');
 const Adapter = require('cannery-adapter');

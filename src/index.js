@@ -1,3 +1,5 @@
+'use strict';
+
 const Cannery = {
     Model: require('./model')
 };

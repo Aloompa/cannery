@@ -1,3 +1,5 @@
+'use strict';
+
 const BaseType = require('./base');
 
 class BooleanType extends BaseType {

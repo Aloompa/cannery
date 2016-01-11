@@ -1,3 +1,5 @@
+'use strict';
+
 const BaseType = require('../base');
 const assert = require('assert');
 

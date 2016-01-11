@@ -1,3 +1,5 @@
+'use strict';
+
 const EventEmitter = require('cannery-event-emitter');
 const validate = require('valid-point');
 const value = Symbol();

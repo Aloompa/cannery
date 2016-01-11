@@ -1,3 +1,5 @@
+'use strict';
+
 const extendHooks = require('../extendHooks');
 const assert = require('assert');
 
