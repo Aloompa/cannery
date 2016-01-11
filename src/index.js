@@ -1,7 +1,8 @@
 'use strict';
 
 const Cannery = {
-    Model: require('./model')
+    Model: require('./model'),
+    Types: {}
 };
 
 Cannery.registerType = require('./util/registerType')(Cannery);
