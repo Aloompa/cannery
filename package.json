@@ -2,7 +2,7 @@
   "name": "cannery",
   "version": "0.0.1",
   "description": "An event-driven model layer for JavaScript",
-  "main": "src",
+  "main": "lib",
   "scripts": {
     "coverage": "node_modules/.bin/babel-node node_modules/.bin/babel-istanbul cover -x '**/__tests__/*' node_modules/.bin/_mocha --",
     "test": "npm run mocha; npm run jshint; npm run jscs",
