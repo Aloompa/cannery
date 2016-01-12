@@ -147,8 +147,8 @@ class Model extends EventEmitter {
         return this[fields].toJSON();
     }
 
-    validate () {
-        this[fields].validate();
+    validate (key) {
+        this[fields].validate(key);
         return this;
     }
 
