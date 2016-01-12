@@ -171,5 +171,28 @@ describe('The Object type', () => {
             field.validate();
         });
 
+        it('Should allow us to pass in a key to validate only that item', () => {
+            const field = new ObjectType({
+                firstName: new BaseType({
+                    validations: {
+                        required: true
+                    }
+                }),
+                lastName: new BaseType({
+                    validations: {
+                        required: true
+                    }
+                })
+            });
+
+            assert.throws(() => {
+                field.validate('firstName');
+            }, Error);
+
+            field.set('firstName', 'Tyson');
+
+            field.validate('firstName');
+        });
+
     });
 });

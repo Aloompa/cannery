@@ -86,7 +86,11 @@ class ObjectType extends BaseType {
         return json;
     }
 
-    validate () {
+    validate (key) {
+        if (key) {
+            return this[fields][key].validate();
+        }
+
         return Object.keys(this[fields]).map((key) => {
             return this[fields][key].validate();
         });
