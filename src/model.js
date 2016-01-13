@@ -15,7 +15,7 @@ class Model extends EventEmitter {
         super();
 
         this.id = id;
-        this[fields] = new ObjectType(this.getFields(), {
+        this[fields] = new ObjectType(this.getFields.apply(this, arguments), {
             parent: this
         });
         this[isFetched] = false;
