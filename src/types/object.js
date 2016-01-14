@@ -58,6 +58,10 @@ class ObjectType extends BaseType {
         const ArrayType = require('./array');
         const field = this[fields][key];
 
+        if (!field) {
+            throw new Error(`cannot get "${key}." It is undefined in your Cannery model`);
+        }
+
         // Objects
         if (field instanceof this.constructor) {
             return field;
