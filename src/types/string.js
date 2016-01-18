@@ -1,19 +1,19 @@
-module.exports = (options = {}) => {
+'use strict';
 
-    const hooks = options.hooks || {};
+const BaseType = require('./base');
 
-    return Object.assign({}, options, {
-        type: 'string',
-        hooks: Object.assign({}, hooks, {
-            get: (val) => {
-                let parseVal = String(val);
+class StringType extends BaseType {
 
-                if (hooks.get) {
-                    parseVal = hooks.get(parseVal);
-                }
+    get () {
+        const val = super.get();
 
-                return parseVal;
-            }
-        })
-    });
-};
+        if (val === undefined || val === null) {
+            return;
+        }
+
+        return String(val);
+    }
+
+}
+
+module.exports = StringType;

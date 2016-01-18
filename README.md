@@ -8,15 +8,15 @@ Getting started with Cannery is easy. You just need to extend the Cannery base M
 
 ```
 const { Model, Type } = require('cannery');
-const { string, number } = Type;
+const { StringType, NumberType } = Type;
 
 class Car extends Model {
 
     getFields () {
         return {
-            make: string,
-            model: string,
-            year: number
+            make: StringType,
+            model: StringType,
+            year: NumberType
         };
     }
 
@@ -46,19 +46,15 @@ myCar.get('make'); // returns an empty string immediately
 
 ### Adapters
 
-To change what type of data store you set and get data from, just switch out the adapter. For example, you may want to get data from ajax, mongoDB, localStorage, etc. No problem, just replace the base adapter with your own:
+To change what type of data store you set and get data from, just switch out the adapter. For example, you may want to get data from ajax, mongoDB, localStorage, etc. No problem, just replace the `getAdapter()` method with your own:
 
 ```
 const Cannery = require('cannery');
 
 class User extends Cannery.Model {
 
-    static adapter = MyAdapter;
-
-    getFields () {
-        return {
-            // ...
-        };
+    getAdapter () {
+        return new MyAdapter();
     }
 
 }
@@ -70,74 +66,9 @@ module.exports = User;
 
 Fields in cannery can have types. Different types operate in different ways to handle data that is set and gotten from the model.
 
-##### Cannery.Type.array (:object fields)
-
-
-
 ### Cannery.Model
 
-#### Static
-
-##### <static> all(options)
-
-##### <static> create(data, options)
-depricated - The model create method is better
-
-##### <static> destroy(model)
-depricated - The model destroy method is better
-
-##### <static> getName()
-
-##### <static> getNamePlural()
-
-##### <static> getNestedKey()
-depricated - This only gets used in the adapter. There has to be a better way to pass that in.
-
-##### <static> getUrl()
-
-#### Methods
-
-##### add(field, item, index)
-
-##### allOff(eventName)
-
-##### create(options)
-
-##### get(field, options, forceReload)
-
-##### getAdapter()
-
-##### getAsync(field, options, forceReload)
-
-##### getFields()
-
-##### hasArray(fields)
-
-##### hasMany(Model, options)
-
-##### hasObject(fields)
-
-##### hasOne(Model, options)
-
-##### move(field, oldIndex, newIndex)
-
-##### off(eventName, listener)
-
-##### on(eventName, callback)
-
-##### refresh()
-
-##### remove(field, item)
-
-##### removeAll(field)
-
-##### set(field, value)
-
-##### save()
-
-##### toJSON()
-
-##### validate(field)
+This is the base model class where all the magic happens.
 
 ## Contributing
 

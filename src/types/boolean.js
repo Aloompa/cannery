@@ -1,23 +1,21 @@
-module.exports = (options = {}) => {
+'use strict';
 
-    const hooks = options.hooks || {};
+const BaseType = require('./base');
 
-    return Object.assign({}, options, {
-        type: 'boolean',
-        hooks: Object.assign({}, hooks, {
-            get: (val) => {
-                let parseVal = Boolean(val);
+class BooleanType extends BaseType {
 
-                if (val === 'false') {
-                    parseVal = false;
-                }
+    get () {
+        const val = super.get();
 
-                if (hooks.get) {
-                    parseVal = hooks.get(parseVal);
-                }
+        let parseVal = Boolean(val);
 
-                return parseVal;
-            }
-        })
-    });
-};
+        if (val === 'false') {
+            parseVal = false;
+        }
+
+        return parseVal;
+    }
+
+}
+
+module.exports = BooleanType;
