@@ -3,7 +3,7 @@ const webpack = require('webpack');
 
 module.exports = {
     entry: {
-    	'webpack-babel-project-boilerplate': './src'
+    	'cannery': './src'
     },
     output: {
     	path: path.resolve(__dirname) + '/dist',

@@ -1,28 +1,23 @@
 ## Welcome to Cannery
 
-A modern ES6-class-based event-driven model layer for JavaScript.
-
-## Where Is The Code?
-
-We have not published the code yet. We want to get the documentation in place before we publish the code. It should be coming along soon.
+A modern ES6 class-based event-driven ORM for client-side or server-side JavaScript.
 
 ##  Getting Started
 
 Getting started with Cannery is easy. You just need to extend the Cannery base Model class and provide a `getFields()` method that returns an object describing the fields on the model. From there, we can instantiate the model and use `get()` and `set()` to set and get data on the model fields.
 
 ```
-const Cannery = require('cannery');
+const { Model, Type } = require('cannery');
+const { StringType, NumberType } = Type;
 
-class Car extends Cannery.Model {
+class Car extends Model {
 
     getFields () {
         return {
-            make: {},
-            model: {},
-            year: {
-                type 'number'
-            }
-        }
+            make: StringType,
+            model: StringType,
+            year: NumberType
+        };
     }
 
 }
@@ -49,162 +44,31 @@ myCar.get('make'); // returns an empty string immediately
 
 ## API
 
-### Cannery.Adapter
+### Adapters
 
-The base Cannery Adapter is an extendable class that can be used to create various strategies for retrieving and setting data. We plan to open-source many of our adapters for data sources like Ajax, WebSockets, Mocking, MongoDB, etc, but we wrote the adapter in such a way that it is pluggable and intended to be overridden with custom logic for specific use-cases. Each model has a `getAdapter()` method where the adapter for the specific model can be provided. For example:
+To change what type of data store you set and get data from, just switch out the adapter. For example, you may want to get data from ajax, mongoDB, localStorage, etc. No problem, just replace the `getAdapter()` method with your own:
 
 ```
 const Cannery = require('cannery');
-const AjaxAdapter = require('cannery-ajax-adapter');
 
-class Car extends Cannery.Model {
+class User extends Cannery.Model {
 
     getAdapter () {
-        return AjaxAdapter;
+        return new MyAdapter();
     }
 
-    getFields () {
-        // ...
-    }
 }
+
+module.exports = User;
 ```
 
-#### Methods
+### Cannery.Type
 
-##### create(data)
-
-Send data to a data store to get created. This must accept an object to send to the data store.
-
-```
-create (data) {
-    return new Promise((resolve, reject) {
-        // Save the data and resolve or reject the promise
-    });
-}
-```
-
-Returns: A promise, which resolves with the newly created data
-
-##### destroy(id)
-
-Remove data from a data store.
-
-```
-destroy (id) {
-    return new Promise((resolve, reject) {
-        // Delete the data and resolve or reject the promise
-    });
-}
-```
-
-Returns: A promise
-
-##### findAll(query)
-
-Find all of the data for a model.
-
-```
-findAll ({ page, per }) {
-    return new Promise((resolve, reject) {
-        // Retrieve the data and resolve or reject the promise
-    });
-}
-```
-
-Returns: A promise with an array of data
-
-##### findOne(id)
-
-Find one record.
-
-```
-findOne (id) {
-    return new Promise((resolve, reject) {
-        // Retrieve the data and resolve or reject the promise
-    });
-}
-```
-
-Returns: A promise with an object of data
-
-##### update(id, data)
-
-Updates the data for a model
-
-```
-update (id, data) {
-    return new Promise((resolve, reject) {
-        // Save the data and resolve or reject the promise
-    });
-}
-```
-
-Returns: A promise with the object of updated data
+Fields in cannery can have types. Different types operate in different ways to handle data that is set and gotten from the model.
 
 ### Cannery.Model
 
-#### Static
-
-##### <static> all(options)
-
-##### <static> create(data, options)
-depricated - The model create method is better
-
-##### <static> destroy(model)
-depricated - The model destroy method is better
-
-##### <static> getName()
-
-##### <static> getNamePlural()
-
-##### <static> getNestedKey()
-depricated - This only gets used in the adapter. There has to be a better way to pass that in.
-
-##### <static> getUrl()
-
-#### Methods
-
-##### add(field, item, index)
-
-##### allOff(eventName)
-
-##### create(options)
-
-##### get(field, options, forceReload)
-
-##### getAdapter()
-
-##### getAsync(field, options, forceReload)
-
-##### getFields()
-
-##### hasArray(fields)
-
-##### hasMany(Model, options)
-
-##### hasObject(fields)
-
-##### hasOne(Model, options)
-
-##### move(field, oldIndex, newIndex)
-
-##### off(eventName, listener)
-
-##### on(eventName, callback)
-
-##### refresh()
-
-##### remove(field, item)
-
-##### removeAll(field)
-
-##### set(field, value)
-
-##### save()
-
-##### toJSON()
-
-##### validate(field)
+This is the base model class where all the magic happens.
 
 ## Contributing
 
