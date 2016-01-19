@@ -203,4 +203,18 @@ describe('The Object type', () => {
             name: 'Foo'
         });
     });
+
+    it('Should trigger a change event when we apply to the object', (done) => {
+        const field = new ObjectType({
+            name: BaseType
+        });
+
+        field.on('change', () => {
+            done();
+        });
+
+        field.apply({
+            name: 'Foo'
+        });
+    });
 });
