@@ -195,4 +195,12 @@ describe('The Object type', () => {
         });
 
     });
+
+    it('Should not apply data that does have a field', () => {
+        const field = new ObjectType({});
+
+        field.apply({
+            name: 'Foo'
+        });
+    });
 });

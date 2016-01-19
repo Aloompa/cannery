@@ -41,7 +41,9 @@ class ObjectType extends BaseType {
 
     apply (data) {
         Object.keys(data).forEach((key) => {
-            this[fields][key].apply(data[key]);
+            if (this[fields][key]) {
+                this[fields][key].apply(data[key]);
+            }
         });
 
         return this;
