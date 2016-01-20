@@ -69,7 +69,6 @@ class Model extends EventEmitter {
     apply (data) {
         this[isFetched] = true;
         this[fields].apply(data);
-        this.emit('change');
         return this;
     }
 

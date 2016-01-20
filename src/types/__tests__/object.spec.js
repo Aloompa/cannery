@@ -203,4 +203,34 @@ describe('The Object type', () => {
             field.get('foobar');
         }, Error);
     });
+
+    it('Should not apply data that does have a field', () => {
+        const field = new ObjectType({});
+
+        field.apply({
+            name: 'Foo'
+        });
+    });
+
+    it('Should trigger a change event when we apply to the object', (done) => {
+        const field = new ObjectType({
+            name: BaseType
+        });
+
+        field.on('change', () => {
+            done();
+        });
+
+        field.apply({
+            name: 'Foo'
+        });
+    });
+
+    it('Should have a getFields() method', () => {
+        const field = new ObjectType({
+            name: BaseType
+        });
+
+        assert.equal(field.getFields().name.constructor.name, 'BaseType');
+    });
 });

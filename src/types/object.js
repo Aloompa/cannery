@@ -41,8 +41,12 @@ class ObjectType extends BaseType {
 
     apply (data) {
         Object.keys(data).forEach((key) => {
-            this[fields][key].apply(data[key]);
+            if (this[fields][key]) {
+                this[fields][key].apply(data[key]);
+            }
         });
+
+        this.emit('change');
 
         return this;
     }
@@ -73,6 +77,10 @@ class ObjectType extends BaseType {
         }
 
         return field.get();
+    }
+
+    getFields () {
+        return this[fields];
     }
 
     set (key, value) {
