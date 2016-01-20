@@ -79,6 +79,10 @@ class ObjectType extends BaseType {
         return field.get();
     }
 
+    getFields () {
+        return this[fields];
+    }
+
     set (key, value) {
         this[fields][key].set(value);
         return this;
