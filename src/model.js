@@ -11,7 +11,7 @@ const doFetch = Symbol();
 
 class Model extends EventEmitter {
 
-    constructor (id) {
+    constructor (id, options) {
         super();
 
         this.id = id;
@@ -19,6 +19,7 @@ class Model extends EventEmitter {
             parent: this
         });
         this[isFetched] = false;
+        this.options = options;
 
         addListenersUtil(this, this[fields]);
 
@@ -56,6 +57,8 @@ class Model extends EventEmitter {
     [ doFetch ] (options) {
         const parent = this.getParent();
         const adapter = this.getAdapter();
+
+        options = Object.assign({}, options, this.options);
 
         if (parent) {
             return adapter.fetchWithin(this, parent, options);

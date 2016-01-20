@@ -180,4 +180,22 @@ describe('The hasMany type', () => {
         });
 
     });
+
+    it('Should be possible to createa a hasMany without a mapping', () => {
+        class Bar extends Model {
+            getFields () {
+                return {};
+            }
+        }
+
+        class Foo extends Model {
+            getFields () {
+                return {
+                    bar: new HasMany(Bar)
+                };
+            }
+        }
+
+        new Foo().get('bar');
+    });
 });
