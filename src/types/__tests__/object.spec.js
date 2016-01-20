@@ -217,4 +217,12 @@ describe('The Object type', () => {
             name: 'Foo'
         });
     });
+
+    it('Should have a getFields() method', () => {
+        const field = new ObjectType({
+            name: BaseType
+        });
+
+        assert.equal(field.getFields().name.constructor.name, 'BaseType');
+    });
 });
