@@ -13,6 +13,7 @@ class HasOne extends BaseType {
     constructor (Model, options = {}) {
         super(options);
 
+        this.options = options;
         this[map] = options.map;
         this[ModelConstructor] = Model;
     }
@@ -21,7 +22,7 @@ class HasOne extends BaseType {
         if (!this[map]) {
             return;
         }
-
+        
         return (typeof this[map].get === 'function') ? this[map].get() : this[map];
     }
 
@@ -50,7 +51,7 @@ class HasOne extends BaseType {
 
     get () {
         if (!this[model]) {
-            this[model] = new this[ModelConstructor](this[map].get());
+            this[model] = new this[ModelConstructor](this[getId](), this.options);
             this.setParent();
         }
 
