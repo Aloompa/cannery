@@ -9,16 +9,20 @@ const fetchError = Symbol();
 
 class HasMany extends ArrayType {
 
-    constructor (ModelType, options) {
+    constructor (ModelType, options = {}) {
         super(ModelType);
 
-        this[mapping] = options.map;
+        this.options = options;
 
-        this[mapping].toJSON = () => {
-            return this.map((model) => {
-                return model.get('id');
-            });
-        };
+        if (options.map) {
+            this[mapping] = options.map;
+
+            this[mapping].toJSON = () => {
+                return this.map((model) => {
+                    return model.get('id');
+                });
+            };
+        }
     }
 
     [ fetchSuccess ] (data) {
@@ -41,7 +45,7 @@ class HasMany extends ArrayType {
 
             new Model()
                 .getAdapter()
-                .findAllWithin(Model, this.parent, options)
+                .findAllWithin(Model, this.parent, Object.assign({}, this.options, options))
                 .then(this.apply.bind(this))
                 .then(this[fetchSuccess].bind(this))
                 .catch(this[fetchError].bind(this));

@@ -66,10 +66,8 @@ describe('The hasOne type', () => {
 
     describe('When we create a hasOne association', () => {
 
-        it('Should throw an error if no mapping is specified', () => {
-            assert.throws(() => {
-                new HasOne(Farmer);
-            }, Error);
+        it('Should not throw an error if no mapping is specified', () => {
+            new HasOne(Farmer);
         });
 
         it('Should should let us get from the model', () => {
@@ -102,7 +100,7 @@ describe('The hasOne type', () => {
                 if (!calledCount) {
                     done();
                 }
-                
+
                 calledCount++;
             });
 
