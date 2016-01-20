@@ -25,6 +25,13 @@ class FarmerAdapter {
         });
     }
 
+    fetchWithin () {
+        return Promise.resolve({
+            name: 'Farmer Jones',
+            id: 1
+        });
+    }
+
 }
 
 class Farmer extends Model {
@@ -56,7 +63,12 @@ class Farm extends Model {
 
         return {
             farmerId: farmerId,
-            farmer: farmer
+            farmer: farmer,
+            newFarmer: new HasOne(Farmer, {
+                map: 'foo'
+            }),
+            newFarmer2: new HasOne(Farmer, {
+            })
         };
     }
 
@@ -115,6 +127,18 @@ describe('The hasOne type', () => {
             });
         });
 
+    });
+
+    it('Should work if we do not pass an id', () => {
+        const farm = new Farm(3);
+
+        farm.get('newFarmer').get('name');
+    });
+
+    it('Should work if we do not pass an id', () => {
+        const farm = new Farm(3);
+
+        farm.get('newFarmer2').get('name');
     });
 
 });
