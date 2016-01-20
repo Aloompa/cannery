@@ -198,4 +198,84 @@ describe('The hasMany type', () => {
 
         new Foo().get('bar');
     });
+
+    describe('When we get by id', () => {
+
+        class FooAdapter {
+            fetch () {
+                return Promise.resolve({
+                    id: 1,
+                    bar_ids: [50]
+                });
+            }
+
+        }
+
+        class BarAdapter {
+
+            findAllWithin () {
+                return Promise.resolve([{
+                    id: 50,
+                    name: 'Second Bar'
+                }]);
+            }
+
+            fetch () {
+                return Promise.resolve({
+                    id: 1,
+                    name: 'First Bar'
+                });
+            }
+
+        }
+
+        class Bar extends Model {
+
+            getAdapter () {
+                return new BarAdapter();
+            }
+
+            getFields () {
+                return {
+                    name: StringType,
+                    id: NumberType
+                };
+            }
+        }
+
+        class Foo extends Model {
+
+            getAdapter () {
+                return new FooAdapter();
+            }
+
+            getFields () {
+                const bar_ids = new ArrayType(NumberType);
+
+                return {
+                    bar_ids: bar_ids,
+                    bar: new HasMany(Bar, {
+                        map: bar_ids
+                    })
+                };
+            }
+        }
+
+        it('Should return a new instantiated model if it does not exist', () => {
+            assert.equal(new Foo().get('bar').getById(1).get('name'), null);
+        });
+
+        it('Should return an existing model if it already exists', (done) => {
+            const foo = new Foo();
+
+            foo.on('fetchSuccess', () => {
+                assert.equal(foo.get('bar').getById(50).get('name'), 'Second Bar');
+
+                done();
+            });
+
+            foo.get('bar').all();
+        });
+
+    });
 });

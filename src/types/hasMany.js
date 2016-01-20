@@ -54,6 +54,19 @@ class HasMany extends ArrayType {
         return super.all();
     }
 
+    getById (id) {
+        const filteredModels = this.all().filter((model) => {
+            return model.get('id') === id;
+        });
+
+        if (filteredModels.length === 1) {
+            return filteredModels[0];
+        }
+
+        const Model = this.getType();
+        return new Model(id, this.getOptions());
+    }
+
     instantiateItem (id) {
         const Model = this.getType();
         const model = new Model(id, this.getOptions());
