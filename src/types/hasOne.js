@@ -2,6 +2,7 @@
 
 const BaseType = require('./base');
 const addListenersUtil = require('../util/addListeners');
+const ModelConstructor = Symbol();
 const model = Symbol();
 const map = Symbol();
 const updateMapping = Symbol();
@@ -13,7 +14,7 @@ class HasOne extends BaseType {
         super(options);
 
         this[map] = options.map;
-        this[model] = new Model(this[getId](), options);
+        this[ModelConstructor] = Model;
     }
 
     [ getId ] () {
@@ -32,6 +33,10 @@ class HasOne extends BaseType {
     }
 
     setParent () {
+        if (!this[model]) {
+            return;
+        }
+
         this[model].getParent = () => {
             return this.parent;
         };
@@ -44,6 +49,11 @@ class HasOne extends BaseType {
     }
 
     get () {
+        if (!this[model]) {
+            this[model] = new this[ModelConstructor](this[map].get());
+            this.setParent();
+        }
+
         return this[model];
     }
 

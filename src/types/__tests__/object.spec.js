@@ -196,6 +196,14 @@ describe('The Object type', () => {
 
     });
 
+    it('Should throw an error if we get a key that does not exist', () => {
+        const field = new ObjectType({});
+
+        assert.throws(() => {
+            field.get('foobar');
+        }, Error);
+    });
+
     it('Should not apply data that does have a field', () => {
         const field = new ObjectType({});
 
