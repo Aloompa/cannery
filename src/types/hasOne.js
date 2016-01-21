@@ -22,7 +22,7 @@ class HasOne extends BaseType {
         if (!this[map]) {
             return;
         }
-        
+
         return (typeof this[map].get === 'function') ? this[map].get() : this[map];
     }
 
@@ -52,6 +52,11 @@ class HasOne extends BaseType {
     get () {
         if (!this[model]) {
             this[model] = new this[ModelConstructor](this[getId](), this.options);
+
+            this[model].on('change', () => {
+                this.emit('change');
+            });
+
             this.setParent();
         }
 
@@ -60,6 +65,10 @@ class HasOne extends BaseType {
 
     set () {
         throw new Error('You cannot set directly on a model');
+    }
+
+    toJSON () {
+        return null;
     }
 
 }

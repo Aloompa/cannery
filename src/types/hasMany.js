@@ -1,6 +1,7 @@
 'use strict';
 
 const ArrayType = require('./array');
+const eventTypes = require('../util/eventTypes');
 const isFetched = Symbol();
 const mapping = Symbol();
 const addById = Symbol();
@@ -64,12 +65,20 @@ class HasMany extends ArrayType {
         }
 
         const Model = this.getType();
-        return new Model(id, this.getOptions());
+        const model = new Model(id, this.getOptions());
+
+        return model;
     }
 
-    instantiateItem (id) {
+    instantiateItem (data) {
         const Model = this.getType();
-        const model = new Model(id, this.getOptions());
+        const model = new Model(data.id, this.getOptions());
+
+        eventTypes.forEach((eventType) => {
+            model.on(eventType, () => {
+                this.emit(eventType);
+            });
+        });
 
         model.getParent = () => {
             return this.parent;

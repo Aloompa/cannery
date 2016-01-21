@@ -42,6 +42,8 @@ class BaseType extends EventEmitter {
     }
 
     set (val) {
+        const originalValue = this[value];
+
         this[value] = val;
         this.emit('change');
         this.emit('userChange');
