@@ -108,10 +108,11 @@ class Model extends EventEmitter {
     refresh (options) {
         this.emit('fetching');
 
-        console.log(this.options, options, this.getName());
+        const modelOptions = Object.assign({}, this, options);
 
-        return this[doFetch](options).then((data) => {
+        return this[doFetch](modelOptions).then((data) => {
             this.apply(data);
+
             this.emit('fetchSuccess');
             return this;
 

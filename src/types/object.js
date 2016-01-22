@@ -40,6 +40,10 @@ class ObjectType extends BaseType {
     }
 
     apply (data) {
+        if (!data) {
+            return;
+        }
+        
         Object.keys(data).forEach((key) => {
             if (this[fields][key]) {
                 this[fields][key].apply(data[key]);

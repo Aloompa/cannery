@@ -66,11 +66,13 @@ class ArrayType extends BaseType {
 
     apply (data) {
         const array = data.map((item) => {
+
             const typedItem = this.instantiateItem(item);
 
             typedItem.apply(item);
 
             return typedItem;
+
         });
 
         this.set(array);
