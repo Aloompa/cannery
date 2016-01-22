@@ -24,8 +24,8 @@ class ArrayType extends BaseType {
     }
 
     add (item, index) {
-        const typedItem = this.instantiateItem(item);
         let array = this[getTyped]();
+        const typedItem = this.instantiateItem(item);
 
         typedItem.apply(item);
 
@@ -97,7 +97,7 @@ class ArrayType extends BaseType {
     }
 
     instantiateItem () {
-        return new this[Type](this[fields], this[typeOptions]);
+        return new this[Type](Object.assign({}, this[fields]), Object.assign({}, this[typeOptions]));
     }
 
     length () {
