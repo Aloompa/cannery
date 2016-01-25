@@ -141,4 +141,8 @@ describe('The hasOne type', () => {
         farm.get('newFarmer2').get('name');
     });
 
+    it('Should return null from toJSON', () => {
+        assert.ok(!new HasOne().toJSON());
+    });
+
 });

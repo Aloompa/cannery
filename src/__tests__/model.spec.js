@@ -369,9 +369,13 @@ describe('The Cannery Base Model', () => {
         });
 
         it('Should apply events down the tree', (done) => {
+            let complete = false;
             Artist.all().then((artists) => {
                 artists.on('change', () => {
-                    done();
+                    if (!complete) {
+                        complete = true;
+                        done();
+                    }
                 });
 
                 artists[0].set('name', 'Raphael');

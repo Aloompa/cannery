@@ -233,4 +233,10 @@ describe('The Object type', () => {
 
         assert.equal(field.getFields().name.constructor.name, 'BaseType');
     });
+
+    it ('Should do nothing if we apply with no data', () => {
+        const field = new ObjectType({});
+
+        field.apply();
+    });
 });

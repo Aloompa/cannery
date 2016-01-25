@@ -124,6 +124,7 @@ class Model extends EventEmitter {
 
     set (key, value) {
         this[fields].set(key, value);
+        this[isChanged] = true;
         return this;
     }
 
