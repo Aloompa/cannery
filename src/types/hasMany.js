@@ -2,7 +2,8 @@
 
 const ArrayType = require('./array');
 const eventTypes = require('../util/eventTypes');
-const isFetched = Symbol();
+const RequestCache = require('../util/RequestCache');
+
 const mapping = Symbol();
 const addById = Symbol();
 const fetchSuccess = Symbol();
@@ -16,6 +17,8 @@ class HasMany extends ArrayType {
 
         this.options = options;
         this[modelIds] = {};
+        this.requestCache = new RequestCache();
+        this.idMap = /* new ModelType.getFields().id.map ||*/ 'id';
 
         if (options.map) {
             this[mapping] = options.map;
@@ -41,20 +44,57 @@ class HasMany extends ArrayType {
     }
 
     all (options) {
-        if (!this[isFetched]) {
+        let cachedIds = this.requestCache.get(options);
+        debugger;
+        
+        if (!cachedIds) {
             const Model = this.getType();
-
-            this[isFetched] = true;
 
             new Model()
                 .getAdapter()
                 .findAllWithin(Model, this.parent, Object.assign({}, this.options, options))
-                .then(this.apply.bind(this))
+                .then(this.handleResponse.bind(this, options))
                 .then(this[fetchSuccess].bind(this))
                 .catch(this[fetchError].bind(this));
         }
 
-        return super.all();
+        return this.getModels(options);
+    }
+
+    getModels (options) {
+        let cachedIds = this.requestCache.get(options);
+
+        if (cachedIds) {
+            return cachedIds.map((id) => {
+                return this.getById(id);
+            });
+        }
+
+        return [];
+    }
+
+    handleResponse (options, data) {
+        const ModelClass = this.getType();
+
+        let existingIds = super.all().map((model) => {
+            return model.id;
+        });
+
+        let responseIds = data.map((modelData) => {
+            return modelData[ModelClass.idField];
+        });
+
+        let newModels = data.filter((modelData) => {
+            return existingIds.indexOf(modelData[ModelClass.idField]) === -1;
+        });
+
+        let existingModels = data.filter((modelData) => {
+            return existingIds.indexOf(modelData[ModelClass.idField]) !== -1;
+        });
+
+        this.apply(existingModels);
+        this.add(newModels);
+        this.requestCache.set(options, responseIds);
     }
 
     call (method, options) {
@@ -66,8 +106,8 @@ class HasMany extends ArrayType {
             return this[modelIds][id];
         }
 
-        const filteredModels = this.all().filter((model) => {
-            return model.get('id') === id;
+        const filteredModels = super.all().filter((model) => {
+            return model.id === id;
         });
 
         if (filteredModels.length === 1) {
@@ -111,7 +151,7 @@ class HasMany extends ArrayType {
     }
 
     refresh (options) {
-        this[isFetched] = false;
+        this.requestCache.clear(options);
 
         return this.all(options);
     }

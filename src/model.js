@@ -70,8 +70,16 @@ class Model extends EventEmitter {
     }
 
     apply (data) {
-        this[isFetched] = true;
+        const responseId = data[this.constructor.idField];
+
+        if (this.id && this.id !== responseId) {
+            throw new Error('Server responded with non-matching ID. Refusing to apply data');
+        } else {
+            this.id = responseId;
+        }
+
         this[fields].apply(data);
+        this[isFetched] = true;
         return this;
     }
 
@@ -158,5 +166,7 @@ class Model extends EventEmitter {
     }
 
 }
+
+Model.idField = 'id';
 
 module.exports = Model;
