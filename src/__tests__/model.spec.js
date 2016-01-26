@@ -563,5 +563,12 @@ describe('The Cannery Base Model', () => {
 
             child.set('name', 'Child4');
         });
+
+        it('Should not begin in a saving state', () => {
+            const root = new RootModel();
+
+            assert(!root.isSaving());
+        });
     });
+
 });

@@ -10,6 +10,8 @@ class BaseType extends EventEmitter {
 
         super();
 
+        this.lastModified = new Date().getTime();
+
         Object.assign(this, options);
 
         Object.keys(options.hooks || {}).forEach((key) => {
@@ -34,6 +36,7 @@ class BaseType extends EventEmitter {
 
     apply (val) {
         this[value] = val;
+        this.lastModified = new Date().getTime();
         return this;
     }
 
@@ -45,6 +48,7 @@ class BaseType extends EventEmitter {
         const originalValue = this[value];
 
         this[value] = val;
+        this.lastModified = new Date().getTime();
         this.emit('change');
         this.emit('userChange');
         return this;
