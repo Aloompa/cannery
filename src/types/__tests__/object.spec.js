@@ -239,4 +239,23 @@ describe('The Object type', () => {
 
         field.apply();
     });
+
+    it('Should have a number representing the last date modified', () => {
+        const field = new ObjectType({
+            name: BaseType
+        });
+
+        assert.equal(typeof field.getLastModified('name'), 'number');
+    });
+
+    it('Should require a key for last date modified', () => {
+        const field = new ObjectType({
+            name: BaseType
+        });
+
+        assert.throws(() => {
+            field.getLastModified();
+        }, Error);
+
+    });
 });

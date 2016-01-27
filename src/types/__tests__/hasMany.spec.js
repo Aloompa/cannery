@@ -296,5 +296,5 @@ describe('The hasMany type', () => {
 
         assert.equal(dog.call('bark', '!!!'), 'BARK!!!');
     });
-    
+
 });

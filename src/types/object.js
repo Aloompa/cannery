@@ -91,6 +91,8 @@ class ObjectType extends BaseType {
         if (key) {
             return this[fields][key].lastModified;
         }
+
+        throw new Error('getLastModified requires a key');
     }
 
     set (key, value) {
