@@ -369,9 +369,13 @@ describe('The Cannery Base Model', () => {
         });
 
         it('Should apply events down the tree', (done) => {
+            let complete = false;
             Artist.all().then((artists) => {
                 artists.on('change', () => {
-                    done();
+                    if (!complete) {
+                        complete = true;
+                        done();
+                    }
                 });
 
                 artists[0].set('name', 'Raphael');
@@ -559,5 +563,12 @@ describe('The Cannery Base Model', () => {
 
             child.set('name', 'Child4');
         });
+
+        it('Should not begin in a saving state', () => {
+            const root = new RootModel();
+
+            assert(!root.isSaving());
+        });
     });
+
 });

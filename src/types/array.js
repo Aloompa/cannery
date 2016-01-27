@@ -13,7 +13,7 @@ class ArrayType extends BaseType {
     constructor (ArrayType, arrayFields, options) {
         super(options);
 
-        this[Type] = ArrayType || BaseType;
+        this.Type = ArrayType || BaseType;
         this[fields] = arrayFields;
         this[typeOptions] = options;
     }
@@ -75,7 +75,7 @@ class ArrayType extends BaseType {
 
         });
 
-        this.set(array);
+        super.apply(array);
 
         return this;
     }
@@ -93,11 +93,11 @@ class ArrayType extends BaseType {
     }
 
     getType () {
-        return this[Type];
+        return this.Type;
     }
 
     instantiateItem () {
-        return new this[Type](Object.assign({}, this[fields]), Object.assign({}, this[typeOptions]));
+        return new this.Type(Object.assign({}, this[fields]), Object.assign({}, this[typeOptions]));
     }
 
     length () {

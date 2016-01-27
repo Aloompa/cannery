@@ -213,6 +213,12 @@ describe('The hasMany type', () => {
 
         class BarAdapter {
 
+            fetchWithin () {
+                return Promise.resolve({
+                    id: 45
+                });
+            }
+
             findAllWithin () {
                 return Promise.resolve([{
                     id: 50,
@@ -278,4 +284,17 @@ describe('The hasMany type', () => {
         });
 
     });
+
+    it('Should be possible to call static methods from the hasMany model', () => {
+        class Dog {
+            static bark (options, loudness) {
+                return `BARK${loudness}`;
+            }
+        }
+
+        const dog = new HasMany(Dog);
+
+        assert.equal(dog.call('bark', '!!!'), 'BARK!!!');
+    });
+
 });

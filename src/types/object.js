@@ -43,7 +43,7 @@ class ObjectType extends BaseType {
         if (!data) {
             return;
         }
-        
+
         Object.keys(data).forEach((key) => {
             if (this[fields][key]) {
                 this[fields][key].apply(data[key]);
@@ -85,6 +85,14 @@ class ObjectType extends BaseType {
 
     getFields () {
         return this[fields];
+    }
+
+    getLastModified (key) {
+        if (key) {
+            return this[fields][key].lastModified;
+        }
+
+        throw new Error('getLastModified requires a key');
     }
 
     set (key, value) {

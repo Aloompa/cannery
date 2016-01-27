@@ -7,6 +7,7 @@ const ObjectType = require('./types/object');
 const fields = Symbol();
 const isFetched = Symbol();
 const isChanged = Symbol();
+const isSaving = Symbol();
 const doFetch = Symbol();
 
 class Model extends EventEmitter {
@@ -25,6 +26,20 @@ class Model extends EventEmitter {
 
         this.on('userChange', () => {
             this[isChanged] = true;
+        });
+
+        this.on('saving', () => {
+            this[isSaving] = true;
+            this.emit('change');
+        });
+
+        this.on('saveSuccess', () => {
+            this[isChanged] = false;
+            this[isSaving] = false;
+        });
+
+        this.on('saveError', () => {
+            this[isSaving] = false;
         });
     }
 
@@ -113,6 +128,10 @@ class Model extends EventEmitter {
         return this[isChanged];
     }
 
+    isSaving () {
+        return this[isSaving];
+    }
+
     refresh (options) {
         this.emit('fetching');
 
@@ -126,32 +145,41 @@ class Model extends EventEmitter {
 
         }).catch((e) => {
             this.emit('fetchError', e);
-            return new Error(e);
+            throw new Error(e.message);
         });
     }
 
     set (key, value) {
         this[fields].set(key, value);
+        this[isChanged] = true;
         return this;
     }
 
     save (options) {
         const requestType = (this.id) ? 'update' : 'create';
 
+        this.emit('saving');
+
         try {
             this.validate();
         } catch (e) {
+            this.emit('saveError', e);
             return Promise.reject(e);
         }
 
         return this.getAdapter()[requestType](this, options).then((data) => {
+
             if (!this.id) {
                 this.id = data.id;
             }
 
-            this[isChanged] = false;
+            this.emit('saveSuccess');
 
             return this.apply(data);
+
+        }).catch((e) => {
+            this.emit('saveError', e);
+            return Promise.reject(e);
         });
 
     }

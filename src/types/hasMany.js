@@ -46,7 +46,7 @@ class HasMany extends ArrayType {
     all (options) {
         let cachedIds = this.requestCache.get(options);
         debugger;
-        
+
         if (!cachedIds) {
             const Model = this.getType();
 
@@ -106,28 +106,11 @@ class HasMany extends ArrayType {
             return this[modelIds][id];
         }
 
-        const filteredModels = super.all().filter((model) => {
-            return model.id === id;
+        this[modelIds][id] = this.instantiateItem({
+            id
         });
 
-        if (filteredModels.length === 1) {
-            return filteredModels[0];
-        }
-
-        const Model = this.getType();
-        const model = new Model(id);
-
-        model.getPath = () => {
-            return `${this.parent.getName()}/${this.parent.id}/${model.getName()}/${id}`;
-        };
-
-        model.getParent = () => {
-            return this.parent;
-        };
-
-        this[modelIds][id] = model;
-
-        return model;
+        return this[modelIds][id];
     }
 
     instantiateItem (data) {
