@@ -18,9 +18,9 @@ class RequestCache {
         return this[cache][key];
     }
 
-    set (options, ids) {
+    set (options, data) {
         const key = this.getKey(options);
-        this[cache][key] = ids;
+        this[cache][key] = data;
     }
 
     clear (options) {

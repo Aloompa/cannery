@@ -501,12 +501,11 @@ describe('The Cannery Base Model', () => {
 
             const parent = new ParentModel(2);
 
-            parent.get('children').add({
-                id: 1,
-                name: 'Child1'
-            });
+            parent.get('children').add(new ChildModel(1).apply({
+                name: 'Child'
+            }));
 
-            const child = parent.get('children').get(0);
+            const child = parent.get('children').get(1);
 
             let isDone = false;
 

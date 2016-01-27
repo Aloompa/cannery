@@ -1,148 +1,187 @@
 'use strict';
+const EventEmitter = require('cannery-event-emitter');
+const RequestCache = require('../util/requestCache');
 
-const ArrayType = require('./array');
-const eventTypes = require('../util/eventTypes');
-const RequestCache = require('../util/RequestCache');
+const models = Symbol();
+const map = Symbol();
+const Type = Symbol();
+const indexOfId = Symbol();
+const requestCache = Symbol();
+const getMultiple = Symbol();
+const handleResponse = Symbol();
+const setMap = Symbol();
+const addToMap = Symbol();
 
-const mapping = Symbol();
-const addById = Symbol();
-const fetchSuccess = Symbol();
-const fetchError = Symbol();
-const modelIds = Symbol();
+class HasMany extends EventEmitter{
+    constructor (ModelClass, options) {
+        super();
+        options = options || {};
 
-class HasMany extends ArrayType {
-
-    constructor (ModelType, options = {}) {
-        super(ModelType);
-
-        this.options = options;
-        this[modelIds] = {};
-        this.requestCache = new RequestCache();
-        this.idMap = /* new ModelType.getFields().id.map ||*/ 'id';
-
-        if (options.map) {
-            this[mapping] = options.map;
-
-            this[mapping].toJSON = () => {
-                return this.map((model) => {
-                    return model.get('id');
-                });
-            };
-        }
+        this[map] = options.map;
+        this[Type] = ModelClass;
+        this[models] = [];
+        this[requestCache] = new RequestCache();
     }
 
-    [ fetchSuccess ] (data) {
-        this.emit('fetchSuccess');
+    apply (responseData) {
+        responseData.forEach((modelData) => {
+            let modelId = modelData[this[Type].idField];
+            let existingModel = this.get(modelId);
 
-        return data;
-    }
-
-    [ fetchError ] (err) {
-        this.emit('fetchError', err);
-
-        return err;
+            if (!existingModel) {
+                let newModel = new this[Type](modelId).apply(modelData);
+                this[models].push(mewModel);
+            } else {
+                existingModel.apply(modelData);
+            }
+        });
     }
 
     all (options) {
-        let cachedIds = this.requestCache.get(options);
-        debugger;
+        let cacheIds = this[requestCache].get(options);
 
-        if (!cachedIds) {
-            const Model = this.getType();
+        if (cacheIds) {
+            return this[getMultiple](cacheIds);
+        } else {
+            this.emit('fetching');
+            this.makeRequest(options)
+                .then(this[handleResponse].bind(this, options))
+                .then(this.emit.bind(this, 'fetchSuccess'))
+                .catch(this.emit.bind(this, 'fetchError'));
 
-            new Model()
-                .getAdapter()
-                .findAllWithin(Model, this.parent, Object.assign({}, this.options, options))
-                .then(this.handleResponse.bind(this, options))
-                .then(this[fetchSuccess].bind(this))
-                .catch(this[fetchError].bind(this));
+            return [];
+        }
+    }
+
+    makeRequest (options) {
+        return new this[Type]()
+            .getAdapter()
+            .findAllWithin(this[Type], this.parent, options);
+    }
+
+    get (id) {
+        let index = this[indexOfId](id);
+        return this[models][index];
+    }
+
+    removeAll () {
+        this[setMap]([]);
+    }
+
+    remove (id) {
+        let newIds = this.map.all().filter((modelId) => {
+            return modelId !== id;
+        });
+
+        this[setMap](newIds);
+    }
+
+    move (id, delta) {
+        let oldIds = this.map.all()
+        let oldIndex = oldIds.indexOf(id);
+        let newIndex = oldIndex + delta;
+
+        if (newIndex < 0) {
+            newIndex = 0;
+        } else if (newIndex >= oldIds.length) {
+            newIndex = oldIds.length - 1;
         }
 
-        return this.getModels(options);
+        this.map.move(oldIndex, newIndex);
+
+        this.emit('change');
+        this.emit('userChange');
     }
 
-    getModels (options) {
-        let cachedIds = this.requestCache.get(options);
+    add (model, index) {
+        this[models].push(model);
 
-        if (cachedIds) {
-            return cachedIds.map((id) => {
-                return this.getById(id);
-            });
+        if (model.id) {
+            this[addToMap](model, index);
+        } else {
+            model.on('saveSuccess', this[addToMap].bind(this, model, index));
         }
 
-        return [];
-    }
-
-    handleResponse (options, data) {
-        const ModelClass = this.getType();
-
-        let existingIds = super.all().map((model) => {
-            return model.id;
-        });
-
-        let responseIds = data.map((modelData) => {
-            return modelData[ModelClass.idField];
-        });
-
-        let newModels = data.filter((modelData) => {
-            return existingIds.indexOf(modelData[ModelClass.idField]) === -1;
-        });
-
-        let existingModels = data.filter((modelData) => {
-            return existingIds.indexOf(modelData[ModelClass.idField]) !== -1;
-        });
-
-        this.apply(existingModels);
-        this.add(newModels);
-        this.requestCache.set(options, responseIds);
-    }
-
-    call (method, options) {
-        return this.getType()[method](this.options, options);
-    }
-
-    getById (id) {
-        if (this[modelIds][id]) {
-            return this[modelIds][id];
-        }
-
-        this[modelIds][id] = this.instantiateItem({
-            id
-        });
-
-        return this[modelIds][id];
-    }
-
-    instantiateItem (data) {
-
-        const Model = this.getType();
-        const model = new Model(data.id, this.getOptions());
-
-        eventTypes.forEach((eventType) => {
-            model.on(eventType, () => {
-                this.emit(eventType);
-            });
-        });
-
-        model.getParent = () => {
-            return this.parent;
-        };
-
-        this[modelIds][data.id] = model;
-
-        return model;
-    }
-
-    refresh (options) {
-        this.requestCache.clear(options);
-
-        return this.all(options);
+        this.emit('change');
+        this.emit('userChange');
     }
 
     toJSON () {
         return null;
     }
 
+    set () {
+        throw new Error('Set cannot be called directly on HasMany.')
+    }
+
+    forEach (fn, options) {
+        this.all(options).forEach(fn);
+    }
+
+    map (fn, options) {
+        this.all(options).map(fn);
+    }
+
+    getType () {
+        return this[Type];
+    }
+
+    refresh (options) {
+        this[requestCache].clear(options);
+        return this.all(options);
+    }
+
+    saveChildren (options, single) {
+        let promises = [];
+        this[models].forEach((model) => {
+            promises.push(model.save(options, single));
+        });
+
+        return promises;
+    }
+
+    [ indexOfId ] (id) {
+        for (let i = 0; i < this[models].length; i++) {
+            if (this[models].id === id) {
+                return i;
+            }
+        }
+
+        return null;
+    }
+
+    [ getMultiple ] (ids) {
+        return ids.map((id) => {
+            return this.get(id);
+        });
+    }
+
+    [ handleResponse ] (options, responseData) {
+        let responseIds = responseData.map((modelData) => {
+            return modelData[this[Type].fieldId];
+        });
+
+        this[requestCache].set(options, responseIds);
+
+        this.apply(responseData);
+    }
+
+    [ setMap ] (arr) {
+        if (!this[map]) {
+            throw new Error('This operation is not supported because the HasMany is not mapped.');
+        }
+
+        this[map].set(arr);
+
+        this.emit('change');
+        this.emit('userChange');
+    }
+
+    [ addToMap ] (model, index) {
+        if (model.id) {
+            this[map].add(model.id, index);
+        }
+    }
 }
 
 module.exports = HasMany;

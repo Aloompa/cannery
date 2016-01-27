@@ -1,6 +1,7 @@
 'use strict';
 
 const BaseType = require('./base');
+const HasMany = require('./hasMany');
 const parseFields = require('../util/parseFields');
 const addListenersUtil = require('../util/addListeners');
 const validate = require('valid-point');
@@ -77,6 +78,11 @@ class ObjectType extends BaseType {
 
         // Arrays
         if (field instanceof ArrayType) {
+            return field;
+        }
+
+        // HasMany's
+        if (field instanceof HasMany) {
             return field;
         }
 

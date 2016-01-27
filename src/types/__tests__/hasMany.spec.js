@@ -80,14 +80,18 @@ describe('The hasMany type', () => {
             assert.deepEqual(farm.get('cows').all(), []);
         });
 
+        //TODO
         it('Should correctly type a newly added model', () => {
             const farm = new Farm();
+            let betsy = new Cow(22);
 
-            farm.get('cows').add({
+            betsy.apply({
                 name: 'Betsy'
             });
 
-            assert.equal(farm.get('cows').get(0).get('name'), 'Betsy');
+            farm.get('cows').add(betsy);
+
+            assert.equal(farm.get('cows').get(22).get('name'), 'Betsy');
         });
 
         it('Should update the mapped field to match the hasMany field', () => {
@@ -112,7 +116,7 @@ describe('The hasMany type', () => {
 
             assert.ok(!farm.get('cows').toJSON());
         });
-
+        //TODO
         it('Should set the parent of nested models to the root model', () => {
             const farm = new Farm(1);
 
@@ -198,7 +202,7 @@ describe('The hasMany type', () => {
 
         new Foo().get('bar');
     });
-
+    //TODO
     describe('When we get by id', () => {
 
         class FooAdapter {
