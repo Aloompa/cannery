@@ -7,6 +7,7 @@ const ObjectType = require('../types/object');
 const NumberType = require('../types/number');
 const HasMany = require('../types/hasMany');
 const HasOne = require('../types/hasOne');
+const ArrayType = require('../types/array');
 
 class MockAdapter {
 
@@ -239,7 +240,9 @@ describe('The Cannery Base Model', () => {
                 return new MockErrorAdapter();
             };
 
-            artist.save().catch((message) => {
+            artist.set('name', 'Tyson');
+
+            artist.save(null, true).catch((message) => {
                 assert.equal(message, 'Error Message');
                 done();
             });
@@ -252,7 +255,9 @@ describe('The Cannery Base Model', () => {
                 return new MockErrorAdapter();
             };
 
-            artist.save().catch((message) => {
+            artist.set('name', 'Tyson');
+
+            artist.save(null, true).catch((message) => {
                 assert.equal(message, 'Error Message');
                 done();
             });
@@ -275,6 +280,8 @@ describe('The Cannery Base Model', () => {
             }
 
             const fooClass = new FooClass();
+
+            fooClass.set('name', null);
 
             fooClass.save().catch((e) => {
                 done();
@@ -476,8 +483,12 @@ describe('The Cannery Base Model', () => {
             }
 
             getFields () {
+                const childrenIds = new ArrayType(NumberType);
+
                 return {
-                    children: new HasMany(ChildModel)
+                    children: new HasMany(ChildModel, {
+                        map: childrenIds
+                    })
                 };
             }
 
@@ -500,12 +511,14 @@ describe('The Cannery Base Model', () => {
         it('Should trigger change events from hasMany models', (done) => {
 
             const parent = new ParentModel(2);
+            const child = new ChildModel(1);
 
-            parent.get('children').add(new ChildModel(1).apply({
+            child.apply({
+                id: 1,
                 name: 'Child'
-            }));
+            });
 
-            const child = parent.get('children').get(1);
+            parent.get('children').add(child);
 
             let isDone = false;
 
@@ -522,12 +535,12 @@ describe('The Cannery Base Model', () => {
         it('Should trigger change event from hasMany models to hasOne models to the parent', (done) => {
             const root = new RootModel();
 
-            root.get('parent').get('children').add({
+            root.get('parent').get('children').add(new ChildModel(3).apply({
                 id: 3,
                 name: 'Child3'
-            });
+            }));
 
-            const child = root.get('parent').get('children').get(0);
+            const child = root.get('parent').get('children').get(3);
 
             let isDone = false;
 
@@ -544,12 +557,12 @@ describe('The Cannery Base Model', () => {
         it('Should trigger userChange event from hasMany models to hasOne models to the parent', (done) => {
             const root = new RootModel();
 
-            root.get('parent').get('children').add({
+            root.get('parent').get('children').add(new ChildModel(3).apply({
                 id: 3,
                 name: 'Child3'
-            });
+            }));
 
-            const child = root.get('parent').get('children').get(0);
+            const child = root.get('parent').get('children').get(3);
 
             let isDone = false;
 

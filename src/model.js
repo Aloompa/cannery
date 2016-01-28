@@ -184,9 +184,10 @@ class Model extends EventEmitter {
     }
 
     [ saveThis ] (options) {
-        if (! this.isChanged()) {
+        if (!this.isChanged()) {
             return Promise.resolve();
         }
+
         const requestType = (this.id) ? 'update' : 'create';
 
         this.emit('saving');

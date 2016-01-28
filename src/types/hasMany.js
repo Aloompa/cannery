@@ -1,16 +1,17 @@
 'use strict';
 const EventEmitter = require('cannery-event-emitter');
 const RequestCache = require('../util/requestCache');
+const addListenersUtil = require('../util/addListeners');
 
 const models = Symbol();
 const map = Symbol();
 const Type = Symbol();
-const indexOfId = Symbol();
 const requestCache = Symbol();
 const getMultiple = Symbol();
 const handleResponse = Symbol();
 const setMap = Symbol();
 const addToMap = Symbol();
+const addModelListeners = Symbol();
 
 class HasMany extends EventEmitter{
     constructor (ModelClass, options) {
@@ -19,7 +20,7 @@ class HasMany extends EventEmitter{
 
         this[map] = options.map;
         this[Type] = ModelClass;
-        this[models] = [];
+        this[models] = {};
         this[requestCache] = new RequestCache();
     }
 
@@ -30,11 +31,15 @@ class HasMany extends EventEmitter{
 
             if (!existingModel) {
                 let newModel = new this[Type](modelId).apply(modelData);
-                this[models].push(mewModel);
+                this[models][modelId] = newModel;
+                this[addModelListeners](newModel);
+
             } else {
                 existingModel.apply(modelData);
             }
         });
+
+        return this;
     }
 
     all (options) {
@@ -42,8 +47,10 @@ class HasMany extends EventEmitter{
 
         if (cacheIds) {
             return this[getMultiple](cacheIds);
+
         } else {
             this.emit('fetching');
+
             this.makeRequest(options)
                 .then(this[handleResponse].bind(this, options))
                 .then(this.emit.bind(this, 'fetchSuccess'))
@@ -60,12 +67,18 @@ class HasMany extends EventEmitter{
     }
 
     get (id) {
-        let index = this[indexOfId](id);
-        return this[models][index];
+        if (!this[models][id]) {
+            this[models][id] = new this[Type](id);
+            this[addModelListeners](this[models][id]);
+        }
+
+        return this[models][id];
     }
 
     removeAll () {
         this[setMap]([]);
+
+        return this;
     }
 
     remove (id) {
@@ -74,10 +87,12 @@ class HasMany extends EventEmitter{
         });
 
         this[setMap](newIds);
+
+        return this;
     }
 
     move (id, delta) {
-        let oldIds = this.map.all()
+        let oldIds = this.map.all();
         let oldIndex = oldIds.indexOf(id);
         let newIndex = oldIndex + delta;
 
@@ -91,10 +106,16 @@ class HasMany extends EventEmitter{
 
         this.emit('change');
         this.emit('userChange');
+
+        return this;
     }
 
     add (model, index) {
-        this[models].push(model);
+        model.getParent = () => {
+            return this.parent;
+        };
+        
+        this[models][model.id] = model;
 
         if (model.id) {
             this[addToMap](model, index);
@@ -104,6 +125,12 @@ class HasMany extends EventEmitter{
 
         this.emit('change');
         this.emit('userChange');
+
+        return this;
+    }
+
+    call (method, options) {
+        return this.getType()[method](this.options, options);
     }
 
     toJSON () {
@@ -111,15 +138,15 @@ class HasMany extends EventEmitter{
     }
 
     set () {
-        throw new Error('Set cannot be called directly on HasMany.')
+        throw new Error('Set cannot be called directly on HasMany.');
     }
 
     forEach (fn, options) {
-        this.all(options).forEach(fn);
+        return this.all(options).forEach(fn);
     }
 
     map (fn, options) {
-        this.all(options).map(fn);
+        return this.all(options).map(fn);
     }
 
     getType () {
@@ -133,21 +160,19 @@ class HasMany extends EventEmitter{
 
     saveChildren (options, single) {
         let promises = [];
-        this[models].forEach((model) => {
-            promises.push(model.save(options, single));
+        Object.keys(this[models]).forEach((id) => {
+            promises.push(this[models][id].save(options, single));
         });
 
         return promises;
     }
 
-    [ indexOfId ] (id) {
-        for (let i = 0; i < this[models].length; i++) {
-            if (this[models].id === id) {
-                return i;
-            }
-        }
+    [ addModelListeners ] (model) {
+        addListenersUtil(this, model);
 
-        return null;
+        model.getParent = () => {
+            return this.parent;
+        };
     }
 
     [ getMultiple ] (ids) {
@@ -178,7 +203,7 @@ class HasMany extends EventEmitter{
     }
 
     [ addToMap ] (model, index) {
-        if (model.id) {
+        if (this[map] && model.id) {
             this[map].add(model.id, index);
         }
     }

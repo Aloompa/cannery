@@ -80,12 +80,12 @@ describe('The hasMany type', () => {
             assert.deepEqual(farm.get('cows').all(), []);
         });
 
-        //TODO
         it('Should correctly type a newly added model', () => {
             const farm = new Farm();
             let betsy = new Cow(22);
 
             betsy.apply({
+                id: 22,
                 name: 'Betsy'
             });
 
@@ -116,14 +116,15 @@ describe('The hasMany type', () => {
 
             assert.ok(!farm.get('cows').toJSON());
         });
-        //TODO
+
         it('Should set the parent of nested models to the root model', () => {
             const farm = new Farm(1);
-
-            const parent = farm.get('cows').add({
+            const betsy = new Cow(22).apply({
                 name: 'Betsy',
                 id: 22
-            }).get(0).getParent();
+            });
+
+            const parent = farm.get('cows').add(betsy).get(22).getParent();
 
             assert.ok(parent instanceof Farm);
         });
@@ -132,7 +133,7 @@ describe('The hasMany type', () => {
             const farm = new Farm(1);
 
             farm.get('cows').on('fetchSuccess', () => {
-                assert.equal(farm.get('cows').get(1).get('name'), 'Bluebell');
+                assert.equal(farm.get('cows').get(2).get('name'), 'Bluebell');
                 done();
             });
 
@@ -146,7 +147,7 @@ describe('The hasMany type', () => {
             farm.get('cows').on('fetchSuccess', () => {
 
                 if (!calledCount) {
-                    assert.equal(farm.get('cows').get(0).get('name'), 'Sally');
+                    assert.equal(farm.get('cows').get(1).get('name'), 'Sally');
 
                     CowAdapter.prototype.findAllWithin = () => {
                         return Promise.resolve([{
@@ -158,7 +159,7 @@ describe('The hasMany type', () => {
                     farm.get('cows').refresh();
 
                 } else {
-                    assert.equal(farm.get('cows').get(0).get('name'), 'Bluebell');
+                    assert.equal(farm.get('cows').get(1).get('name'), 'Bluebell');
                     done();
                 }
 
@@ -202,7 +203,7 @@ describe('The hasMany type', () => {
 
         new Foo().get('bar');
     });
-    //TODO
+
     describe('When we get by id', () => {
 
         class FooAdapter {
@@ -272,14 +273,14 @@ describe('The hasMany type', () => {
         }
 
         it('Should return a new instantiated model if it does not exist', () => {
-            assert.equal(new Foo().get('bar').getById(1).get('name'), null);
+            assert.equal(new Foo().get('bar').get(1).get('name'), null);
         });
 
         it('Should return an existing model if it already exists', (done) => {
             const foo = new Foo();
 
             foo.on('fetchSuccess', () => {
-                assert.equal(foo.get('bar').getById(50).get('name'), 'Second Bar');
+                assert.equal(foo.get('bar').get(50).get('name'), 'Second Bar');
 
                 done();
             });
