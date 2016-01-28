@@ -89,7 +89,7 @@ class Model extends EventEmitter {
     apply (data) {
         const responseId = data[this.constructor.fieldId];
 
-        if (responseId && this.id && this.id !== responseId) {
+        if (responseId && this.id && String(this.id) !== String(responseId)) {
             throw new Error('Server responded with non-matching ID. Refusing to apply data');
         } else {
             this.id = responseId;
@@ -140,6 +140,7 @@ class Model extends EventEmitter {
         const modelOptions = Object.assign({}, this, options);
 
         return this[doFetch](modelOptions).then((data) => {
+
             this.apply(data);
 
             this.emit('fetchSuccess');
