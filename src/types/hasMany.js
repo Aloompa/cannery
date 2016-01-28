@@ -8,7 +8,6 @@ const map = Symbol();
 const Type = Symbol();
 const requestCache = Symbol();
 const getMultiple = Symbol();
-const handleResponse = Symbol();
 const setMap = Symbol();
 const addToMap = Symbol();
 const addModelListeners = Symbol();
@@ -39,8 +38,6 @@ class HasMany extends EventEmitter{
 
                 newModel.apply(modelData);
 
-                console.log('newModel', modelId, newModel);
-
                 this[models][modelId] = newModel;
                 this[addModelListeners](newModel);
 
@@ -60,10 +57,11 @@ class HasMany extends EventEmitter{
 
         } else {
             this.emit('fetching');
+            this[requestCache].set(options, []);
 
             this.makeRequest(options)
                 .then((response) => {
-                    return this[handleResponse](options, response);
+                    return this.handleResponse(options, response);
                 })
                 .catch(this.emit.bind(this, 'fetchError'));
 
@@ -178,19 +176,7 @@ class HasMany extends EventEmitter{
         return promises;
     }
 
-    [ addModelListeners ] (model) {
-        addListenersUtil(this, model);
-
-        model.getParent = () => {
-            return this.parent;
-        };
-    }
-
-    [ getMultiple ] (ids) {
-        return ids.map(this.get.bind(this));
-    }
-
-    [ handleResponse ] (options, responseData) {
+    handleResponse (options, responseData) {
         const responseIds = responseData.map((modelData) => {
             const id = modelData[this.getType().fieldId];
 
@@ -208,6 +194,18 @@ class HasMany extends EventEmitter{
         this.emit('fetchSuccess');
 
         return response;
+    }
+
+    [ addModelListeners ] (model) {
+        addListenersUtil(this, model);
+
+        model.getParent = () => {
+            return this.parent;
+        };
+    }
+
+    [ getMultiple ] (ids) {
+        return ids.map(this.get.bind(this));
     }
 
     [ setMap ] (arr) {

@@ -51,7 +51,7 @@ class BaseType extends EventEmitter {
     }
 
     isValueChanged (val) {
-        return this[value] === val;
+        return this[value] !== val;
     }
 
     set (val) {
