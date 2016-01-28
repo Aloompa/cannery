@@ -193,7 +193,7 @@ class HasMany extends EventEmitter{
 
         this.emit('fetchSuccess');
 
-        return response;
+        return responseData;
     }
 
     [ addModelListeners ] (model) {
