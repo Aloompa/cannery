@@ -20,7 +20,7 @@ class RequestCache {
 
     set (options, data) {
         const key = this.getKey(options);
-        this[cache][key] = data;
+        this[cache][key] = data || [];
     }
 
     clear (options) {

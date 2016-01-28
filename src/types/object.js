@@ -51,8 +51,6 @@ class ObjectType extends BaseType {
             }
         });
 
-        this.emit('change');
-
         return this;
     }
 

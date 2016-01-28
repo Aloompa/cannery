@@ -26,11 +26,21 @@ class HasMany extends EventEmitter{
 
     apply (responseData) {
         responseData.forEach((modelData) => {
-            let modelId = modelData[this[Type].idField];
-            let existingModel = this.get(modelId);
+            let modelId = modelData[this[Type].fieldId];
+
+            let existingModel = this[models][modelId];
 
             if (!existingModel) {
-                let newModel = new this[Type](modelId).apply(modelData);
+                let newModel = new this[Type](modelId);
+
+                newModel.getParent = () => {
+                    return this.parent;
+                };
+
+                newModel.apply(modelData);
+
+                console.log('newModel', modelId, newModel);
+
                 this[models][modelId] = newModel;
                 this[addModelListeners](newModel);
 
@@ -52,8 +62,9 @@ class HasMany extends EventEmitter{
             this.emit('fetching');
 
             this.makeRequest(options)
-                .then(this[handleResponse].bind(this, options))
-                .then(this.emit.bind(this, 'fetchSuccess'))
+                .then((response) => {
+                    return this[handleResponse](options, response);
+                })
                 .catch(this.emit.bind(this, 'fetchError'));
 
             return [];
@@ -114,7 +125,7 @@ class HasMany extends EventEmitter{
         model.getParent = () => {
             return this.parent;
         };
-        
+
         this[models][model.id] = model;
 
         if (model.id) {
@@ -176,19 +187,27 @@ class HasMany extends EventEmitter{
     }
 
     [ getMultiple ] (ids) {
-        return ids.map((id) => {
-            return this.get(id);
-        });
+        return ids.map(this.get.bind(this));
     }
 
     [ handleResponse ] (options, responseData) {
-        let responseIds = responseData.map((modelData) => {
-            return modelData[this[Type].fieldId];
+        const responseIds = responseData.map((modelData) => {
+            const id = modelData[this.getType().fieldId];
+
+            if (!id) {
+                throw new Error(`No response Id available for ${this.getType().getName()}`);
+            }
+
+            return id;
         });
+
+        this.apply(responseData);
 
         this[requestCache].set(options, responseIds);
 
-        this.apply(responseData);
+        this.emit('fetchSuccess');
+
+        return response;
     }
 
     [ setMap ] (arr) {

@@ -87,7 +87,7 @@ class Model extends EventEmitter {
     }
 
     apply (data) {
-        const responseId = data[this.constructor.idField];
+        const responseId = data[this.constructor.fieldId];
 
         if (responseId && this.id && this.id !== responseId) {
             throw new Error('Server responded with non-matching ID. Refusing to apply data');
@@ -227,6 +227,6 @@ class Model extends EventEmitter {
     }
 }
 
-Model.idField = 'id';
+Model.fieldId = 'id';
 
 module.exports = Model;

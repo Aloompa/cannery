@@ -3,6 +3,7 @@
 const BaseType = require('./base');
 const ObjectType = require('./object');
 const addListenersUtil = require('../util/addListeners');
+const isEqual = require('lodash.isequal');
 const fields = Symbol();
 const Type = Symbol();
 const getTyped = Symbol();
@@ -98,6 +99,10 @@ class ArrayType extends BaseType {
 
     instantiateItem () {
         return new this.Type(Object.assign({}, this[fields]), Object.assign({}, this[typeOptions]));
+    }
+
+    isValueChanged (val) {
+        return !isEqual(this.get(), val);
     }
 
     length () {

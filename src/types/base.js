@@ -35,8 +35,14 @@ class BaseType extends EventEmitter {
     }
 
     apply (val) {
+        if (!this.isValueChanged(val)) {
+            return this;
+        }
+
         this[value] = val;
         this.lastModified = new Date().getTime();
+        this.emit('change');
+
         return this;
     }
 
@@ -44,8 +50,14 @@ class BaseType extends EventEmitter {
         return this[value];
     }
 
+    isValueChanged (val) {
+        return this[value] === val;
+    }
+
     set (val) {
-        const originalValue = this[value];
+        if (!this.isValueChanged(val)) {
+            return this;
+        }
 
         this[value] = val;
         this.lastModified = new Date().getTime();
