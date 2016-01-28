@@ -288,6 +288,97 @@ describe('The Cannery Base Model', () => {
             });
 
         });
+
+        it('Should immediatly resolve if the model does not need to be saved', (done) => {
+            class FooClass extends Model {
+
+                getFields () {
+                    return {};
+                }
+
+            }
+
+            const fooClass = new FooClass();
+
+            fooClass.on('saving', () => {
+                throw new Error('It should not over-save');
+            });
+
+            fooClass.save().then(() => {
+                done();
+            });
+        });
+
+        it('Should save hasMany children before the root model', (done) => {
+
+            class BarClass extends Model {
+
+                getFields () {
+                    return {
+                        id: NumberType,
+                        name: StringType
+                    };
+                }
+
+            }
+
+            class FooClass extends Model {
+
+                getFields () {
+                    return {
+                        bars: new HasMany(BarClass)
+                    };
+                }
+
+            }
+
+            const foo = new FooClass();
+
+            foo.get('bars').add(new BarClass({
+                id: 1,
+                name: 'bar1'
+            }));
+
+            foo.get('bars').get(1).save = () => {
+                done();
+            };
+
+            foo.save();
+
+        });
+
+        it('Should save hasOne children before the root model', (done) => {
+
+            class BarClass extends Model {
+
+                getFields () {
+                    return {
+                        id: NumberType,
+                        name: StringType
+                    };
+                }
+
+            }
+
+            class FooClass extends Model {
+
+                getFields () {
+                    return {
+                        bar: new HasOne(BarClass)
+                    };
+                }
+
+            }
+
+            const foo = new FooClass();
+
+            foo.get('bar').save = () => {
+                done();
+            };
+
+            foo.save();
+
+        });
     });
 
     describe('When we destroy a model', () => {

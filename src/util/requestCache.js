@@ -5,8 +5,8 @@ class RequestCache {
         this[cache] = {};
     }
 
-    getKey (options) {
-        if (!options || Object.keys(options) === []) {
+    getKey (options = {}) {
+        if (!Object.keys(options).length) {
             return '_no-options';
         }
 
@@ -18,9 +18,9 @@ class RequestCache {
         return this[cache][key];
     }
 
-    set (options, data) {
+    set (options, data = []) {
         const key = this.getKey(options);
-        this[cache][key] = data || [];
+        this[cache][key] = data;
     }
 
     clear (options) {

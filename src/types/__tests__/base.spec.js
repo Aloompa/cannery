@@ -102,5 +102,17 @@ describe('Any type', () => {
             assert.equal(field.get(), 'bar!');
         });
 
+        it('Should not update if the value has not changed', () => {
+            const field = new BaseType();
+
+            field.set('bar');
+
+            field.on('change', () => {
+                throw new Error('It should not update');
+            });
+
+            field.set('bar');
+        });
+
     });
 });

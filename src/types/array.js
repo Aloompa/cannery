@@ -44,18 +44,12 @@ class ArrayType extends BaseType {
     }
 
     all () {
-        const Model = require('../model');
         const val = this[getTyped]();
 
         const arr = val.map((item) => {
 
             // Object
             if (item instanceof ObjectType) {
-                return item;
-            }
-
-            // Model
-            if (item instanceof Model) {
                 return item;
             }
 
@@ -87,10 +81,6 @@ class ArrayType extends BaseType {
 
     get (index) {
         return this.all()[index];
-    }
-
-    getOptions () {
-        return this[typeOptions];
     }
 
     getType () {
