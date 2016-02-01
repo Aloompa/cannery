@@ -13,7 +13,7 @@ class ArrayType extends BaseType {
     constructor (ArrayType, arrayFields, options) {
         super(options);
 
-        this.Type = ArrayType || BaseType;
+        this[Type] = ArrayType || BaseType;
         this[fields] = arrayFields;
         this[typeOptions] = options;
     }
@@ -24,8 +24,8 @@ class ArrayType extends BaseType {
     }
 
     add (item, index) {
-        let array = this[getTyped]();
         const typedItem = this.instantiateItem(item);
+        let array = this[getTyped]();
 
         typedItem.apply(item);
 
@@ -66,16 +66,14 @@ class ArrayType extends BaseType {
 
     apply (data) {
         const array = data.map((item) => {
-
             const typedItem = this.instantiateItem(item);
 
             typedItem.apply(item);
 
             return typedItem;
-
         });
 
-        super.apply(array);
+        this.set(array);
 
         return this;
     }
@@ -93,11 +91,11 @@ class ArrayType extends BaseType {
     }
 
     getType () {
-        return this.Type;
+        return this[Type];
     }
 
     instantiateItem () {
-        return new this.Type(Object.assign({}, this[fields]), Object.assign({}, this[typeOptions]));
+        return new this[Type](this[fields], this[typeOptions]);
     }
 
     length () {

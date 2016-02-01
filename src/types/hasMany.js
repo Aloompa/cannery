@@ -1,13 +1,11 @@
 'use strict';
 
 const ArrayType = require('./array');
-const eventTypes = require('../util/eventTypes');
 const isFetched = Symbol();
 const mapping = Symbol();
 const addById = Symbol();
 const fetchSuccess = Symbol();
 const fetchError = Symbol();
-const modelIds = Symbol();
 
 class HasMany extends ArrayType {
 
@@ -15,7 +13,6 @@ class HasMany extends ArrayType {
         super(ModelType);
 
         this.options = options;
-        this[modelIds] = {};
 
         if (options.map) {
             this[mapping] = options.map;
@@ -57,38 +54,26 @@ class HasMany extends ArrayType {
         return super.all();
     }
 
-    call (method, options) {
-        return this.getType()[method](this.options, options);
-    }
-
     getById (id) {
-        if (this[modelIds][id]) {
-            return this[modelIds][id];
+        const filteredModels = this.all().filter((model) => {
+            return model.get('id') === id;
+        });
+
+        if (filteredModels.length === 1) {
+            return filteredModels[0];
         }
 
-        this[modelIds][id] = this.instantiateItem({
-            id
-        });
-
-        return this[modelIds][id];
+        const Model = this.getType();
+        return new Model(id, this.getOptions());
     }
 
-    instantiateItem (data) {
-
+    instantiateItem (id) {
         const Model = this.getType();
-        const model = new Model(data.id, this.getOptions());
-
-        eventTypes.forEach((eventType) => {
-            model.on(eventType, () => {
-                this.emit(eventType);
-            });
-        });
+        const model = new Model(id, this.getOptions());
 
         model.getParent = () => {
             return this.parent;
         };
-
-        this[modelIds][data.id] = model;
 
         return model;
     }

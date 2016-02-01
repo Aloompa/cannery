@@ -5,8 +5,6 @@ const assert = require('assert');
 const StringType = require('../types/string');
 const ObjectType = require('../types/object');
 const NumberType = require('../types/number');
-const HasMany = require('../types/hasMany');
-const HasOne = require('../types/hasOne');
 
 class MockAdapter {
 
@@ -369,13 +367,9 @@ describe('The Cannery Base Model', () => {
         });
 
         it('Should apply events down the tree', (done) => {
-            let complete = false;
             Artist.all().then((artists) => {
                 artists.on('change', () => {
-                    if (!complete) {
-                        complete = true;
-                        done();
-                    }
+                    done();
                 });
 
                 artists[0].set('name', 'Raphael');
@@ -441,134 +435,4 @@ describe('The Cannery Base Model', () => {
             });
         });
     });
-
-    describe('Deeply nested events', () => {
-
-        class MockAdapter2 {
-            fetch () {
-                return Promise.resolve({});
-            }
-
-            findAllWithin () {
-                return Promise.resolve([]);
-            }
-        }
-
-        class ChildModel extends Model {
-
-            getAdapter () {
-                return new MockAdapter2(this);
-            }
-
-            getFields () {
-                return {
-                    id: NumberType,
-                    name: StringType
-                };
-            }
-
-        }
-
-        class ParentModel extends Model {
-
-            getAdapter () {
-                return new MockAdapter2(this);
-            }
-
-            getFields () {
-                return {
-                    children: new HasMany(ChildModel)
-                };
-            }
-
-        }
-
-        class RootModel extends Model {
-
-            getAdapter () {
-                return new MockAdapter2(this);
-            }
-
-            getFields () {
-                return {
-                    parent: new HasOne(ParentModel)
-                };
-            }
-
-        }
-
-        it('Should trigger change events from hasMany models', (done) => {
-
-            const parent = new ParentModel(2);
-
-            parent.get('children').add({
-                id: 1,
-                name: 'Child1'
-            });
-
-            const child = parent.get('children').get(0);
-
-            let isDone = false;
-
-            parent.on('change', () => {
-                if (!isDone && child.get('name') === 'Child2') {
-                    isDone = true;
-                    done();
-                }
-            });
-
-            child.set('name', 'Child2');
-        });
-
-        it('Should trigger change event from hasMany models to hasOne models to the parent', (done) => {
-            const root = new RootModel();
-
-            root.get('parent').get('children').add({
-                id: 3,
-                name: 'Child3'
-            });
-
-            const child = root.get('parent').get('children').get(0);
-
-            let isDone = false;
-
-            root.on('change', () => {
-                if (!isDone && child.get('name') === 'Child4') {
-                    isDone = true;
-                    done();
-                }
-            });
-
-            child.set('name', 'Child4');
-        });
-
-        it('Should trigger userChange event from hasMany models to hasOne models to the parent', (done) => {
-            const root = new RootModel();
-
-            root.get('parent').get('children').add({
-                id: 3,
-                name: 'Child3'
-            });
-
-            const child = root.get('parent').get('children').get(0);
-
-            let isDone = false;
-
-            root.on('userChange', () => {
-                if (!isDone && child.get('name') === 'Child4') {
-                    isDone = true;
-                    done();
-                }
-            });
-
-            child.set('name', 'Child4');
-        });
-
-        it('Should not begin in a saving state', () => {
-            const root = new RootModel();
-
-            assert(!root.isSaving());
-        });
-    });
-
 });

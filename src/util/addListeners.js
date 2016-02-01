@@ -1,17 +1,19 @@
 'use strict';
 
-const eventTypes = require('./eventTypes');
-const debounce = require('lodash.debounce');
-
 module.exports = (base, field) => {
 
-    eventTypes.forEach((evt) => {
+    const events = [
+        'change',
+        'userChange',
+        'fetching',
+        'fetchSuccess',
+        'fetchError'
+    ];
 
-        const emitToBase = debounce(() => {
+    events.forEach((evt) => {
+        field.on(evt, () => {
             base.emit(evt);
         });
-
-        field.on(evt, emitToBase);
     });
 
 };
