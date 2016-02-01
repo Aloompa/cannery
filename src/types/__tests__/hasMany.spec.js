@@ -36,6 +36,14 @@ class CowAdapter {
         });
     }
 
+
+    fetchWithin () {
+        return Promise.resolve({
+            name: 'Betsy',
+            id: 1
+        });
+    }
+
 }
 
 class Cow extends Model {
@@ -300,6 +308,47 @@ describe('The hasMany type', () => {
         const dog = new HasMany(Dog);
 
         assert.equal(dog.call('bark', '!!!'), 'BARK!!!');
+    });
+
+    it('Should throw an error when you try to set', () => {
+        const farm = new Farm();
+
+        assert.throws(() => {
+            farm.get('cows').set();
+        }, Error);
+    });
+
+    it('Should have a forEach convenience function', () => {
+        const farm = new Farm();
+
+        farm.get('cows').add(new Cow({
+            id: 1,
+            name: 'Betsy'
+        })).forEach((cow) => {
+            assert.equal(cow.get('name'), 'Betsy');
+        });
+    });
+
+    it('Should have a map convenience function', () => {
+        const farm = new Farm();
+
+        farm.get('cows').add(new Cow({
+            id: 1,
+            name: 'Betsy'
+        })).map((cow) => {
+            return assert.equal(cow.get('name'), 'Betsy');
+        });
+    });
+
+    it('Should throw an error if there is not an id in handleResponse()', () => {
+        const farm = new Farm();
+
+        assert.throws(() => {
+            farm.get('cows').handleResponse({}, [{
+                name: 'Betsy'
+            }]);
+        }, Error);
+
     });
 
 });

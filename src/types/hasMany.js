@@ -4,7 +4,7 @@ const RequestCache = require('../util/requestCache');
 const addListenersUtil = require('../util/addListeners');
 
 const models = Symbol();
-const map = Symbol();
+const mapping = Symbol();
 const Type = Symbol();
 const requestCache = Symbol();
 const getMultiple = Symbol();
@@ -17,7 +17,7 @@ class HasMany extends EventEmitter{
         super();
         options = options || {};
 
-        this[map] = options.map;
+        this[mapping] = options.map;
         this[Type] = ModelClass;
         this[models] = {};
         this[requestCache] = new RequestCache();
@@ -91,7 +91,7 @@ class HasMany extends EventEmitter{
     }
 
     remove (id) {
-        let newIds = this.map.all().filter((modelId) => {
+        let newIds = this.all().filter((modelId) => {
             return modelId !== id;
         });
 
@@ -209,19 +209,19 @@ class HasMany extends EventEmitter{
     }
 
     [ setMap ] (arr) {
-        if (!this[map]) {
+        if (!this[mapping]) {
             throw new Error('This operation is not supported because the HasMany is not mapped.');
         }
 
-        this[map].set(arr);
+        this[mapping].set(arr);
 
         this.emit('change');
         this.emit('userChange');
     }
 
     [ addToMap ] (model, index) {
-        if (this[map] && model.id) {
-            this[map].add(model.id, index);
+        if (this[mapping] && model.id) {
+            this[mapping].add(model.id, index);
         }
     }
 }
