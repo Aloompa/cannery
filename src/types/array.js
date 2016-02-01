@@ -3,6 +3,7 @@
 const BaseType = require('./base');
 const ObjectType = require('./object');
 const addListenersUtil = require('../util/addListeners');
+const isEqual = require('lodash.isequal');
 const fields = Symbol();
 const Type = Symbol();
 const getTyped = Symbol();
@@ -43,18 +44,12 @@ class ArrayType extends BaseType {
     }
 
     all () {
-        const Model = require('../model');
         const val = this[getTyped]();
 
         const arr = val.map((item) => {
 
             // Object
             if (item instanceof ObjectType) {
-                return item;
-            }
-
-            // Model
-            if (item instanceof Model) {
                 return item;
             }
 
@@ -88,16 +83,16 @@ class ArrayType extends BaseType {
         return this.all()[index];
     }
 
-    getOptions () {
-        return this[typeOptions];
-    }
-
     getType () {
         return this.Type;
     }
 
     instantiateItem () {
         return new this.Type(Object.assign({}, this[fields]), Object.assign({}, this[typeOptions]));
+    }
+
+    isValueChanged (val) {
+        return !isEqual(this.get(), val);
     }
 
     length () {

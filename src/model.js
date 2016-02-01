@@ -9,6 +9,8 @@ const isFetched = Symbol();
 const isChanged = Symbol();
 const isSaving = Symbol();
 const doFetch = Symbol();
+const saveThis = Symbol();
+const saveChildren = Symbol();
 
 class Model extends EventEmitter {
 
@@ -85,8 +87,16 @@ class Model extends EventEmitter {
     }
 
     apply (data) {
-        this[isFetched] = true;
+        const responseId = data[this.constructor.fieldId];
+
+        if (responseId && this.id && String(this.id) !== String(responseId)) {
+            throw new Error('Server responded with non-matching ID. Refusing to apply data');
+        } else {
+            this.id = responseId;
+        }
+
         this[fields].apply(data);
+        this[isFetched] = true;
         return this;
     }
 
@@ -130,6 +140,7 @@ class Model extends EventEmitter {
         const modelOptions = Object.assign({}, this, options);
 
         return this[doFetch](modelOptions).then((data) => {
+
             this.apply(data);
 
             this.emit('fetchSuccess');
@@ -147,7 +158,37 @@ class Model extends EventEmitter {
         return this;
     }
 
-    save (options) {
+    save (options, single) {
+        if (!single) {
+            return this[saveChildren](options)
+                .then(this[saveThis].bind(this, options))
+                .catch((e) => {
+                    this.emit('saveError', e);
+                    return Promise.reject(e);
+                });
+        } else {
+            return this[saveThis](options)
+                .catch((e) => {
+                    this.emit('saveError', e);
+                    return Promise.reject(e);
+                });
+        }
+    }
+
+    toJSON () {
+        return this[fields].toJSON();
+    }
+
+    validate (key) {
+        this[fields].validate(key);
+        return this;
+    }
+
+    [ saveThis ] (options) {
+        if (!this.isChanged()) {
+            return Promise.resolve();
+        }
+
         const requestType = (this.id) ? 'update' : 'create';
 
         this.emit('saving');
@@ -162,29 +203,31 @@ class Model extends EventEmitter {
         return this.getAdapter()[requestType](this, options).then((data) => {
 
             if (!this.id) {
-                this.id = data.id;
+                this.id = data[this.constructor.idField];
             }
 
             this.emit('saveSuccess');
 
             return this.apply(data);
 
-        }).catch((e) => {
-            this.emit('saveError', e);
-            return Promise.reject(e);
+        });
+    }
+
+    [ saveChildren ] (options) {
+        let fields = this.getFields();
+        let promises = [];
+        Object.keys(fields).forEach((key) => {
+            if (fields[key].constructor.name === 'HasMany') {
+                promises.concat(this.get(key).saveChildren(options));
+            } else if (fields[key].constructor.name === 'HasOne') {
+                promises.push(this.get(key).save(options));
+            }
         });
 
+        return Promise.all(promises);
     }
-
-    toJSON () {
-        return this[fields].toJSON();
-    }
-
-    validate (key) {
-        this[fields].validate(key);
-        return this;
-    }
-
 }
+
+Model.fieldId = 'id';
 
 module.exports = Model;
