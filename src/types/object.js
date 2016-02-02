@@ -120,7 +120,9 @@ class ObjectType extends BaseType {
         }
 
         return Object.keys(this[fields]).map((key) => {
-            return this[fields][key].validate();
+            if (typeof this[fields][key].validate === 'function') {
+                return this[fields][key].validate();
+            }
         });
     }
 
