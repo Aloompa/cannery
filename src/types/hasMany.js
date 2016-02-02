@@ -158,6 +158,10 @@ class HasMany extends EventEmitter{
         return this.all(options).map(fn);
     }
 
+    getMapped () {
+        return this[mapping];
+    }
+
     getType () {
         return this[Type];
     }
