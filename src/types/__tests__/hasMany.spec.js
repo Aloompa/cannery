@@ -36,7 +36,6 @@ class CowAdapter {
         });
     }
 
-
     fetchWithin () {
         return Promise.resolve({
             name: 'Betsy',
@@ -282,18 +281,6 @@ describe('The hasMany type', () => {
 
         it('Should return a new instantiated model if it does not exist', () => {
             assert.equal(new Foo().get('bar').get(1).get('name'), null);
-        });
-
-        it('Should return an existing model if it already exists', (done) => {
-            const foo = new Foo();
-
-            foo.on('fetchSuccess', () => {
-                assert.equal(foo.get('bar').get(50).get('name'), 'Second Bar');
-
-                done();
-            });
-
-            foo.get('bar').all();
         });
 
     });

@@ -1,6 +1,7 @@
 'use strict';
 
 const EventEmitter = require('cannery-event-emitter');
+const BaseType = require('./base');
 const ObjectType = require('./object');
 const addListenersUtil = require('../util/addListeners');
 const isEqual = require('lodash.isequal');
@@ -16,7 +17,7 @@ class ArrayType extends EventEmitter {
         super();
 
         this[typedArray] = [];
-        this.Type = ArrayType;
+        this.Type = ArrayType || BaseType;
         this[fields] = arrayFields;
         this[typeOptions] = options;
         this.set([]);
