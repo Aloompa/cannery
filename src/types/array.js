@@ -1,5 +1,6 @@
 'use strict';
 
+const EventEmitter = require('cannery-event-emitter');
 const BaseType = require('./base');
 const ObjectType = require('./object');
 const addListenersUtil = require('../util/addListeners');
@@ -8,24 +9,22 @@ const fields = Symbol();
 const Type = Symbol();
 const getTyped = Symbol();
 const typeOptions = Symbol();
+const typedArray = Symbol();
 
-class ArrayType extends BaseType {
+class ArrayType extends EventEmitter {
 
     constructor (ArrayType, arrayFields, options) {
-        super(options);
+        super();
 
+        this[typedArray] = [];
         this.Type = ArrayType || BaseType;
         this[fields] = arrayFields;
         this[typeOptions] = options;
-    }
-
-    [ getTyped ] () {
-        const val = super.get();
-        return val || [];
+        this.set([]);
     }
 
     add (item, index) {
-        let array = this[getTyped]();
+        let array = this[typedArray].slice(0);
         const typedItem = this.instantiateItem(item);
 
         typedItem.apply(item);
@@ -40,13 +39,13 @@ class ArrayType extends BaseType {
 
         this.set(array);
 
+        this.emit('userChange');
+
         return this;
     }
 
     all () {
-        const val = this[getTyped]();
-
-        const arr = val.map((item) => {
+        const arr = this[typedArray].slice(0).map((item) => {
 
             // Object
             if (item instanceof ObjectType) {
@@ -70,7 +69,7 @@ class ArrayType extends BaseType {
 
         });
 
-        super.apply(array);
+        this.set(array);
 
         return this;
     }
@@ -104,21 +103,26 @@ class ArrayType extends BaseType {
     }
 
     move (oldIndex, newIndex) {
-        let array = this[getTyped]();
+        let array = this[typedArray].slice(0);
         const item = array[oldIndex];
 
-        array.splice(oldIndex, 1);
-        array.splice(newIndex, 0, item);
+        array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
 
         this.set(array);
+
+        this.emit('userChange');
 
         return this;
     }
 
     remove (index) {
-        let array = this[getTyped]();
+        let array = this[typedArray].slice(0);
+
         array.splice(index, 1);
+
         this.set(array);
+
+        this.emit('userChange');
 
         return this;
     }
@@ -126,13 +130,18 @@ class ArrayType extends BaseType {
     removeAll () {
         this.set([]);
 
+        this.emit('userChange');
+
         return this;
     }
 
+    set (arr) {
+        this[typedArray] = arr;
+        this.emit('change');
+    }
+
     toJSON () {
-        return this[getTyped]().map((field) => {
-            return field.toJSON();
-        });
+        return this.all();
     }
 
 }
