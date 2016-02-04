@@ -50,9 +50,18 @@ class HasMany extends EventEmitter{
     }
 
     all (options) {
-        let cacheIds = this[requestCache].get(options);
+        const cacheIds = this[requestCache].get(options);
 
         if (cacheIds) {
+
+            if (this[mapping] && !options) {
+                const mappedIds = this[mapping].all();
+
+                return this[getMultiple](cacheIds.sort((a, b) => {
+                    return mappedIds.indexOf(a) - mappedIds.indexOf(b);
+                }));
+            }
+
             return this[getMultiple](cacheIds);
 
         } else {
@@ -101,17 +110,22 @@ class HasMany extends EventEmitter{
     }
 
     move (id, delta) {
-        let oldIds = this.map.all();
+
+        let oldIds = this[mapping].all();
         let oldIndex = oldIds.indexOf(id);
         let newIndex = oldIndex + delta;
 
         if (newIndex < 0) {
-            newIndex = 0;
-        } else if (newIndex >= oldIds.length) {
-            newIndex = oldIds.length - 1;
+            return this;
+        } else if (newIndex >= this.all().length) {
+            return this;
         }
 
-        this.map.move(oldIndex, newIndex);
+        if (oldIndex === -1) {
+            throw new Error('Can not move an invalid model id');
+        }
+
+        this[mapping].move(oldIndex, newIndex);
 
         this.emit('change');
         this.emit('userChange');
@@ -217,7 +231,7 @@ class HasMany extends EventEmitter{
             throw new Error('This operation is not supported because the HasMany is not mapped.');
         }
 
-        this[mapping].set(arr);
+        this[mapping].apply(arr);
 
         this.emit('change');
         this.emit('userChange');
