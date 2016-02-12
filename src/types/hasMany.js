@@ -84,6 +84,11 @@ class HasMany extends EventEmitter{
             .findAllWithin(this[Type], this.parent, options);
     }
 
+    dispose (id) {
+        delete this[models][id];
+        return this;
+    }
+
     get (id) {
         if (!this[models][id]) {
             this[models][id] = new this[Type](id);
