@@ -86,6 +86,7 @@ class HasMany extends EventEmitter{
 
     dispose (id) {
         delete this[models][id];
+        this[requestCache].clear();
         return this;
     }
 
