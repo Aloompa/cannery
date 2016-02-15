@@ -1,18 +1,13 @@
-'use strict';
+import registerModel from './registerModel';
+import getModel from './getModel';
+import createModel from './createModel';
+import query from './query';
 
 const Cannery = {
-    Model: require('./model'),
-    Types: {
-        AnyType: require('./types/base'),
-        BooleanType: require('./types/boolean'),
-        DateType: require('./types/date'),
-        StringType: require('./types/string'),
-        NumberType: require('./types/number'),
-        ArrayType: require('./types/array'),
-        ObjectType: require('./types/object'),
-        HasMany: require('./types/hasMany'),
-        HasOne: require('./types/hasOne')
-    }
+    createModel,
+    getModel,
+    query,
+    registerModel
 };
 
-module.exports = Cannery;
+export default Cannery;
