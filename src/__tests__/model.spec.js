@@ -5,6 +5,9 @@ const assert = require('assert');
 const StringType = require('../types/string');
 const ObjectType = require('../types/object');
 const NumberType = require('../types/number');
+const HasMany = require('../types/hasMany');
+const HasOne = require('../types/hasOne');
+const ArrayType = require('../types/array');
 
 class MockAdapter {
 
@@ -237,7 +240,9 @@ describe('The Cannery Base Model', () => {
                 return new MockErrorAdapter();
             };
 
-            artist.save().catch((message) => {
+            artist.set('name', 'Tyson');
+
+            artist.save(null, true).catch((message) => {
                 assert.equal(message, 'Error Message');
                 done();
             });
@@ -250,7 +255,9 @@ describe('The Cannery Base Model', () => {
                 return new MockErrorAdapter();
             };
 
-            artist.save().catch((message) => {
+            artist.set('name', 'Tyson');
+
+            artist.save(null, true).catch((message) => {
                 assert.equal(message, 'Error Message');
                 done();
             });
@@ -274,9 +281,102 @@ describe('The Cannery Base Model', () => {
 
             const fooClass = new FooClass();
 
+            fooClass.set('name', null);
+
             fooClass.save().catch((e) => {
                 done();
             });
+
+        });
+
+        it('Should immediatly resolve if the model does not need to be saved', (done) => {
+            class FooClass extends Model {
+
+                getFields () {
+                    return {};
+                }
+
+            }
+
+            const fooClass = new FooClass();
+
+            fooClass.on('saving', () => {
+                throw new Error('It should not over-save');
+            });
+
+            fooClass.save().then(() => {
+                done();
+            });
+        });
+
+        it('Should save hasMany children before the root model', (done) => {
+
+            class BarClass extends Model {
+
+                getFields () {
+                    return {
+                        id: NumberType,
+                        name: StringType
+                    };
+                }
+
+            }
+
+            class FooClass extends Model {
+
+                getFields () {
+                    return {
+                        bars: new HasMany(BarClass)
+                    };
+                }
+
+            }
+
+            const foo = new FooClass();
+
+            foo.get('bars').add(new BarClass({
+                id: 1,
+                name: 'bar1'
+            }));
+
+            foo.get('bars').get(1).save = () => {
+                done();
+            };
+
+            foo.save();
+
+        });
+
+        it('Should save hasOne children before the root model', (done) => {
+
+            class BarClass extends Model {
+
+                getFields () {
+                    return {
+                        id: NumberType,
+                        name: StringType
+                    };
+                }
+
+            }
+
+            class FooClass extends Model {
+
+                getFields () {
+                    return {
+                        bar: new HasOne(BarClass)
+                    };
+                }
+
+            }
+
+            const foo = new FooClass();
+
+            foo.get('bar').save = () => {
+                done();
+            };
+
+            foo.save();
 
         });
     });
@@ -367,9 +467,13 @@ describe('The Cannery Base Model', () => {
         });
 
         it('Should apply events down the tree', (done) => {
+            let complete = false;
             Artist.all().then((artists) => {
                 artists.on('change', () => {
-                    done();
+                    if (!complete) {
+                        complete = true;
+                        done();
+                    }
                 });
 
                 artists[0].set('name', 'Raphael');
@@ -435,4 +539,139 @@ describe('The Cannery Base Model', () => {
             });
         });
     });
+
+    describe('Deeply nested events', () => {
+
+        class MockAdapter2 {
+            fetch () {
+                return Promise.resolve({});
+            }
+
+            findAllWithin () {
+                return Promise.resolve([]);
+            }
+        }
+
+        class ChildModel extends Model {
+
+            getAdapter () {
+                return new MockAdapter2(this);
+            }
+
+            getFields () {
+                return {
+                    id: NumberType,
+                    name: StringType
+                };
+            }
+
+        }
+
+        class ParentModel extends Model {
+
+            getAdapter () {
+                return new MockAdapter2(this);
+            }
+
+            getFields () {
+                const childrenIds = new ArrayType(NumberType);
+
+                return {
+                    children: new HasMany(ChildModel, {
+                        map: childrenIds
+                    })
+                };
+            }
+
+        }
+
+        class RootModel extends Model {
+
+            getAdapter () {
+                return new MockAdapter2(this);
+            }
+
+            getFields () {
+                return {
+                    parent: new HasOne(ParentModel)
+                };
+            }
+
+        }
+
+        it('Should trigger change events from hasMany models', (done) => {
+
+            const parent = new ParentModel(2);
+            const child = new ChildModel(1);
+
+            child.apply({
+                id: 1,
+                name: 'Child'
+            });
+
+            parent.get('children').add(child);
+
+            let isDone = false;
+
+            parent.on('change', () => {
+                if (!isDone && child.get('name') === 'Child2') {
+                    isDone = true;
+                    done();
+                }
+            });
+
+            child.set('name', 'Child2');
+        });
+
+        it('Should trigger change event from hasMany models to hasOne models to the parent', (done) => {
+            const root = new RootModel();
+
+            root.get('parent').get('children').add(new ChildModel(3).apply({
+                id: 3,
+                name: 'Child3'
+            }));
+
+            const child = root.get('parent').get('children').get(3);
+
+            let isDone = false;
+
+            root.on('change', () => {
+                if (!isDone && child.get('name') === 'Child4') {
+                    isDone = true;
+                    done();
+                }
+            });
+
+            child.set('name', 'Child4');
+        });
+
+        it('Should trigger userChange event from hasMany models to hasOne models to the parent', (done) => {
+            const root = new RootModel();
+
+            root.get('parent').get('children').add(new ChildModel(3).apply({
+                id: 3,
+                name: 'Child3'
+            }));
+
+            const child = root.get('parent').get('children').get(3);
+
+            let isDone = false;
+
+            root.on('userChange', () => {
+                if (!isDone && child.get('name') === 'Child4') {
+                    isDone = true;
+                    done();
+                }
+            });
+
+            child.set('name', 'Child4');
+        });
+
+        it('Should not begin in a saving state', () => {
+            const root = new RootModel();
+
+            assert(!root.isSaving());
+        });
+    });
+
 });

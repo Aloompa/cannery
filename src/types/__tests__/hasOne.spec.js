@@ -25,6 +25,13 @@ class FarmerAdapter {
         });
     }
 
+    fetchWithin () {
+        return Promise.resolve({
+            name: 'Farmer Jones',
+            id: 1
+        });
+    }
+
 }
 
 class Farmer extends Model {
@@ -56,7 +63,12 @@ class Farm extends Model {
 
         return {
             farmerId: farmerId,
-            farmer: farmer
+            farmer: farmer,
+            newFarmer: new HasOne(Farmer, {
+                map: 'foo'
+            }),
+            newFarmer2: new HasOne(Farmer, {
+            })
         };
     }
 
@@ -66,10 +78,8 @@ describe('The hasOne type', () => {
 
     describe('When we create a hasOne association', () => {
 
-        it('Should throw an error if no mapping is specified', () => {
-            assert.throws(() => {
-                new HasOne(Farmer);
-            }, Error);
+        it('Should not throw an error if no mapping is specified', () => {
+            new HasOne(Farmer);
         });
 
         it('Should should let us get from the model', () => {
@@ -102,7 +112,7 @@ describe('The hasOne type', () => {
                 if (!calledCount) {
                     done();
                 }
-                
+
                 calledCount++;
             });
 
@@ -117,6 +127,22 @@ describe('The hasOne type', () => {
             });
         });
 
+    });
+
+    it('Should work if we do not pass an id', () => {
+        const farm = new Farm(3);
+
+        farm.get('newFarmer').get('name');
+    });
+
+    it('Should work if we do not pass an id', () => {
+        const farm = new Farm(3);
+
+        farm.get('newFarmer2').get('name');
+    });
+
+    it('Should return null from toJSON', () => {
+        assert.ok(!new HasOne().toJSON());
     });
 
 });

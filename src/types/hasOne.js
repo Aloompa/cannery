@@ -2,31 +2,42 @@
 
 const BaseType = require('./base');
 const addListenersUtil = require('../util/addListeners');
+const ModelConstructor = Symbol();
 const model = Symbol();
 const map = Symbol();
 const updateMapping = Symbol();
+const getId = Symbol();
 
 class HasOne extends BaseType {
 
     constructor (Model, options = {}) {
         super(options);
 
-        if (!options.map) {
-            throw new Error('No map option was specified. HasOne requires a mapped field');
+        this.options = options;
+        this[map] = options.map;
+        this[ModelConstructor] = Model;
+    }
+
+    [ getId ] () {
+        if (!this[map]) {
+            return;
         }
 
-        this[map] = options.map;
-        this[model] = new Model(this[map].get());
+        return (typeof this[map].get === 'function') ? this[map].get() : this[map];
     }
 
     [ updateMapping ] () {
-        if (this[map].get() !== this[model].id) {
-            this[model].id = this[map].get();
+        if (this[getId]() !== this[model].id) {
+            this[model].id = this[getId]();
             this[model].emit('change');
         }
     }
 
     setParent () {
+        if (!this[model]) {
+            return;
+        }
+
         this[model].getParent = () => {
             return this.parent;
         };
@@ -39,11 +50,25 @@ class HasOne extends BaseType {
     }
 
     get () {
+        if (!this[model]) {
+            this[model] = new this[ModelConstructor](this[getId](), this.options);
+
+            this[model].on('change', () => {
+                this.emit('change');
+            });
+
+            this.setParent();
+        }
+
         return this[model];
     }
 
     set () {
         throw new Error('You cannot set directly on a model');
+    }
+
+    toJSON () {
+        return null;
     }
 
 }

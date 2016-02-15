@@ -1,6 +1,7 @@
 'use strict';
 
 const BaseType = require('./base');
+const HasMany = require('./hasMany');
 const parseFields = require('../util/parseFields');
 const addListenersUtil = require('../util/addListeners');
 const validate = require('valid-point');
@@ -40,8 +41,14 @@ class ObjectType extends BaseType {
     }
 
     apply (data) {
+        if (!data) {
+            return;
+        }
+
         Object.keys(data).forEach((key) => {
-            this[fields][key].apply(data[key]);
+            if (this[fields][key]) {
+                this[fields][key].apply(data[key]);
+            }
         });
 
         return this;
@@ -72,7 +79,24 @@ class ObjectType extends BaseType {
             return field;
         }
 
+        // HasMany's
+        if (field instanceof HasMany) {
+            return field;
+        }
+
         return field.get();
+    }
+
+    getFields () {
+        return this[fields];
+    }
+
+    getLastModified (key) {
+        if (key) {
+            return this[fields][key].lastModified;
+        }
+
+        throw new Error('getLastModified requires a key');
     }
 
     set (key, value) {
@@ -96,7 +120,9 @@ class ObjectType extends BaseType {
         }
 
         return Object.keys(this[fields]).map((key) => {
-            return this[fields][key].validate();
+            if (typeof this[fields][key].validate === 'function') {
+                return this[fields][key].validate();
+            }
         });
     }
 

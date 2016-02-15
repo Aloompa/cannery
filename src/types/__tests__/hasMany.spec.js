@@ -36,6 +36,13 @@ class CowAdapter {
         });
     }
 
+    fetchWithin () {
+        return Promise.resolve({
+            name: 'Betsy',
+            id: 1
+        });
+    }
+
 }
 
 class Cow extends Model {
@@ -82,12 +89,16 @@ describe('The hasMany type', () => {
 
         it('Should correctly type a newly added model', () => {
             const farm = new Farm();
+            let betsy = new Cow(22);
 
-            farm.get('cows').add({
+            betsy.apply({
+                id: 22,
                 name: 'Betsy'
             });
 
-            assert.equal(farm.get('cows').get(0).get('name'), 'Betsy');
+            farm.get('cows').add(betsy);
+
+            assert.equal(farm.get('cows').get(22).get('name'), 'Betsy');
         });
 
         it('Should update the mapped field to match the hasMany field', () => {
@@ -115,11 +126,12 @@ describe('The hasMany type', () => {
 
         it('Should set the parent of nested models to the root model', () => {
             const farm = new Farm(1);
-
-            const parent = farm.get('cows').add({
+            const betsy = new Cow(22).apply({
                 name: 'Betsy',
                 id: 22
-            }).get(0).getParent();
+            });
+
+            const parent = farm.get('cows').add(betsy).get(22).getParent();
 
             assert.ok(parent instanceof Farm);
         });
@@ -128,7 +140,7 @@ describe('The hasMany type', () => {
             const farm = new Farm(1);
 
             farm.get('cows').on('fetchSuccess', () => {
-                assert.equal(farm.get('cows').get(1).get('name'), 'Bluebell');
+                assert.equal(farm.get('cows').get(2).get('name'), 'Bluebell');
                 done();
             });
 
@@ -142,7 +154,7 @@ describe('The hasMany type', () => {
             farm.get('cows').on('fetchSuccess', () => {
 
                 if (!calledCount) {
-                    assert.equal(farm.get('cows').get(0).get('name'), 'Sally');
+                    assert.equal(farm.get('cows').get(1).get('name'), 'Sally');
 
                     CowAdapter.prototype.findAllWithin = () => {
                         return Promise.resolve([{
@@ -154,7 +166,7 @@ describe('The hasMany type', () => {
                     farm.get('cows').refresh();
 
                 } else {
-                    assert.equal(farm.get('cows').get(0).get('name'), 'Bluebell');
+                    assert.equal(farm.get('cows').get(1).get('name'), 'Bluebell');
                     done();
                 }
 
@@ -180,4 +192,150 @@ describe('The hasMany type', () => {
         });
 
     });
+
+    it('Should be possible to createa a hasMany without a mapping', () => {
+        class Bar extends Model {
+            getFields () {
+                return {};
+            }
+        }
+
+        class Foo extends Model {
+            getFields () {
+                return {
+                    bar: new HasMany(Bar)
+                };
+            }
+        }
+
+        new Foo().get('bar');
+    });
+
+    describe('When we get by id', () => {
+
+        class FooAdapter {
+            fetch () {
+                return Promise.resolve({
+                    id: 1,
+                    bar_ids: [50]
+                });
+            }
+
+        }
+
+        class BarAdapter {
+
+            fetchWithin () {
+                return Promise.resolve({
+                    id: 45
+                });
+            }
+
+            findAllWithin () {
+                return Promise.resolve([{
+                    id: 50,
+                    name: 'Second Bar'
+                }]);
+            }
+
+            fetch () {
+                return Promise.resolve({
+                    id: 1,
+                    name: 'First Bar'
+                });
+            }
+
+        }
+
+        class Bar extends Model {
+
+            getAdapter () {
+                return new BarAdapter();
+            }
+
+            getFields () {
+                return {
+                    name: StringType,
+                    id: NumberType
+                };
+            }
+        }
+
+        class Foo extends Model {
+
+            getAdapter () {
+                return new FooAdapter();
+            }
+
+            getFields () {
+                const bar_ids = new ArrayType(NumberType);
+
+                return {
+                    bar_ids: bar_ids,
+                    bar: new HasMany(Bar, {
+                        map: bar_ids
+                    })
+                };
+            }
+        }
+
+        it('Should return a new instantiated model if it does not exist', () => {
+            assert.equal(new Foo().get('bar').get(1).get('name'), null);
+        });
+
+    });
+
+    it('Should be possible to call static methods from the hasMany model', () => {
+        class Dog {
+            static bark (options, loudness) {
+                return `BARK${loudness}`;
+            }
+        }
+
+        const dog = new HasMany(Dog);
+
+        assert.equal(dog.call('bark', '!!!'), 'BARK!!!');
+    });
+
+    it('Should throw an error when you try to set', () => {
+        const farm = new Farm();
+
+        assert.throws(() => {
+            farm.get('cows').set();
+        }, Error);
+    });
+
+    it('Should have a forEach convenience function', () => {
+        const farm = new Farm();
+
+        farm.get('cows').add(new Cow({
+            id: 1,
+            name: 'Betsy'
+        })).forEach((cow) => {
+            assert.equal(cow.get('name'), 'Betsy');
+        });
+    });
+
+    it('Should have a map convenience function', () => {
+        const farm = new Farm();
+
+        farm.get('cows').add(new Cow({
+            id: 1,
+            name: 'Betsy'
+        })).map((cow) => {
+            return assert.equal(cow.get('name'), 'Betsy');
+        });
+    });
+
+    it('Should throw an error if there is not an id in handleResponse()', () => {
+        const farm = new Farm();
+
+        assert.throws(() => {
+            farm.get('cows').handleResponse({}, [{
+                name: 'Betsy'
+            }]);
+        }, Error);
+
+    });
+
 });

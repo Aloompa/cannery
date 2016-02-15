@@ -7,11 +7,14 @@ const ObjectType = require('./types/object');
 const fields = Symbol();
 const isFetched = Symbol();
 const isChanged = Symbol();
+const isSaving = Symbol();
 const doFetch = Symbol();
+const saveThis = Symbol();
+const saveChildren = Symbol();
 
 class Model extends EventEmitter {
 
-    constructor (id) {
+    constructor (id, options) {
         super();
 
         this.id = id;
@@ -19,11 +22,26 @@ class Model extends EventEmitter {
             parent: this
         });
         this[isFetched] = false;
+        this.options = options;
 
         addListenersUtil(this, this[fields]);
 
         this.on('userChange', () => {
             this[isChanged] = true;
+        });
+
+        this.on('saving', () => {
+            this[isSaving] = true;
+            this.emit('change');
+        });
+
+        this.on('saveSuccess', () => {
+            this[isChanged] = false;
+            this[isSaving] = false;
+        });
+
+        this.on('saveError', () => {
+            this[isSaving] = false;
         });
     }
 
@@ -57,6 +75,8 @@ class Model extends EventEmitter {
         const parent = this.getParent();
         const adapter = this.getAdapter();
 
+        options = Object.assign({}, options, this.options);
+
         if (parent) {
             return adapter.fetchWithin(this, parent, options);
 
@@ -67,9 +87,14 @@ class Model extends EventEmitter {
     }
 
     apply (data) {
-        this[isFetched] = true;
+        const responseId = data[this.constructor.fieldId];
+
+        if (!this.id) {
+            this.id = responseId;
+        }
+
         this[fields].apply(data);
-        this.emit('change');
+        this[isFetched] = true;
         return this;
     }
 
@@ -103,44 +128,49 @@ class Model extends EventEmitter {
         return this[isChanged];
     }
 
+    isSaving () {
+        return this[isSaving];
+    }
+
     refresh (options) {
         this.emit('fetching');
 
-        return this[doFetch](options).then((data) => {
+        const modelOptions = Object.assign({}, this, options);
+
+        return this[doFetch](modelOptions).then((data) => {
+
             this.apply(data);
+
             this.emit('fetchSuccess');
             return this;
 
         }).catch((e) => {
             this.emit('fetchError', e);
-            return new Error(e);
+            throw new Error(e.message);
         });
     }
 
     set (key, value) {
         this[fields].set(key, value);
+        this[isChanged] = true;
         return this;
     }
 
-    save (options) {
-        const requestType = (this.id) ? 'update' : 'create';
-
-        try {
-            this.validate();
-        } catch (e) {
-            return Promise.reject(e);
+    save (options, single) {
+        if (!single) {
+            return this[saveChildren](options)
+                .then(this[saveThis].bind(this, options))
+                .catch((e) => {
+                    this.emit('saveError', e);
+                    return Promise.reject(e);
+                });
+        } else {
+            return this[saveThis](options)
+                .catch((e) => {
+                    this.emit('saveError', e);
+                    return Promise.reject(e);
+                });
         }
-
-        return this.getAdapter()[requestType](this, options).then((data) => {
-            if (!this.id) {
-                this.id = data.id;
-            }
-
-            this[isChanged] = false;
-
-            return this.apply(data);
-        });
-
     }
 
     toJSON () {
@@ -152,6 +182,50 @@ class Model extends EventEmitter {
         return this;
     }
 
+    [ saveThis ] (options) {
+        if (!this.isChanged()) {
+            return Promise.resolve();
+        }
+
+        const requestType = (this.id) ? 'update' : 'create';
+
+        this.emit('saving');
+
+        try {
+            this.validate();
+        } catch (e) {
+            this.emit('saveError', e);
+            return Promise.reject(e);
+        }
+
+        return this.getAdapter()[requestType](this, options).then((data) => {
+
+            if (!this.id) {
+                this.id = data[this.constructor.idField];
+            }
+
+            this.emit('saveSuccess');
+
+            return this.apply(data);
+
+        });
+    }
+
+    [ saveChildren ] (options) {
+        let fields = this.getFields();
+        let promises = [];
+        Object.keys(fields).forEach((key) => {
+            if (fields[key].constructor.name === 'HasMany') {
+                promises.concat(this.get(key).saveChildren(options));
+            } else if (fields[key].constructor.name === 'HasOne') {
+                promises.push(this.get(key).save(options));
+            }
+        });
+
+        return Promise.all(promises);
+    }
 }
+
+Model.fieldId = 'id';
 
 module.exports = Model;

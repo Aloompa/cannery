@@ -73,48 +73,6 @@ describe('The Object type', () => {
             name.emit('userChange');
         });
 
-        it('Should emit a fetching event up from fields underneath', (done) => {
-            const name = new StringType();
-
-            const field = new ObjectType({
-                name: name
-            });
-
-            field.on('fetching', () => {
-                done();
-            });
-
-            name.emit('fetching');
-        });
-
-        it('Should emit a fetchSuccess event up from fields underneath', (done) => {
-            const name = new StringType();
-
-            const field = new ObjectType({
-                name: name
-            });
-
-            field.on('fetchSuccess', () => {
-                done();
-            });
-
-            name.emit('fetchSuccess');
-        });
-
-        it('Should emit a fetchError event up from fields underneath', (done) => {
-            const name = new StringType();
-
-            const field = new ObjectType({
-                name: name
-            });
-
-            field.on('fetchError', () => {
-                done();
-            });
-
-            name.emit('fetchError');
-        });
-
         it('Should allow us to apply an entire object of data', () => {
             const field = new ObjectType({
                 name: StringType,
@@ -193,6 +151,69 @@ describe('The Object type', () => {
 
             field.validate('firstName');
         });
+
+    });
+
+    it('Should throw an error if we get a key that does not exist', () => {
+        const field = new ObjectType({});
+
+        assert.throws(() => {
+            field.get('foobar');
+        }, Error);
+    });
+
+    it('Should not apply data that does have a field', () => {
+        const field = new ObjectType({});
+
+        field.apply({
+            name: 'Foo'
+        });
+    });
+
+    it('Should trigger a change event when we apply to the object', (done) => {
+        const field = new ObjectType({
+            name: BaseType
+        });
+
+        field.on('change', () => {
+            done();
+        });
+
+        field.apply({
+            name: 'Foo'
+        });
+    });
+
+    it('Should have a getFields() method', () => {
+        const field = new ObjectType({
+            name: BaseType
+        });
+
+        assert.equal(field.getFields().name.constructor.name, 'BaseType');
+    });
+
+    it ('Should do nothing if we apply with no data', () => {
+        const field = new ObjectType({});
+
+        field.apply();
+    });
+
+    it('Should have a number representing the last date modified', () => {
+        const field = new ObjectType({
+            name: BaseType
+        });
+
+        assert.equal(typeof field.getLastModified('name'), 'number');
+    });
+
+    it('Should require a key for last date modified', () => {
+        const field = new ObjectType({
+            name: BaseType
+        });
+
+        assert.throws(() => {
+            field.getLastModified();
+        }, Error);
 
     });
 });
