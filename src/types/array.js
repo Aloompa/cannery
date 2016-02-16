@@ -5,6 +5,7 @@ const BaseType = require('./base');
 const ObjectType = require('./object');
 const addListenersUtil = require('../util/addListeners');
 const isEqual = require('lodash.isequal');
+const validate = require('valid-point');
 const fields = Symbol();
 const Type = Symbol();
 const getTyped = Symbol();
@@ -13,13 +14,14 @@ const typedArray = Symbol();
 
 class ArrayType extends EventEmitter {
 
-    constructor (ArrayType, arrayFields, options) {
+    constructor (ArrayType, arrayFields, options = {}) {
         super();
 
         this[typedArray] = [];
         this.Type = ArrayType || BaseType;
         this[fields] = arrayFields;
         this[typeOptions] = options;
+        this.validations = options.validations;
         this.set([]);
     }
 
@@ -142,6 +144,27 @@ class ArrayType extends EventEmitter {
 
     toJSON () {
         return this.all();
+    }
+
+    validate (noRecursion) {
+        if (!noRecursion && this[typedArray]) {
+            this[typedArray].forEach((arrayItem) => {
+                arrayItem.validate();
+            });
+        }
+
+        if (this.validations) {
+            const fieldName = this.validations.field || 'all';
+
+            return validate({
+                data: {
+                    [ fieldName ]: this.all()
+                },
+                validations: {
+                    [ fieldName ]: this.validations
+                }
+            });
+        }
     }
 
 }
