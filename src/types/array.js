@@ -89,7 +89,21 @@ class ArrayType extends EventEmitter {
     }
 
     instantiateItem () {
-        return new this.Type(Object.assign({}, this[fields]), Object.assign({}, this[typeOptions]));
+        const instance = new this.Type(Object.assign({}, this[fields]), Object.assign({}, this[typeOptions]));
+
+        instance.on('userChange', () => {
+            if (this.parent) {
+                this.parent.emit('userChange');
+            }
+        });
+
+        instance.on('change', () => {
+            if (this.parent) {
+                this.parent.emit('change');
+            }
+        });
+
+        return instance;
     }
 
     isValueChanged (val) {
