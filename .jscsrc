@@ -5,7 +5,6 @@
     "requireCapitalizedConstructors": true,
     "requireCapitalizedComments": { "allExcept": ["jshint", "istanbul", "global"] },
     "requireDotNotation": true,
-    "requireArrowFunctions": true,
     "maximumNumberOfLines": 1000,
     "maximumLineLength": 140,
     "disallowKeywordsOnNewLine": ["else"],
@@ -50,6 +49,5 @@
         "allExcept": ["inCallExpressions"]
     },
     "requirePaddingNewLinesBeforeExport": true,
-    "requirePaddingNewLinesBeforeLineComments": true,
     "disallowSpaceAfterPrefixUnaryOperators": ["++", "--", "+", "-", "~", "!"]
 }

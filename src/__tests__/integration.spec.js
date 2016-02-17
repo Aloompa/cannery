@@ -113,6 +113,21 @@ describe('Cannery Integration Tests', function () {
 
         });
 
+        it('Should be possible to get an existing model', function () {
+
+            Cannery.dispatcher.dispatch({
+                actionType: 'EVENT_FETCH_SUCCESS',
+                data: {
+                    id: 1,
+                    name: 'The Event'
+                }
+            });
+
+            const event = Cannery.getModel('Event', 1);
+
+            assert.equal(event.get('name'), 'The Event');
+        });
+
     });
 
 });

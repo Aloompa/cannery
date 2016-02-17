@@ -1,60 +1,61 @@
 import arrayAccessor from './arrayAccessor';
 import getType from './getType';
+import store from './store';
 
-function fieldAccessor (obj, fieldTypes) {
+function fieldAccessor (model, obj, fieldTypes) {
 
-   return {
+    return {
 
-       apply: function (data) {
-           obj = data;
-       },
+        apply: function (data) {
+            obj = data;
+        },
 
-       get: function (key) {
+        get: function (key) {
 
-           const type = getType(fieldTypes[key]);
+            const type = getType(fieldTypes[key]);
 
-           if (!fieldTypes[key]) {
-                throw new Error('There is no field definition for getting ' + key + '. Available fields are: ' + JSON.stringify(obj));
-           }
+            if (!fieldTypes[key]) {
+                throw new Error(`There is no field definition for getting ${key}. Available fields are: ${JSON.stringify(obj)}`);
+            }
 
-           if (type === 'array') {
-             obj[key] = obj[key] || [];
+            if (type === 'array') {
+                obj[key] = obj[key] || [];
 
-             return arrayAccessor(obj[key], fieldTypes[key]);
-           }
+                return arrayAccessor(obj[key], fieldTypes[key]);
+            }
 
-           if (type === 'object') {
-               obj[key] = obj[key] || {};
+            if (type === 'object') {
+                obj[key] = obj[key] || {};
 
-               return fieldAccessor(obj[key], fieldTypes[key]);
-           }
+                return fieldAccessor(model, obj[key], fieldTypes[key]);
+            }
 
-           return obj[key];
-       },
+            return obj[key];
+        },
 
-       set: function (key, value) {
+        set: function (key, value) {
 
-           const type = getType(fieldTypes[key]);
+            const type = getType(fieldTypes[key]);
 
-           if (!fieldTypes[key]) {
-               const fields = JSON.stringify(obj);
+            if (!fieldTypes[key]) {
+                const fields = JSON.stringify(obj);
 
                 throw new Error(`There is no field definition for setting ${key}. Available fields are: ${fields}.`);
-           }
+            }
 
-           if (typeof value !== type) {
-               throw new Error(`Invalid type for ${key}. Expecting ${type} but got ${typeof value}.`);
-           }
+            if (typeof value !== type) {
+                throw new Error(`Invalid type for ${key}. Expecting ${type} but got ${typeof value}.`);
+            }
 
-           obj[key] = value;
+            obj[key] = value;
 
-           return this;
-       },
+            return this;
+        },
 
-       toJSON: function () {
-          return obj;
-       }
-   };
+        toJSON: function () {
+            return obj;
+        }
+    };
 }
 
 export default fieldAccessor;

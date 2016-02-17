@@ -18,7 +18,7 @@ function arrayAccessor (arr, fieldTypes) {
         push: function (value) {
 
             if (typeof value !== type) {
-                throw new Error(`Invalid array type for ${key}. Expecting ${type} but got ${typeof value}.`);
+                throw new Error(`Invalid array type for ${value}. Expecting ${type} but got ${typeof value}.`);
             }
 
             arr.push(value);
