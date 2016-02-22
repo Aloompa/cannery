@@ -6,11 +6,11 @@ const value = Symbol();
 
 class BaseType extends EventEmitter {
 
-    constructor (options = {}) {
-
+    constructor (owner, options = {}) {
         super();
 
         this.lastModified = new Date().getTime();
+        this.owner = owner;
 
         Object.assign(this, options);
 

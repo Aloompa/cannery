@@ -2,6 +2,7 @@
 
 const Cannery = {
     Model: require('./model'),
+    BaseAdapter: require('./adapter')
     Types: {
         AnyType: require('./types/base'),
         BooleanType: require('./types/boolean'),
