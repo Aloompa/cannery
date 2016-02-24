@@ -65,7 +65,7 @@ class Adapter {
         throw new Error('makeRequest is virtual and must be overriden.');
     }
 
-    fetch (model, options) {
+    fetch (model, options, callback) {
         return this.makeRequest({
             requestType: 'getOne',
             path: this.getPath(model),
@@ -77,11 +77,12 @@ class Adapter {
                 this.getRoot(model).handleError(err);
                 return;
             }
-            model.apply(response, options);
+
+            callback(response);
         });
     }
 
-    fetchWithin (Model, context, options) {
+    fetchWithin (Model, context, options, callback) {
         return this.makeRequest({
             requestType: 'getOne',
             path: this.getPath(context).push(Model.getKey(true)),
@@ -93,11 +94,12 @@ class Adapter {
                 this.getRoot(context).handleError(err);
                 return;
             }
-            parent.applyWithin(ChildModel, response, options);
+
+            callback(response);
         });
     }
 
-    findAll (Model, context, options) {
+    findAll (Model, context, options, callback) {
         return this.makeRequest({
             requestType: 'getMany',
             path: this.getPath(context).push(ChildModel.getKey()),
@@ -109,11 +111,12 @@ class Adapter {
                 this.getRoot(context).handleError(err);
                 return;
             }
-            context.applyWithin(Model, response, options);
+
+            callback(response);
         });
     }
 
-    create (model, context, options) {
+    create (model, context, options, callback) {
         return this.makeRequest({
             requestType: 'create',
             path: this.getPath(context).push(model.getKey()),
@@ -125,11 +128,12 @@ class Adapter {
                 this.getRoot(context).handleError(err);
                 return;
             }
-            model.apply(response, options);
+
+            callback(response);
         });
     }
 
-    update (model, options) {
+    update (model, options, callback) {
         return this.makeRequest({
             requestType: 'update',
             path: this.getPath(model),
@@ -141,11 +145,12 @@ class Adapter {
                 this.getRoot(model).handleError(err);
                 return;
             }
-            model.apply(response, options);
+
+            callback(response);
         });
     }
 
-    destroy (model, options) {
+    destroy (model, options, callback) {
         return this.makeRequest({
             requestType: 'destroy',
             path: this.getPath(model),
@@ -157,7 +162,8 @@ class Adapter {
                 this.getRoot(model).handleError(err);
                 return;
             }
-            model.applyDestroy();
+
+            callback(response);
         });
     }
 }

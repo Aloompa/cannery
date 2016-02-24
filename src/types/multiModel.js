@@ -8,9 +8,12 @@ class MultiModel extends BaseType {
     constructor (owner, Model, options) {
         super(owner, options);
 
-        this.options = options;
+        this.options = options || {};
+        this.map = this.options.map;
         this.Model = Model;
         this.requestCache = new RequestCache();
+
+        this.owner.on('saveSuccess', this.refresh.bind(this));
     }
 
     store (response) {
@@ -61,6 +64,24 @@ class MultiModel extends BaseType {
             });
         } else {
             this.requestMany(options);
+            return [];
+        }
+    }
+
+    add (model, index) {
+        if (this.map) {
+            this.owner.get(this.map).add(model.id, index);
+        }
+    }
+
+    remove (model) {
+        if (this.map) {
+            let mapIds = this.owner.get(this.map).all();
+            let removeIndex = mapIds.indexOf(model.id);
+
+            if (removeIndex >= 0) {
+                this.owner.get(this.map).remove(removeIndex);
+            }
         }
     }
 

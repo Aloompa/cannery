@@ -22,10 +22,11 @@ class OwnsMany extends MultiModel {
             }
 
             let storedModel = this.fetch(id);
+
             if (storedModel) {
                 storedModel.apply(modelData);
             } else {
-                let newModel = new Model(id, this.options.modelOptions);
+                let newModel = new Model(this.owner, id, this.options.modelOptions);
                 newModel.apply(response);
                 this[models][id] = newModel;
             }
@@ -41,15 +42,21 @@ class OwnsMany extends MultiModel {
         let model = this.fetch(id);
 
         if (!model) {
-            model = new ModelConstructor(id);
+            model = new ModelConstructor(this.owner, id);
         }
 
-        Model.getAdapter().fetch(model, options);
+        Model.getAdapter().fetch(model, options, (response) => {
+            model.apply(reponse);
+        });
 
         return model;
     }
 
     requestMany (options) {
-
+        this.Model
+            .getAdapter()
+            .findAll(this.Model, this.owner, options, (response) => {
+                this.apply(reponse, options);
+            });
     }
 }
