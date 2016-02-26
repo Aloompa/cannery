@@ -5,10 +5,8 @@ const Animal = require('./Animal');
 class Exhibit extends Model {
 
     getFields () {
-        const { define } = this;
-
         return {
-            animals: define(OwnsMany, Animal),
+            animals: this.define(OwnsMany, Animal),
             id: StringType,
             name: StringType
         };

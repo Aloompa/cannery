@@ -10,9 +10,10 @@ const validate = require('valid-point');
 
 class ArrayType extends EventEmitter {
 
-    constructor (ArrayType: Function, arrayFields: Object, options: ?Object) {
+    constructor (owner: Object, ArrayType: Function, arrayFields: Object, options: ?Object) {
         super();
 
+        this.owner = owner;
         this.options = options || {};
         this.Type = ArrayType || BaseType;
         this._typeOptions = [];

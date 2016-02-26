@@ -1,17 +1,22 @@
 /* @flow */
 
 const { Root, Types } = require('../../src/index');
-const { StringType, NumberType, BooleanType, OwnsMany } = Types;
+const { StringType, NumberType, BooleanType, OwnsMany, ArrayType } = Types;
 const Exhibit = require('./Exhibit');
 
 class Zoo extends Root {
 
     getFields (): Object {
+        const exhibitIds = this.define(ArrayType, NumberType);
+
         return {
-            exhibits: this.define(OwnsMany, Exhibit),
+            exhibits: this.define(OwnsMany, Exhibit, {
+                map: exhibitIds
+            }),
             id: StringType,
             isOpen: BooleanType,
-            name: StringType
+            name: StringType,
+            exhibit_ids: exhibitIds
         };
     }
 

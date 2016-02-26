@@ -9,7 +9,8 @@ describe('apply and toJSON', () => {
         const data = {
             name: 'The Nashville Zoo',
             isOpen: true,
-            id: '2'
+            id: '2',
+            exhibit_ids: [1, 2, 3]
         };
 
         zoo.apply(data);
@@ -19,6 +20,7 @@ describe('apply and toJSON', () => {
         assert.deepEqual(json.name, 'The Nashville Zoo');
         assert.deepEqual(json.id, '2');
         assert.deepEqual(json.isOpen, true);
+        assert.deepEqual(json.exhibit_ids, [1, 2, 3]);
     });
 
 });
