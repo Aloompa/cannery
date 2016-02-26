@@ -10,8 +10,8 @@ class Animal extends Model {
             name: StringType,
             about: this.define(ObjectType, {
                 isTame: BooleanType
-            })
-            //cubs: define(HasMany, this.constructor),
+            }),
+            //cubs: this.define(HasMany, this.constructor)
             //type: define(HasOne, AnimalType)
         };
     }

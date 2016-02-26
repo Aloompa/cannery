@@ -12,6 +12,11 @@ class Root {
         });
     }
 
+    apply (data: Object): Object {
+        this._fields.apply(data);
+        return this;
+    }
+
     define (Type: Function, ...args: any): Object {
         return () => {
             return new Type(this, ...args);
@@ -29,6 +34,10 @@ class Root {
     set (key: string, value: any): Object {
         this._fields.set(key, value);
         return this;
+    }
+
+    toJSON (): Object {
+        return this._fields.toJSON();
     }
 
 }

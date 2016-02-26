@@ -34,16 +34,4 @@ describe('Getters and Setters', () => {
         assert.equal(animal.get('about').get('isTame'), true);
     });
 
-    it('Should allow us to get the Animals ownsMany from within the Exhibit', () => {
-        const zoo = new Zoo();
-        const exhibit = zoo.get('exhibits').create();
-        const animal = exhibit.get('animals').create();
-
-        animal.set('name', 'Monkey');
-        animal.get('about').set('isTame', true);
-
-        assert.equal(animal.get('name'), 'Monkey');
-        assert.equal(animal.get('about').get('isTame'), true);
-    });
-
 });
