@@ -1,12 +1,13 @@
+/* @flow */
+
 'use strict';
 
 const EventEmitter = require('cannery-event-emitter');
 const validate = require('valid-point');
-const value = Symbol();
 
 class BaseType extends EventEmitter {
 
-    constructor (owner, options = {}) {
+    constructor (owner: Object, options: Object = {}) {
         super();
 
         this.lastModified = new Date().getTime();
@@ -34,47 +35,47 @@ class BaseType extends EventEmitter {
         this.validations = options.validations;
     }
 
-    apply (val) {
+    apply (val: any): Object {
         if (!this.isValueChanged(val)) {
             return this;
         }
 
-        this[value] = val;
+        this._value = val;
         this.lastModified = new Date().getTime();
         this.emit('change');
 
         return this;
     }
 
-    get () {
-        return this[value];
+    get (key: any): any {
+        return this._value;
     }
 
-    isValueChanged (val) {
-        return this[value] !== val;
+    isValueChanged (val: any): boolean {
+        return this._value !== val;
     }
 
-    set (val) {
+    set (val: string): Object {
         if (!this.isValueChanged(val)) {
             return this;
         }
 
-        this[value] = val;
+        this._value = val;
         this.lastModified = new Date().getTime();
         this.emit('change');
         this.emit('userChange');
         return this;
     }
 
-    toJSON () {
-        return this.get();
+    toJSON (): Object {
+        return this._value;
     }
 
-    validate () {
+    validate (key: string): any {
         if (this.validations) {
             return validate({
                 data: {
-                    [ this.fieldName ]: this.get()
+                    [ this.fieldName ]: this._value
                 },
                 validations: {
                     [ this.fieldName ]: this.validations

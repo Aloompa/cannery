@@ -1,26 +1,28 @@
+/* @flow */
+
 'use strict';
 
 const MultiModel = require('./multiModel')
 
 class HasMany extends MultiModel {
-    constructor (owner, Model, options) {
+    constructor (owner: Object, Model: Function, options: ?Object) {
         super(owner, Model, options);
         this.modelStore = this.owner.findOwnsMany(Model);
     }
 
-    store (response) {
+    store (response: Array<Object>) {
         this.modelStore.store(response);
     }
 
-    fetch (id) {
+    fetch (id: string): any {
         this.modelStore.fetch(id);
     }
 
-    requestOne (id, options) {
+    requestOne (id: string, options: ?Object) {
         this.modelStore.requestOne(id, options);
     }
 
-    requestMany (options) {
+    requestMany (options: ?Object) {
         this.modelStore.requestMany(options);
     }
 }

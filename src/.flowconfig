@@ -1,0 +1,10 @@
+[ignore]
+
+[include]
+../node_modules/valid-point
+../node_modules/cannery-event-emitter
+../node_modules/lodash.debounce
+
+[libs]
+
+[options]

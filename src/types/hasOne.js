@@ -1,74 +1,67 @@
+/* @flow */
+
 'use strict';
 
 const BaseType = require('./base');
 const addListenersUtil = require('../util/addListeners');
-const ModelConstructor = Symbol();
-const model = Symbol();
-const map = Symbol();
-const updateMapping = Symbol();
-const getId = Symbol();
 
 class HasOne extends BaseType {
 
-    constructor (Model, options = {}) {
-        super(options);
+    constructor (owner: Object, Model: Function, options: { map: string }) {
+        super(owner, options || {});
 
-        this.options = options;
-        this[map] = options.map;
-        this[ModelConstructor] = Model;
+        this.options = options || {};
+        this._map = this.options.map;
+        this._ModelConstructor = Model;
     }
 
-    [ getId ] () {
-        if (!this[map]) {
+    _getId () {
+        if (!this._map) {
             return;
         }
 
-        return (typeof this[map].get === 'function') ? this[map].get() : this[map];
+        return (typeof this._map.get === 'function') ? this._map.get() : this._map;
     }
 
-    [ updateMapping ] () {
-        if (this[getId]() !== this[model].id) {
-            this[model].id = this[getId]();
-            this[model].emit('change');
+    _updateMapping () {
+        if (this._getId() !== this._model.id) {
+            this._model.id = this._getId();
+            this._model.emit('change');
         }
     }
 
     setParent () {
-        if (!this[model]) {
+        if (!this._model) {
             return;
         }
 
-        this[model].getParent = () => {
+        this._model.getParent = () => {
             return this.parent;
         };
 
-        this[updateMapping]();
+        this._updateMapping();
 
-        this.parent.on('change', this[updateMapping].bind(this));
+        this.parent.on('change', this._updateMapping.bind(this));
 
-        addListenersUtil(this.parent, this[model]);
+        addListenersUtil(this.parent, this._model);
     }
 
-    get () {
-        if (!this[model]) {
-            this[model] = new this[ModelConstructor](this[getId](), this.options);
+    get (): Object {
+        if (!this._model) {
+            this._model = new this._ModelConstructor(this._getId(), this.options);
 
-            this[model].on('change', () => {
+            this._model.on('change', () => {
                 this.emit('change');
             });
 
             this.setParent();
         }
 
-        return this[model];
+        return this._model;
     }
 
-    set () {
-        throw new Error('You cannot set directly on a model');
-    }
-
-    toJSON () {
-        return null;
+    toJSON (): any {
+        return undefined;
     }
 
 }

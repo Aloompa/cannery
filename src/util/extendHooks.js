@@ -1,7 +1,12 @@
+/* @flow */
+
 'use strict';
 
-module.exports = (firstHooks = {}, secondHooks = {}) => {
+module.exports = (firstHooks: Object, secondHooks: Object): Object => {
     let hooks = {};
+
+    firstHooks = firstHooks || {};
+    secondHooks = secondHooks || {};
 
     Object.keys(secondHooks).forEach((hook) => {
         hooks[hook] = (val, val2) => {

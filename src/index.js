@@ -1,8 +1,11 @@
+/* @flow */
+
 'use strict';
 
 const Cannery = {
     Model: require('./model'),
-    BaseAdapter: require('./adapter')
+    Root: require('./root'),
+    BaseAdapter: require('./adapter'),
     Types: {
         AnyType: require('./types/base'),
         BooleanType: require('./types/boolean'),
@@ -12,7 +15,8 @@ const Cannery = {
         ArrayType: require('./types/array'),
         ObjectType: require('./types/object'),
         HasMany: require('./types/hasMany'),
-        HasOne: require('./types/hasOne')
+        HasOne: require('./types/hasOne'),
+        OwnsMany: require('./types/ownsMany')
     }
 };
 

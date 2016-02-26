@@ -1,9 +1,11 @@
+/* @flow */
+
 'use strict';
 
 const eventTypes = require('./eventTypes');
 const debounce = require('lodash.debounce');
 
-module.exports = (base, field) => {
+module.exports = (base: Object, field: Object) => {
 
     eventTypes.forEach((evt) => {
 

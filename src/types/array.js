@@ -1,32 +1,29 @@
+/* @flow */
+
 'use strict';
 
 const EventEmitter = require('cannery-event-emitter');
 const BaseType = require('./base');
 const ObjectType = require('./object');
 const addListenersUtil = require('../util/addListeners');
-const isEqual = require('lodash.isequal');
 const validate = require('valid-point');
-const fields = Symbol();
-const Type = Symbol();
-const getTyped = Symbol();
-const typeOptions = Symbol();
-const typedArray = Symbol();
 
 class ArrayType extends EventEmitter {
 
-    constructor (ArrayType, arrayFields, options = {}) {
+    constructor (ArrayType: Function, arrayFields: Object, options: ?Object) {
         super();
 
-        this[typedArray] = [];
+        this.options = options || {};
         this.Type = ArrayType || BaseType;
-        this[fields] = arrayFields;
-        this[typeOptions] = options;
-        this.validations = options.validations;
+        this._typeOptions = [];
+        this._fields = arrayFields;
+        this._typeOptions = this.options;
+        this.validations = this.options.validations;
         this.set([]);
     }
 
-    add (item, index) {
-        let array = this[typedArray].slice(0);
+    add (item: any, index: number): Object {
+        let array = this._typeOptions.slice(0);
         const typedItem = this.instantiateItem(item);
 
         typedItem.apply(item);
@@ -46,8 +43,8 @@ class ArrayType extends EventEmitter {
         return this;
     }
 
-    all () {
-        const arr = this[typedArray].slice(0).map((item) => {
+    all (): Array<any> {
+        const arr = this._typeOptions.slice(0).map((item) => {
 
             // Object
             if (item instanceof ObjectType) {
@@ -60,7 +57,7 @@ class ArrayType extends EventEmitter {
         return arr;
     }
 
-    apply (data) {
+    apply (data: Array<any>): Object {
         const array = data.map((item) => {
 
             const typedItem = this.instantiateItem(item);
@@ -76,36 +73,32 @@ class ArrayType extends EventEmitter {
         return this;
     }
 
-    forEach (callback) {
+    forEach (callback: Function): void {
         return this.all().forEach(callback);
     }
 
-    get (index) {
+    get (index: number): any {
         return this.all()[index];
     }
 
-    getType () {
+    getType (): Function {
         return this.Type;
     }
 
-    instantiateItem () {
-        return new this.Type(Object.assign({}, this[fields]), Object.assign({}, this[typeOptions]));
+    instantiateItem (): Object {
+        return new this.Type(Object.assign({}, this._fields), Object.assign({}, this._typeOptions));
     }
 
-    isValueChanged (val) {
-        return !isEqual(this.get(), val);
-    }
-
-    length () {
+    length (): number {
         return this.all().length;
     }
 
-    map (callback) {
+    map (callback: Function): Array<any> {
         return this.all().map(callback);
     }
 
-    move (oldIndex, newIndex) {
-        let array = this[typedArray].slice(0);
+    move (oldIndex: number, newIndex: number): Object {
+        let array = this._typeOptions.slice(0);
         const item = array[oldIndex];
 
         array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
@@ -117,8 +110,8 @@ class ArrayType extends EventEmitter {
         return this;
     }
 
-    remove (index) {
-        let array = this[typedArray].slice(0);
+    remove (index: number): Object {
+        let array = this._typeOptions.slice(0);
 
         array.splice(index, 1);
 
@@ -129,7 +122,7 @@ class ArrayType extends EventEmitter {
         return this;
     }
 
-    removeAll () {
+    removeAll (): Object {
         this.set([]);
 
         this.emit('userChange');
@@ -137,18 +130,18 @@ class ArrayType extends EventEmitter {
         return this;
     }
 
-    set (arr) {
-        this[typedArray] = arr;
+    set (arr: Array<any>) {
+        this._typeOptions = arr;
         this.emit('change');
     }
 
-    toJSON () {
+    toJSON (): Array<any> {
         return this.all();
     }
 
-    validate (noRecursion) {
-        if (!noRecursion && this[typedArray]) {
-            this[typedArray].forEach((arrayItem) => {
+    validate (noRecursion: boolean) {
+        if (!noRecursion && this._typeOptions) {
+            this._typeOptions.forEach((arrayItem) => {
                 arrayItem.validate();
             });
         }
