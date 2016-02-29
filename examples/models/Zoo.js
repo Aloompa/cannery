@@ -3,8 +3,13 @@
 const { Root, Types } = require('../../src/index');
 const { StringType, NumberType, BooleanType, OwnsMany, ArrayType } = Types;
 const Exhibit = require('./Exhibit');
+const SessionAdapter = require('../../src/adapters/sessionAdapter');
 
 class Zoo extends Root {
+
+    getAdapter () {
+        return new SessionAdapter(...arguments);
+    }
 
     getFields (): Object {
         const exhibitIds = this.define(ArrayType, NumberType);

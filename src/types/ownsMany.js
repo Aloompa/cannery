@@ -54,7 +54,9 @@ class OwnsMany extends MultiModel {
     }
 
     requestMany (options: ?Object) {
-        this.Model
+        const model = new this.Model(this.owner);
+
+        model
             .getAdapter()
             .findAll(this.Model, this.owner, options, (response) => {
                 this.apply(response, options);

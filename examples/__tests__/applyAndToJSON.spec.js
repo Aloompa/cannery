@@ -1,7 +1,7 @@
 const assert = require('assert');
 const Zoo = require('../models/Zoo');
 
-describe('apply and toJSON', () => {
+/*describe('apply and toJSON', () => {
 
     it('Should allow us to apply() and toJSON() values on the root Zoo', () => {
         const zoo = new Zoo();
@@ -24,3 +24,4 @@ describe('apply and toJSON', () => {
     });
 
 });
+*/

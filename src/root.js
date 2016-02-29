@@ -1,13 +1,16 @@
 /* @flow */
 
+const EventEmitter = require('cannery-event-emitter');
 const ObjectType = require('./types/object');
 
-class Root {
-
-    _fields: Object;
+class Root extends EventEmitter {
 
     constructor () {
-        this._fields = new ObjectType(this, this.getFields(...arguments), {
+        super();
+        
+        const fields = this.getFields(...arguments);
+
+        this._fields = new ObjectType(this, fields, {
             parent: this
         });
     }
@@ -23,7 +26,7 @@ class Root {
         };
     }
 
-    getFields (): any {
+    getFields (): Object {
         throw new Error('The getFields() method is not defined on the Root');
     }
 

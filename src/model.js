@@ -12,7 +12,9 @@ class Model extends EventEmitter {
     constructor (owner: Object, id: string, options: ?Object) {
         super();
 
+        this._owner = owner;
         this.id = id;
+
         const fields = this.getFields(...arguments);
 
         this._fields = new ObjectType(owner, fields, {
@@ -99,8 +101,8 @@ class Model extends EventEmitter {
         // TODO
     }
 
-    getAdapter (options: ?Object): Object {
-        return new Adapter(options);
+    getAdapter (): Object {
+        return this._owner.getAdapter(...arguments);
     }
 
     getParent (): any {
@@ -141,7 +143,7 @@ class Model extends EventEmitter {
         this._fields.validate(key);
         return this;
     }
-    
+
 }
 
 Model.fieldId = 'id';
