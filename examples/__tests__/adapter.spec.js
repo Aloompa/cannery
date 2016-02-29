@@ -3,7 +3,7 @@ const Zoo = require('../models/Zoo');
 
 describe('adapter', () => {
 
-    it('Should allow us to apply() and toJSON() values on the root Zoo', (done) => {
+    /*it('Should allow us to apply() and toJSON() values on the root Zoo', (done) => {
         const zoo = new Zoo();
 
         zoo.on('fetchSuccess', () => {
@@ -11,6 +11,6 @@ describe('adapter', () => {
         });
 
         zoo.get('exhibits').all();
-    });
+    });*/
 
 });

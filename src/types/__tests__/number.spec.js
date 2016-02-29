@@ -30,19 +30,5 @@ describe('The Number type', () => {
             assert.equal(String(field.get()), 'NaN');
         });
 
-        it('Should run additional get hooks after the default number get hook', () => {
-            const field = new NumberType({
-                hooks: {
-                    get: (val) => {
-                        return val * 2;
-                    }
-                }
-            });
-
-            field.set('5');
-
-            assert.equal(field.get(), 10);
-        });
-
     });
 });

@@ -40,19 +40,5 @@ describe('The Boolean type', () => {
             assert.equal(field.get(), false);
         });
 
-        it('Should fire additional get hooks after the first one', () => {
-            const field = new BooleanType({
-                hooks: {
-                    get: (val) => {
-                        return !val;
-                    }
-                }
-            });
-
-            field.set('false');
-
-            assert.equal(field.get(), true);
-        });
-
     });
 });

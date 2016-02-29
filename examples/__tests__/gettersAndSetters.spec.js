@@ -34,4 +34,34 @@ describe('Getters and Setters', () => {
         assert.equal(animal.get('about').get('isTame'), true);
     });
 
+    it('Should allow us to get and set AnimalType hasOne relationship on Animal', () => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+        const animal = exhibit.get('animals').create();
+        const animalType = animal.get('animalType');
+
+        animalType.set('name', 'Zebra');
+        assert.equal(animalType.get('name'), 'Zebra');
+    });
+
+    it('Should be possible for an animal to have many cubs', () => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+        const sarafina = exhibit.get('animals').create();
+
+        const nala = sarafina.get('cubs').create();
+
+        nala.set('name', 'Nala');
+        assert.equal(nala.get('name'), 'Nala');
+    });
+
+    it('Should be possible to get and set an ownsOne relationship', () => {
+        const zoo = new Zoo();
+        const zookeeper = zoo.get('zookeeper');
+
+        zookeeper.set('name', 'Zookeeper Sam');
+
+        assert.equal(zookeeper.get('name'), 'Zookeeper Sam');
+    });
+
 });

@@ -22,19 +22,5 @@ describe('The String type', () => {
             assert.equal(field.get(), '100');
         });
 
-        it('Should call additional get hooks after string conversion', () => {
-            const field = new StringType({
-                hooks: {
-                    get: (val) => {
-                        return val + 100;
-                    }
-                }
-            });
-
-            field.set(100);
-
-            assert.equal(field.get(), '100100');
-        });
-
     });
 });

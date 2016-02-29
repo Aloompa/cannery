@@ -1,8 +1,9 @@
 /* @flow */
 
 const { Root, Types } = require('../../src/index');
-const { StringType, NumberType, BooleanType, OwnsMany, ArrayType } = Types;
+const { StringType, NumberType, BooleanType, OwnsMany, ArrayType, OwnsOne } = Types;
 const Exhibit = require('./Exhibit');
+const Zookeeper = require('./Zookeeper');
 const SessionAdapter = require('../../src/adapters/sessionAdapter');
 
 class Zoo extends Root {
@@ -21,7 +22,8 @@ class Zoo extends Root {
             id: StringType,
             isOpen: BooleanType,
             name: StringType,
-            exhibit_ids: exhibitIds
+            exhibitIds: exhibitIds,
+            zookeeper: this.define(OwnsOne, Zookeeper)
         };
     }
 
