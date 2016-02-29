@@ -1,3 +1,5 @@
+/* @flow */
+
 'use strict';
 
 const defaultOptions = {
@@ -5,11 +7,14 @@ const defaultOptions = {
 };
 
 class Adapter {
-    constructor (options = {}) {
-        this.options = Object.assign({}, defaultOptions, options);
+
+    options: Object;
+
+    constructor (options: ?Object) {
+        this.options = Object.assign({}, defaultOptions, options || {});
     }
 
-    getAncestry (model) {
+    getAncestry (model: Object): Array<Object> {
         let modelScope = model.getScope();
 
         if (!modelScope) {
@@ -19,22 +24,23 @@ class Adapter {
         return this.getAncestry(modelScope).concat(model);
     }
 
-    getPathObject (model) {
+    getPathObject (model: any): Object {
         if (Array.isArray(model)) {
             return model.map(this.getPathObject);
+
         } else if (model.constructor.getKey) {
-            // model is instantiated
             return {
                 key: model.constructor.getKey(),
                 id: model.id,
                 keySingular: model.constructor.getKey(true)
             };
+
         } else if (model.getKey) {
-            // model is a constructor
             return {
                 key: model.getKey(),
                 singular: model.getKey(true)
             };
+
         } else {
             return {
                 key: model.toString()
@@ -42,30 +48,20 @@ class Adapter {
         }
     }
 
-    getPath (model) {
-        return this.getPathObject(this.getAncestry(model));
+    getPath (model: Object): any {
+        const ancestory = this.getAncestry(model);
+        return this.getPathObject(ancestory);
     }
 
-    getRoot (model) {
+    getRoot (model: Object): Object {
         return this.getAncestry(model)[0];
     }
 
-    makeRequest (request, callback) {
-        /*
-            request is a JSON object of the form:
-            {
-                requestType: 'getOne' or 'getMany' or 'create' or 'update' or 'destroy',
-                path: ['rootKey', 'grandparentKey', 'parentKey', 'resorceKey'],
-                id: model.id or null,
-                payload: an object of data to include in request or null,
-                options: an object of options set by user
-            }
-         */
-
+    makeRequest (request: Object, callback: Function): void {
         throw new Error('makeRequest is virtual and must be overriden.');
     }
 
-    fetch (model, options, callback) {
+    fetch (model: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
             requestType: 'getOne',
             path: this.getPath(model),
@@ -82,27 +78,10 @@ class Adapter {
         });
     }
 
-    fetchWithin (Model, context, options, callback) {
+    fetchWithin (Model: Function, context: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
             requestType: 'getOne',
             path: this.getPath(context).push(Model.getKey(true)),
-            id: null,
-            payload: null,
-            options: options
-        }, (reponse, err) => {
-            if (err) {
-                this.getRoot(context).handleError(err);
-                return;
-            }
-
-            callback(response);
-        });
-    }
-
-    findAll (Model, context, options, callback) {
-        return this.makeRequest({
-            requestType: 'getMany',
-            path: this.getPath(context).push(ChildModel.getKey()),
             id: null,
             payload: null,
             options: options
@@ -116,7 +95,24 @@ class Adapter {
         });
     }
 
-    create (model, context, options, callback) {
+    findAll (Model: Function, context: Object, options: ?Object, callback: Function): void {
+        return this.makeRequest({
+            requestType: 'getMany',
+            path: this.getPath(context).push(Model.getKey()),
+            id: null,
+            payload: null,
+            options: options
+        }, (response, err) => {
+            if (err) {
+                this.getRoot(context).handleError(err);
+                return;
+            }
+
+            callback(response);
+        });
+    }
+
+    create (model: Object, context: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
             requestType: 'create',
             path: this.getPath(context).push(model.getKey()),
@@ -133,14 +129,14 @@ class Adapter {
         });
     }
 
-    update (model, options, callback) {
+    update (model: Object, options: ?Object, callback: Function):any {
         return this.makeRequest({
             requestType: 'update',
             path: this.getPath(model),
             id: model.id,
             payload: model.toJson({excludeUnchanged: this.options.excludeUnchanged}),
             options: options
-        }, (reponse, err) => {
+        }, (response, err) => {
             if (err) {
                 this.getRoot(model).handleError(err);
                 return;
@@ -150,7 +146,7 @@ class Adapter {
         });
     }
 
-    destroy (model, options, callback) {
+    destroy (model: Object, options: ?Object, callback: Function):any {
         return this.makeRequest({
             requestType: 'destroy',
             path: this.getPath(model),

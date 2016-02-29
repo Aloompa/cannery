@@ -1,16 +1,17 @@
+/* @flow */
+
 'use strict';
 
 const MultiModel = require('./multiModel');
 
-const models = Symbol();
-
 class OwnsMany extends MultiModel {
-    constructor(owner, Model, options) {
-        super(owner, Model, options);
-        this[models] = {};
+
+    constructor(owner: Object, Model: Function, options: ?Object) {
+        super(...arguments);
+        this._models = {};
     }
 
-    store (response) {
+    store (response: Array<Object>) {
         const Model = this.Model;
         const idKey = this.Model.idField;
 
@@ -28,16 +29,16 @@ class OwnsMany extends MultiModel {
             } else {
                 let newModel = new Model(this.owner, id, this.options.modelOptions);
                 newModel.apply(response);
-                this[models][id] = newModel;
+                this._models[id] = newModel;
             }
         });
     }
 
-    fetch (id) {
-        return this[models][id];
+    fetch (id: string): Object {
+        return this._models[id];
     }
 
-    requestOne (id, options) {
+    requestOne (id: string, options: ?Object): any {
         const ModelConstructor = this.Model;
         let model = this.fetch(id);
 
@@ -45,18 +46,22 @@ class OwnsMany extends MultiModel {
             model = new ModelConstructor(this.owner, id);
         }
 
-        Model.getAdapter().fetch(model, options, (response) => {
-            model.apply(reponse);
+        model.getAdapter().fetch(model, options, (response) => {
+            model.apply(response);
         });
 
         return model;
     }
 
-    requestMany (options) {
-        this.Model
+    requestMany (options: ?Object) {
+        const model = new this.Model(this.owner);
+
+        model
             .getAdapter()
             .findAll(this.Model, this.owner, options, (response) => {
-                this.apply(reponse, options);
+                this.apply(response, options);
             });
     }
 }
+
+module.exports = OwnsMany;
