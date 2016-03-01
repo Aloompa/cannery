@@ -2,15 +2,21 @@
 
 'use strict';
 
-const EventEmitter = require('cannery-event-emitter');
 const addListenersUtil = require('./util/addListeners');
 const ObjectType = require('./types/object');
 const Adapter = require('./adapters/sessionAdapter');
 
-class Model extends EventEmitter {
+class Model {
+
+    id: string;
+    options: ?Object;
+    _owner: Object;
+    _fields: Object;
+    _isFetched: boolean;
+    _isChanged: boolean;
+    _isSaving: boolean;
 
     constructor (owner: Object, id: string, options: ?Object) {
-        super();
 
         this._owner = owner;
         this.id = id;
@@ -101,6 +107,10 @@ class Model extends EventEmitter {
         // TODO
     }
 
+    findOwnsMany () {
+        // TODO
+    }
+
     getAdapter (): Object {
         return this._owner.getAdapter(...arguments);
     }
@@ -119,6 +129,18 @@ class Model extends EventEmitter {
 
     isSaving (): boolean {
         return this._isSaving;
+    }
+
+    off (): any {
+        return this._fields.off(...arguments);
+    }
+
+    on (): Function {
+        return this._fields.on(...arguments);
+    }
+
+    emit (): Function {
+        return this._fields.emit(...arguments);
     }
 
     refresh (options: ?Object) {

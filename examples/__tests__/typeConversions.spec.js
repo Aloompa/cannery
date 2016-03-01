@@ -15,9 +15,9 @@ describe('Type conversions', () => {
         const zoo = new Zoo();
         const zookeeper = zoo.get('zookeeper');
 
-        zookeeper.set('luckNumber', '43');
+        zookeeper.set('luckyNumber', '43');
 
-        assert.equal(zookeeper.get('luckNumber'), 43);
+        assert.equal(zookeeper.get('luckyNumber'), 43);
     });
 
     it('Should convert strings', () => {

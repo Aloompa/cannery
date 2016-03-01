@@ -51,7 +51,8 @@ describe('Event bubbling', function () {
         const zoo = new Zoo();
         const zookeeper = zoo.get('zookeeper');
 
-        zoo.on('userChange', () => {
+        const userChange = zoo.on('userChange', () => {
+            zoo.off('userChange', userChange);
             done();
         });
 

@@ -3,11 +3,12 @@
 const EventEmitter = require('cannery-event-emitter');
 const ObjectType = require('./types/object');
 
-class Root extends EventEmitter {
+class Root {
+
+    _fields: Object;
 
     constructor () {
-        super();
-        
+
         const fields = this.getFields(...arguments);
 
         this._fields = new ObjectType(this, fields, {
@@ -37,6 +38,14 @@ class Root extends EventEmitter {
     set (key: string, value: any): Object {
         this._fields.set(key, value);
         return this;
+    }
+
+    off (): any {
+        return this._fields.off(...arguments);
+    }
+
+    on (): Function {
+        return this._fields.on(...arguments);
     }
 
     toJSON (): Object {

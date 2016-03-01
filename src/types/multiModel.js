@@ -10,6 +10,7 @@ class MultiModel extends BaseType {
     constructor (owner: Object, Model: Function, options: ?Object) {
         super(owner, options || {});
 
+        this._watchedModels = [];
         this.options = options || {};
         this.map = this.options.map;
         this.Model = Model;
@@ -20,7 +21,9 @@ class MultiModel extends BaseType {
 
     create (): Object {
         const ModelConstructor = this.Model;
-        return new ModelConstructor(this.owner);
+        const model = new ModelConstructor(this.owner);
+        this._watchedModels.push(model);
+        return model;
     }
 
     store (response: Array<Object>): void {
