@@ -105,7 +105,11 @@ class ObjectType extends BaseType {
         let json = {};
 
         Object.keys(this._fields).map((key) => {
-            json[key] = this._fields[key].toJSON(options);
+            const value = this._fields[key].toJSON(options);
+            
+            if (value !== undefined) {
+                json[key] = value;
+            }
         });
 
         return json;

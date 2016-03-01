@@ -75,8 +75,7 @@ class OwnsMany extends MultiModel {
     toJSON (options : Object = {}): any {
         if (options.recursive) {
             return Object.keys(this._models).map((id) => {
-                console.log(this._models[id]);
-                return this._models[id].toJSON();
+                return this._models[id].toJSON(options);
             });
         }
 

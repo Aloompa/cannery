@@ -69,7 +69,7 @@ class Model {
     }
 
     apply (data: Object): Object {
-        const responseId = data[this.constructor.fieldId];
+        const responseId = data.id;
 
         if (!this.id) {
             this.id = responseId;
@@ -164,6 +164,10 @@ class Model {
     validate (key: ?string): Object {
         this._fields.validate(key);
         return this;
+    }
+
+    static getKey () {
+        // TODO
     }
 
 }
