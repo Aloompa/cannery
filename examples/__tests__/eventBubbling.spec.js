@@ -7,7 +7,8 @@ describe('Event bubbling', function () {
     it('Should emit a change event when we apply to the root', function (done) {
         const zoo = new Zoo();
 
-        zoo.on('change', () => {
+        const change = zoo.on('change', () => {
+            zoo.off('change', change);
             done();
         });
 
@@ -19,7 +20,8 @@ describe('Event bubbling', function () {
     it('Should emit a change event when we set to the root', function (done) {
         const zoo = new Zoo();
 
-        zoo.on('change', () => {
+        const change = zoo.on('change', () => {
+            zoo.off('change', change);
             done();
         });
 
@@ -29,7 +31,8 @@ describe('Event bubbling', function () {
     it('Should emit a userChange event when we set to the root', function (done) {
         const zoo = new Zoo();
 
-        zoo.on('userChange', () => {
+        const userChange = zoo.on('userChange', () => {
+            zoo.off('userChange', userChange);
             done();
         });
 
@@ -40,7 +43,8 @@ describe('Event bubbling', function () {
         const zoo = new Zoo();
         const exhibit = zoo.get('exhibits').create();
 
-        zoo.on('userChange', () => {
+        const userChange = zoo.on('userChange', () => {
+            zoo.off('userChange', userChange);
             done();
         });
 
@@ -65,7 +69,8 @@ describe('Event bubbling', function () {
         const bear = exhibit.get('animals').create();
         const cub = bear.get('cubs').create();
 
-        zoo.on('userChange', () => {
+        const userChange = zoo.on('userChange', () => {
+            zoo.off('userChange', userChange);
             done();
         });
 
@@ -78,7 +83,13 @@ describe('Event bubbling', function () {
         const dog = exhibit.get('animals').create();
         const puppy = dog.get('cubs').create();
 
-        zoo.on('bark', () => {
+        const bark = zoo.on('bark', () => {
+            zoo.off('bark', bark);
+            done();
+        });
+
+        const bark2 = dog.on('bark', () => {
+            dog.off('bark', bark2);
             done();
         });
 

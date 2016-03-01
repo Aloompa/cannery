@@ -2,11 +2,12 @@
 
 'use strict';
 
-const addListenersUtil = require('./util/addListeners');
 const ObjectType = require('./types/object');
 const Adapter = require('./adapters/sessionAdapter');
 
 class Model {
+
+    static fieldId: string;
 
     id: string;
     options: ?Object;
@@ -16,38 +17,22 @@ class Model {
     _isChanged: boolean;
     _isSaving: boolean;
 
-    constructor (owner: Object, id: string, options: ?Object) {
+    constructor (owner: Object, parent: Object, id: string, options: ?Object) {
 
         this._owner = owner;
         this.id = id;
 
         const fields = this.getFields(...arguments);
 
-        this._fields = new ObjectType(owner, fields, {
+        this._fields = new ObjectType(owner, this, fields, {
             parent: this
         });
 
         this._isFetched = false;
         this.options = options;
 
-        addListenersUtil(this, this._fields);
-
-        this.on('userChange', () => {
-            this._isChanged = true;
-        });
-
-        this.on('saving', () => {
-            this._isSaving = true;
-            this.emit('change');
-        });
-
-        this.on('saveSuccess', () => {
-            this._isChanged = false;
-            this._isSaving = false;
-        });
-
-        this.on('saveError', () => {
-            this._isSaving = false;
+        this.on('bark', () => {
+            console.log('woof');
         });
     }
 
@@ -82,7 +67,7 @@ class Model {
 
     define (Type: Function, ...args: any): Object {
         return () => {
-            return new Type(this, ...args);
+            return new Type(this._owner, this, ...args);
         };
     }
 
@@ -139,8 +124,15 @@ class Model {
         return this._fields.on(...arguments);
     }
 
-    emit (): Function {
-        return this._fields.emit(...arguments);
+    emit (): Object {
+        const parent = this.getParent();
+
+        if (parent) {
+            console.log('EMIT', parent);
+            parent.emit(...arguments);
+        }
+
+        return this;
     }
 
     refresh (options: ?Object) {

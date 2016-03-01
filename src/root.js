@@ -11,7 +11,7 @@ class Root {
 
         const fields = this.getFields(...arguments);
 
-        this._fields = new ObjectType(this, fields, {
+        this._fields = new ObjectType(this, this, fields, {
             parent: this
         });
     }
@@ -23,7 +23,7 @@ class Root {
 
     define (Type: Function, ...args: any): Object {
         return () => {
-            return new Type(this, ...args);
+            return new Type(this, this, ...args);
         };
     }
 
@@ -32,6 +32,10 @@ class Root {
     }
 
     getScope () {
+        // TODO
+    }
+
+    findOwnsMany () {
         // TODO
     }
 
@@ -44,12 +48,18 @@ class Root {
         return this;
     }
 
-    off (): any {
-        return this._fields.off(...arguments);
+    off (): Object {
+        this._fields.off(...arguments);
+        return this;
     }
 
     on (): Function {
         return this._fields.on(...arguments);
+    }
+
+    emit (): Object {
+        this._fields.emit(...arguments);
+        return this;
     }
 
     toJSON (options: ?Object): Object {

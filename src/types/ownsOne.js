@@ -6,7 +6,7 @@ const BaseType = require('./base');
 
 class OwnsOne extends BaseType {
 
-    constructor (owner: Object, Model: Function, options: Object = {}) {
+    constructor (owner: Object, parent: Object, Model: Function, options: Object = {}) {
         super(owner, options);
 
         if (!options.map) {
