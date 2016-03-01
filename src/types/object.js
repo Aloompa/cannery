@@ -101,11 +101,11 @@ class ObjectType extends BaseType {
         return this;
     }
 
-    toJSON (): Object {
+    toJSON (options: ?Object): Object {
         let json = {};
 
         Object.keys(this._fields).map((key) => {
-            json[key] = this._fields[key].toJSON();
+            json[key] = this._fields[key].toJSON(options);
         });
 
         return json;

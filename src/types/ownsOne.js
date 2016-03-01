@@ -31,7 +31,8 @@ class OwnsOne extends BaseType {
     }
 
     off (): any {
-        return this._model.off(...arguments);
+        this._model.off(...arguments);
+        return this;
     }
 
     on (): Function {
@@ -39,7 +40,8 @@ class OwnsOne extends BaseType {
     }
 
     emit (): Function {
-        return this._model.emit(...arguments);
+        this._model.emit(...arguments);
+        return this;
     }
 
     request () {

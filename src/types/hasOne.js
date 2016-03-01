@@ -60,7 +60,11 @@ class HasOne extends BaseType {
         return this._model;
     }
 
-    toJSON (): any {
+    toJSON (options: Object = {}): any {
+        if (options.recursive) {
+            return super.toJSON(options);
+        }
+
         return undefined;
     }
 

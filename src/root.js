@@ -48,8 +48,8 @@ class Root {
         return this._fields.on(...arguments);
     }
 
-    toJSON (): Object {
-        return this._fields.toJSON();
+    toJSON (options: ?Object): Object {
+        return this._fields.toJSON(options);
     }
 
 }

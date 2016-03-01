@@ -157,8 +157,8 @@ class Model {
 
     }
 
-    toJSON (): Object {
-        return this._fields.toJSON();
+    toJSON (options: ?Object): Object {
+        return this._fields.toJSON(options);
     }
 
     validate (key: ?string): Object {

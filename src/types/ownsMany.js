@@ -62,6 +62,26 @@ class OwnsMany extends MultiModel {
                 this.apply(response, options);
             });
     }
+
+    apply (data : Array<Object>) {
+        data.forEach((item) => {
+            const model = new this.Model(this.owner);
+
+            this._models[item.id] = model;
+            model.apply(item);
+        });
+    }
+
+    toJSON (options : Object = {}): any {
+        if (options.recursive) {
+            return Object.keys(this._models).map((id) => {
+                console.log(this._models[id]);
+                return this._models[id].toJSON();
+            });
+        }
+
+        return [];
+    }
 }
 
 module.exports = OwnsMany;
