@@ -8,8 +8,14 @@ const SessionAdapter = require('../../src/adapters/sessionAdapter');
 
 class Zoo extends Root {
 
+    constructor () {
+        super(...arguments);
+
+        this.adapter = new SessionAdapter();
+    }
+
     getAdapter () {
-        return new SessionAdapter(...arguments);
+        return this.adapter;
     }
 
     getFields (): Object {

@@ -13,7 +13,7 @@ class Root {
         
         const fields = this.getFields(...arguments);
 
-        this._fields = new ObjectType(this, this, fields, {
+        this._fields = new ObjectType(this, fields, {
             parent: this
         });
     }
@@ -25,7 +25,7 @@ class Root {
 
     define (Type: Function, ...args: any): Object {
         return () => {
-            return new Type(this, this, ...args);
+            return new Type(this, ...args);
         };
     }
 

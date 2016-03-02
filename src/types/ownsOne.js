@@ -6,8 +6,8 @@ const BaseType = require('./base');
 
 class OwnsOne extends BaseType {
 
-    constructor (owner: Object, parent: Object, Model: Function, options: Object = {}) {
-        super(owner, options);
+    constructor (parentModel: Object, Model: Function, options: Object = {}) {
+        super(parentModel, options);
 
         this.options = options;
         this._model = new Model();
@@ -21,8 +21,8 @@ class OwnsOne extends BaseType {
     get (): ?Object {
         if (!this._fetched) {
             this._fetched = true;
-            this._model._owner = this.owner;
-            this._model.id = this.owner.get(this.map).get();
+            this._model._owner = this._parent;
+            this._model.id = this.map.get();
             this.request();
         }
 
