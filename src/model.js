@@ -4,6 +4,7 @@
 
 const ObjectType = require('./types/object');
 const Adapter = require('./adapters/sessionAdapter');
+const OwnsMany = require('./types/ownsMany');
 
 class Model {
 
@@ -11,22 +12,20 @@ class Model {
 
     id: string;
     options: ?Object;
-    _owner: Object;
     _parent: Object;
     _fields: Object;
     _isFetched: boolean;
     _isChanged: boolean;
     _isSaving: boolean;
 
-    constructor (owner: Object, parent: Object, id: string, options: ?Object) {
+    constructor (parentModel: Object, id: string, options: ?Object) {
 
-        this._owner = owner;
-        this._parent = parent;
+        this._parent = parentModel;
         this.id = id;
 
         const fields = this.getFields(...arguments);
 
-        this._fields = new ObjectType(owner, this, fields, {
+        this._fields = new ObjectType(this, fields, {
             parent: this
         });
 
@@ -35,7 +34,7 @@ class Model {
     }
 
     _doFetch (options: ?Object): Object {
-        const parent = this.getParent();
+        const parent = this._parent;
         const adapter = this.getAdapter();
 
         options = Object.assign({}, options, this.options);
@@ -64,9 +63,14 @@ class Model {
     }
 
     define (Type: Function, ...args: any): Object {
-        return () => {
-            return new Type(this._owner, this, ...args);
+        const fn = () => {
+            return new Type(this, ...args);
         };
+
+        fn.Type = Type;
+        fn.typeArguments = [...args];
+
+        return fn;
     }
 
     destroy (options: ?Object): void {
@@ -86,20 +90,34 @@ class Model {
         return this._fields.get(key);
     }
 
-    getScope () {
-        // TODO
+    getScope (): Object {
+        return this._parent;
     }
 
-    findOwnsMany () {
-        // TODO
+    findOwnsMany (Model: Function) {
+        let parent = this.getScope();
+
+        if (!parent) {
+            return;
+        }
+
+        while (parent) {
+            const fields = parent.getFields();
+
+            for (let key in fields) {
+                const field = fields[key];
+
+                if (field.Type === OwnsMany && field.typeArguments[0] === Model) {
+                    return parent.constructor.getKey();
+                }
+            }
+
+            parent = parent.getScope();
+        }
     }
 
     getAdapter (): Object {
-        return this._owner.getAdapter(...arguments);
-    }
-
-    getParent (): any {
-        return null;
+        return this.getScope().getAdapter(...arguments);
     }
 
     getFields (): Object {

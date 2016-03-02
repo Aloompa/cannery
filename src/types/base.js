@@ -7,12 +7,11 @@ const validate = require('valid-point');
 
 class BaseType extends EventEmitter {
 
-    constructor (owner: Object, parent: Object, options: Object = {}) {
+    constructor (parentModel: Object, options: Object = {}) {
         super();
 
         this.lastModified = new Date().getTime();
-        this.owner = owner;
-        this.parent = parent;
+        this._parent = parentModel;
 
         Object.assign(this, options);
 

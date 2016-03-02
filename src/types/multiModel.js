@@ -8,8 +8,8 @@ const RequestCache = require('../util/requestCache');
 
 class MultiModel extends BaseType {
 
-    constructor (owner: Object,  parent: Object, Model: Function, options: ?Object) {
-        super(owner, options || {});
+    constructor (parentModel: Object, Model: Function, options: ?Object) {
+        super(parentModel, options || {});
 
         this._watchedModels = [];
         this.options = options || {};
@@ -22,7 +22,7 @@ class MultiModel extends BaseType {
 
     _instantiateModel (id: ?string): Object {
         const { Model } = this;
-        const model = new Model(this.owner, this.parent, id, this.options.modelOptions);
+        const model = new Model(this._parent, this._parent, id, this.options.modelOptions);
 
         // Add new models to any existing listeners
         Object.keys(this._listeners).forEach((listenerType) => {
@@ -126,17 +126,17 @@ class MultiModel extends BaseType {
 
     add (model: Object, index: number) {
         if (this.map) {
-            this.owner.get(this.map).add(model.id, index);
+            this._parent.get(this.map).add(model.id, index);
         }
     }
 
     remove (model: Object) {
         if (this.map) {
-            let mapIds = this.owner.get(this.map).all();
+            let mapIds = this._parent.get(this.map).all();
             let removeIndex = mapIds.indexOf(model.id);
 
             if (removeIndex >= 0) {
-                this.owner.get(this.map).remove(removeIndex);
+                this._parent.get(this.map).remove(removeIndex);
             }
         }
     }
