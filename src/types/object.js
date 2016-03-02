@@ -9,8 +9,8 @@ const validate = require('valid-point');
 
 class ObjectType extends BaseType {
 
-    constructor (owner: Object,  parent: Object, fields: Object, options: ?Object) {
-        super(owner, options || {});
+    constructor (parentModel: Object, fields: Object, options: ?Object) {
+        super(parentModel, options || {});
         this.initialize(fields);
     }
 
@@ -22,7 +22,7 @@ class ObjectType extends BaseType {
 
     _applyFieldParent () {
         Object.keys(this._fields).forEach((key) => {
-            this._fields[key].parent = this.parent;
+            this._fields[key].parent = this._parent;
             if (typeof this._fields[key].setParent === 'function') {
                 this._fields[key].setParent();
             }
@@ -77,7 +77,7 @@ class ObjectType extends BaseType {
     }
 
     initialize (initalFields: Object) {
-        this._fields = parseFields(this.owner, this.parent, initalFields);
+        this._fields = parseFields(this._parent, initalFields);
         this._applyFieldNames();
         this._applyFieldParent();
     }

@@ -6,8 +6,8 @@ const MultiModel = require('./multiModel');
 
 class OwnsMany extends MultiModel {
 
-    constructor(owner: Object,  parent: Object, Model: Function, options: ?Object) {
-        super(...arguments);
+    _getModelById (id: string): Object {
+        return this._models[id];
     }
 
     store (response: Array<Object>) {
@@ -20,7 +20,7 @@ class OwnsMany extends MultiModel {
                 return;
             }
 
-            let storedModel = this.fetch(id);
+            let storedModel = this._getModelById(id);
 
             if (storedModel) {
                 storedModel.apply(modelData);
@@ -32,12 +32,8 @@ class OwnsMany extends MultiModel {
         });
     }
 
-    fetch (id: string): Object {
-        return this._models[id];
-    }
-
     requestOne (id: string, options: ?Object): any {
-        let model = this.fetch(id);
+        let model = this._getModelById(id);
 
         if (!model) {
             model = this._instantiateModel(id);
@@ -55,7 +51,7 @@ class OwnsMany extends MultiModel {
 
         model
             .getAdapter()
-            .findAll(this.Model, this.owner, options, (response) => {
+            .findAll(this.Model, this._parent, options, (response) => {
                 this.apply(response, options);
             });
     }

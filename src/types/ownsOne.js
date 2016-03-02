@@ -6,15 +6,15 @@ const BaseType = require('./base');
 
 class OwnsOne extends BaseType {
 
-    constructor (owner: Object, parent: Object, Model: Function, options: Object = {}) {
-        super(owner, options);
+    constructor (parentModel: Object, Model: Function, options: Object = {}) {
+        super(parentModel, options);
 
         if (!options.map) {
             throw new Error('The OwnsOne type must be mapped to an id field');
         }
 
         Object.assign(this, {
-            _model: new Model(),
+            _model: new Model(parentModel),
             _fetched: false
         }, options);
     }
@@ -22,7 +22,7 @@ class OwnsOne extends BaseType {
     get (): ?Object {
         if (!this._fetched) {
             this._fetched = true;
-            this._model._owner = this.owner;
+            this._model._owner = this._parent;
             this._model.id = this.map.get();
             this.request();
         }

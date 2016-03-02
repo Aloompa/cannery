@@ -6,9 +6,9 @@ const MultiModel = require('./multiModel')
 
 class HasMany extends MultiModel {
 
-    constructor (owner: Object,  parent: Object, Model: Function, options: ?Object) {
-        super(owner, parent, Model, options);
-        this.modelStore = owner.findOwnsMany(Model);
+    constructor (parentModel: Object, Model: Function, options: ?Object) {
+        super(parentModel, Model, options);
+        this.modelStore = parentModel.findOwnsMany(Model);
     }
 
     store (response: Array<Object>) {

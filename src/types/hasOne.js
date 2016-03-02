@@ -6,14 +6,14 @@ const BaseType = require('./base');
 
 class HasOne extends BaseType {
 
-    constructor (owner: Object, parent: Object, Model: Function, options: { map: string }) {
-        super(owner, options || {});
+    constructor (parentModel: Object, Model: Function, options: { map: string }) {
+        super(parentModel, options || {});
 
-        this.parent = parent;
+        this._parent = parentModel;
         this.options = options || {};
         this._map = this.options.map;
         this._ModelConstructor = Model;
-        this._model = new Model(owner, parent);
+        this._model = new Model(parentModel);
     }
 
     _getId () {
