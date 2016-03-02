@@ -10,19 +10,13 @@ class OwnsOne extends BaseType {
         super(parentModel, options);
 
         this.options = options;
-        this._model = new Model();
+        this._model = new Model(parentModel);
         this._fetched = false;
-
-        if (options.map) {
-            this.map = this.owner.get(options.map);
-        }
     }
 
-    get (): ?Object {
+    get (options): ?Object {
         if (!this._fetched) {
             this._fetched = true;
-            this._model._owner = this._parent;
-            this._model.id = this.map.get();
             this.request();
         }
 
@@ -43,10 +37,18 @@ class OwnsOne extends BaseType {
         return this;
     }
 
-    request () {
-        this._model.getAdapter().fetch(this._model, {}, (response) => {
-            this._model.apply(response);
-        });
+    request (options) {
+        this._parent
+            .getAdapter()
+            .fetchWithin(
+                this._model.constructor,
+                this._parent,
+                options,
+                (data) => {
+                    this._model.apply(data);
+                    this._fetched = true;
+                }
+            );
     }
 }
 
