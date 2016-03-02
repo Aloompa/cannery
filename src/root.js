@@ -3,14 +3,15 @@
 const EventEmitter = require('cannery-event-emitter');
 const ObjectType = require('./types/object');
 
-class Root extends EventEmitter {
+class Root {
+
+    _fields: Object;
 
     constructor () {
-        super();
-        
+
         const fields = this.getFields(...arguments);
 
-        this._fields = new ObjectType(this, fields, {
+        this._fields = new ObjectType(this, this, fields, {
             parent: this
         });
     }
@@ -22,12 +23,20 @@ class Root extends EventEmitter {
 
     define (Type: Function, ...args: any): Object {
         return () => {
-            return new Type(this, ...args);
+            return new Type(this, this, ...args);
         };
     }
 
     getFields (): Object {
         throw new Error('The getFields() method is not defined on the Root');
+    }
+
+    getScope () {
+        // TODO
+    }
+
+    findOwnsMany () {
+        // TODO
     }
 
     get (key: string): any {
@@ -39,8 +48,26 @@ class Root extends EventEmitter {
         return this;
     }
 
-    toJSON (): Object {
-        return this._fields.toJSON();
+    off (): Object {
+        this._fields.off(...arguments);
+        return this;
+    }
+
+    on (): Function {
+        return this._fields.on(...arguments);
+    }
+
+    emit (): Object {
+        this._fields.emit(...arguments);
+        return this;
+    }
+
+    toJSON (options: ?Object): Object {
+        return this._fields.toJSON(options);
+    }
+
+    static getKey () {
+        // TODO
     }
 
 }

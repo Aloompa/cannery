@@ -2,11 +2,11 @@
 
 'use strict';
 
-module.exports = (fields: Object): Object => {
+module.exports = (owner: Object, parent: Object, fields: Object): Object => {
     for (let field in fields) {
         if (fields.hasOwnProperty(field)) {
             if (typeof fields[field] === 'function') {
-                fields[field] = new fields[field]();
+                fields[field] = new fields[field](owner, parent);
             }
         }
     }
