@@ -3,7 +3,7 @@ const Zoo = require('../models/Zoo');
 
 describe('Fetch and save', () => {
 
-    it('Should be possible save a ownsOne model'/*, () => {
+    it('Should be possible save a ownsOne model', () => {
         const zoo = new Zoo();
         const zookeeper = zoo.get('zookeeper');
 
@@ -14,7 +14,7 @@ describe('Fetch and save', () => {
         });
 
         zookeeper.save();
-    }*/);
+    });
 
     it('Should be possible fetch an ownsOne model'/*, (done) => {
         const zoo = new Zoo();
@@ -34,7 +34,7 @@ describe('Fetch and save', () => {
         zoo.get('zookeeper').get('id');
     }*/);
 
-    it('Should be possible to get errors from fetching an ownsOne model'/*, (done) => {
+    it('Should be possible to get errors from fetching an ownsOne model', (done) => {
         const zoo = new Zoo();
         const zookeeper = zoo.get('zookeeper');
 
@@ -45,6 +45,6 @@ describe('Fetch and save', () => {
         });
 
         zoo.get('zookeeper').get('id');
-    }*/);
+    });
 
 });

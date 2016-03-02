@@ -75,7 +75,7 @@ class Adapter {
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(model).handleError(err);
+                model.emit('error', err);
                 return;
             }
 
@@ -92,7 +92,7 @@ class Adapter {
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(context).handleError(err);
+                context.emit('error', err);
                 return;
             }
 
@@ -109,7 +109,7 @@ class Adapter {
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(context).handleError(err);
+                context.emit('error', err);
                 return;
             }
 
@@ -126,7 +126,7 @@ class Adapter {
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(context).handleError(err);
+                context.emit('error', err);
                 return;
             }
 
@@ -143,7 +143,7 @@ class Adapter {
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(model).handleError(err);
+                model.emit('error', err);
                 return;
             }
 
@@ -160,7 +160,7 @@ class Adapter {
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(model).handleError(err);
+                model.emit('error', err);
                 return;
             }
 
