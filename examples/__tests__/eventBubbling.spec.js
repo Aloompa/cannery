@@ -41,57 +41,56 @@ describe('Event bubbling', function () {
 
     it('Should emit a userChange event when we set to a ownsMany off of the root', function (done) {
         const zoo = new Zoo();
-        const exhibit = zoo.get('exhibits').create();
 
         const userChange = zoo.on('userChange', () => {
             zoo.off('userChange', userChange);
             done();
         });
+
+        const exhibit = zoo.get('exhibits').create();
 
         exhibit.set('name', 'Panda Express');
     });
 
     it('Should emit a userChange event when we set to a ownsOne off of the root', function (done) {
         const zoo = new Zoo();
-        const zookeeper = zoo.get('zookeeper');
 
         const userChange = zoo.on('userChange', () => {
             zoo.off('userChange', userChange);
             done();
         });
+
+        const zookeeper = zoo.get('zookeeper');
 
         zookeeper.set('name', 'Keeper Fred');
     });
 
     it('Should emit a userChange event when we set to a deeply nested hasMany', function (done) {
         const zoo = new Zoo();
-        const exhibit = zoo.get('exhibits').create();
-        const bear = exhibit.get('animals').create();
-        const cub = bear.get('cubs').create();
 
         const userChange = zoo.on('userChange', () => {
             zoo.off('userChange', userChange);
             done();
         });
 
+        const exhibit = zoo.get('exhibits').create();
+        const bear = exhibit.get('animals').create();
+        const cub = bear.get('cubs').create();
+
         cub.set('name', 'Little Bear');
     });
 
     it('Should emit any custom event when we set to a deeply nested hasMany', function (done) {
         const zoo = new Zoo();
-        const exhibit = zoo.get('exhibits').create();
-        const dog = exhibit.get('animals').create();
-        const puppy = dog.get('cubs').create();
 
         const bark = zoo.on('bark', () => {
             zoo.off('bark', bark);
             done();
         });
 
-        const bark2 = dog.on('bark', () => {
-            dog.off('bark', bark2);
-            done();
-        });
+        const exhibit = zoo.get('exhibits').create();
+        const dog = exhibit.get('animals').create();
+        const puppy = dog.get('cubs').create();
 
         puppy.emit('bark');
     });

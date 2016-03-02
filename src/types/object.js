@@ -29,18 +29,29 @@ class ObjectType extends BaseType {
         });
     }
 
-    on (): Object {
+    on (action: string, callback: Function): Object {
         const subscriptions = {};
 
         Object.keys(this._fields).forEach((key) => {
             const field = this._fields[key];
-            subscriptions[key] = field.on(...arguments);
+
+            subscriptions[key] = field.on(action, function () {
+                callback(arguments);
+            });
+        });
+
+        subscriptions.self = super.on(action, function () {
+            callback(arguments);
         });
 
         return subscriptions;
     }
 
     off (actionType: string, subscriptions: Object): Object {
+        super.off(actionType, subscriptions.self);
+
+        delete subscriptions.self;
+
         Object.keys(subscriptions).forEach((key) => {
             const field = this._fields[key];
             const subscription = subscriptions[key];
@@ -49,10 +60,6 @@ class ObjectType extends BaseType {
         });
 
         return this;
-    }
-
-    emit () {
-        console.log('emit');
     }
 
     apply (data: Object): any {

@@ -18,18 +18,13 @@ class MultiModel extends BaseType {
         this.requestCache = new RequestCache();
         this._listeners = {};
         this._models = {};
-
-        //this.owner.on('saveSuccess', this.refresh.bind(this));
     }
 
     _instantiateModel (id: ?string): Object {
         const { Model } = this;
         const model = new Model(this.owner, this.parent, id, this.options.modelOptions);
 
-        model.on('bark', () => {
-            console.log('woof');
-        });
-
+        // Add new models to any existing listeners
         Object.keys(this._listeners).forEach((listenerType) => {
             const listener = this._listeners[listenerType];
 
@@ -46,6 +41,7 @@ class MultiModel extends BaseType {
         this._listeners[action] = [];
         this._listeners[action].callback = callback;
 
+        // Listen to existing models
         Object.keys(this._models).forEach((id) => {
             this._listeners[action].push({
                 model: this._models[id],
@@ -68,10 +64,6 @@ class MultiModel extends BaseType {
                 model.off(event);
             });
         });
-    }
-
-    emit () {
-        console.log('emit1');
     }
 
     create (): Object {

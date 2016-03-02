@@ -12,6 +12,7 @@ class Model {
     id: string;
     options: ?Object;
     _owner: Object;
+    _parent: Object;
     _fields: Object;
     _isFetched: boolean;
     _isChanged: boolean;
@@ -20,6 +21,7 @@ class Model {
     constructor (owner: Object, parent: Object, id: string, options: ?Object) {
 
         this._owner = owner;
+        this._parent = parent;
         this.id = id;
 
         const fields = this.getFields(...arguments);
@@ -30,10 +32,6 @@ class Model {
 
         this._isFetched = false;
         this.options = options;
-
-        this.on('bark', () => {
-            console.log('woof');
-        });
     }
 
     _doFetch (options: ?Object): Object {
@@ -125,12 +123,7 @@ class Model {
     }
 
     emit (): Object {
-        const parent = this.getParent();
-
-        if (parent) {
-            console.log('EMIT', parent);
-            parent.emit(...arguments);
-        }
+        this._fields.emit(...arguments);
 
         return this;
     }
