@@ -13,21 +13,16 @@ class Zoo extends Root {
     }
 
     getFields (): Object {
-        const exhibitIds = this.define(ArrayType, NumberType);
-        const zookeeperId = new StringType();
 
         return {
             exhibits: this.define(OwnsMany, Exhibit, {
-                map: exhibitIds
+                map: 'exhibitIds'
             }),
             id: StringType,
             isOpen: BooleanType,
             name: StringType,
-            exhibitIds: exhibitIds,
-            zookeeperId: zookeeperId,
-            zookeeper: this.define(OwnsOne, Zookeeper, {
-                map: zookeeperId
-            })
+            exhibitIds: this.define(ArrayType, StringType),
+            zookeeper: this.define(OwnsOne, Zookeeper)
         };
     }
 

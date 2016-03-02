@@ -18,7 +18,7 @@ class Adapter {
         let modelScope = model.getScope();
 
         if (!modelScope) {
-            return [model];
+            return [];
         }
 
         return this.getAncestry(modelScope).concat(model);

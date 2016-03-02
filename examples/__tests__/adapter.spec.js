@@ -15,21 +15,32 @@ class TestingZoo extends Zoo {
 }
 
 describe('Adapter', () => {
-    describe('Path creation', () => {
-        let zoo = new TestingZoo();
+    let zoo = new TestingZoo();
 
-        it('Should get exhibits from the Zoo', () => {
-            let request = null;
+    describe('When we get exhibits on the zoo', () => {
+        let request = null;
 
-            testAdapter.checkRequest((req) => {
-                request = req;
-            });
-
-            zoo.get('exhibits').requestMany();
-            assert.deepEqual(request.path, [{key: 'zoo', keySingular: 'zoo'}, {key: 'exhibits', keySingular: 'exhibit'}]);
+        testAdapter.checkRequest((req) => {
+            request = req;
         });
 
+        testAdapter.mockData([
+            {
+                id: 1,
+                name: 'Lions and Tigers and Bears',
+                animalIds: [1, 2, 3]
+            },
+            {
+                id: 2,
+                name: 'Empty Cage',
+                animalIds: []
+            }
+        ]);
+
+        zoo.get('exhibits').requestMany();
+
+        assert.deepEqual(request.path, [{key: 'exhibits', keySingular: 'exhibit'}]);
     });
-        zoo.get('exhibits').all();
-    });
+
+
 });
