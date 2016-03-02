@@ -1,16 +1,33 @@
 const assert = require('assert');
 const Zoo = require('../models/Zoo');
+const TestAdapter = require('../testAdapter');
 
-describe('adapter', () => {
+let testAdapter = new TestAdapter();
 
-    it('Should allow us to apply() and toJSON() values on the root Zoo', (done) => {
-        const zoo = new Zoo();
+class TestingZoo extends Zoo {
+    getAdapter () {
+        return testAdapter;
+    }
 
-        zoo.on('fetchSuccess', () => {
-            done();
+    static getKey (singular) {
+        return 'zoo';
+    }
+}
+
+describe('Adapter', () => {
+    describe('Path creation', () => {
+        let zoo = new TestingZoo();
+
+        it('Should get exhibits from the Zoo', () => {
+            let request = null;
+
+            testAdapter.checkRequest((req) => {
+                request = req;
+            });
+
+            zoo.get('exhibits').requestMany();
+            assert.deepEqual(request.path, [{key: 'zoo', keySingular: 'zoo'}, {key: 'exhibits', keySingular: 'exhibit'}]);
         });
 
-        zoo.get('exhibits').all();
     });
-
 });

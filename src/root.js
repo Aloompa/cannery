@@ -1,13 +1,15 @@
 /* @flow */
 
 const EventEmitter = require('cannery-event-emitter');
+const snakeCase = require('lodash.snakecase');
+const pluralize = require('pluralize');
 const ObjectType = require('./types/object');
 
 class Root extends EventEmitter {
 
     constructor () {
         super();
-        
+
         const fields = this.getFields(...arguments);
 
         this._fields = new ObjectType(this, fields, {
@@ -30,6 +32,10 @@ class Root extends EventEmitter {
         throw new Error('The getFields() method is not defined on the Root');
     }
 
+    getScope () {
+        return null;
+    }
+
     get (key: string): any {
         return this._fields.get(key);
     }
@@ -43,6 +49,15 @@ class Root extends EventEmitter {
         return this._fields.toJSON();
     }
 
+    static getKey (singular: ?Boolean): String {
+            let singularKey = snakeCase(this.name);
+
+             if (singular) {
+                 return singularKey;
+             } else {
+                 return pluralize.plural(singularKey);
+             }
+        }
 }
 
 module.exports = Root;

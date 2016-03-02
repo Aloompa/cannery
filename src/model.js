@@ -3,6 +3,9 @@
 'use strict';
 
 const EventEmitter = require('cannery-event-emitter');
+const snakeCase = require('lodash.snakecase');
+const pluralize = require('pluralize');
+
 const addListenersUtil = require('./util/addListeners');
 const ObjectType = require('./types/object');
 const Adapter = require('./adapters/sessionAdapter');
@@ -98,7 +101,7 @@ class Model extends EventEmitter {
     }
 
     getScope () {
-        // TODO
+        return this._owner;
     }
 
     getAdapter (): Object {
@@ -144,6 +147,15 @@ class Model extends EventEmitter {
         return this;
     }
 
+    static getKey (singular: ?Boolean): String {
+        let singularKey = snakeCase(this.name);
+
+         if (singular) {
+             return singularKey;
+         } else {
+             return pluralize.plural(singularKey);
+         }
+    }
 }
 
 Model.fieldId = 'id';
