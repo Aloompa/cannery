@@ -16,7 +16,8 @@ const Cannery = {
         ObjectType: require('./types/object'),
         HasMany: require('./types/hasMany'),
         HasOne: require('./types/hasOne'),
-        OwnsMany: require('./types/ownsMany')
+        OwnsMany: require('./types/ownsMany'),
+        OwnsOne: require('./types/ownsOne')
     }
 };
 

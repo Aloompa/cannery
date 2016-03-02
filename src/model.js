@@ -10,42 +10,33 @@ const addListenersUtil = require('./util/addListeners');
 const ObjectType = require('./types/object');
 const Adapter = require('./adapters/sessionAdapter');
 
-class Model extends EventEmitter {
+class Model {
 
-    constructor (owner: Object, id: string, options: ?Object) {
-        super();
+    static fieldId: string;
+
+    id: string;
+    options: ?Object;
+    _owner: Object;
+    _parent: Object;
+    _fields: Object;
+    _isFetched: boolean;
+    _isChanged: boolean;
+    _isSaving: boolean;
+
+    constructor (owner: Object, parent: Object, id: string, options: ?Object) {
 
         this._owner = owner;
+        this._parent = parent;
         this.id = id;
 
         const fields = this.getFields(...arguments);
 
-        this._fields = new ObjectType(owner, fields, {
+        this._fields = new ObjectType(owner, this, fields, {
             parent: this
         });
 
         this._isFetched = false;
         this.options = options;
-
-        addListenersUtil(this, this._fields);
-
-        this.on('userChange', () => {
-            this._isChanged = true;
-        });
-
-        this.on('saving', () => {
-            this._isSaving = true;
-            this.emit('change');
-        });
-
-        this.on('saveSuccess', () => {
-            this._isChanged = false;
-            this._isSaving = false;
-        });
-
-        this.on('saveError', () => {
-            this._isSaving = false;
-        });
     }
 
     _doFetch (options: ?Object): Object {
@@ -66,7 +57,7 @@ class Model extends EventEmitter {
     }
 
     apply (data: Object): Object {
-        const responseId = data[this.constructor.fieldId];
+        const responseId = data.id;
 
         if (!this.id) {
             this.id = responseId;
@@ -79,7 +70,7 @@ class Model extends EventEmitter {
 
     define (Type: Function, ...args: any): Object {
         return () => {
-            return new Type(this, ...args);
+            return new Type(this._owner, this, ...args);
         };
     }
 
@@ -104,6 +95,10 @@ class Model extends EventEmitter {
         return this._owner;
     }
 
+    findOwnsMany () {
+        // TODO
+    }
+
     getAdapter (): Object {
         return this._owner.getAdapter(...arguments);
     }
@@ -124,6 +119,20 @@ class Model extends EventEmitter {
         return this._isSaving;
     }
 
+    off (): any {
+        return this._fields.off(...arguments);
+    }
+
+    on (): Function {
+        return this._fields.on(...arguments);
+    }
+
+    emit (): Object {
+        this._fields.emit(...arguments);
+
+        return this;
+    }
+
     refresh (options: ?Object) {
 
     }
@@ -138,8 +147,8 @@ class Model extends EventEmitter {
 
     }
 
-    toJSON (): Object {
-        return this._fields.toJSON();
+    toJSON (options: ?Object): Object {
+        return this._fields.toJSON(options);
     }
 
     validate (key: ?string): Object {

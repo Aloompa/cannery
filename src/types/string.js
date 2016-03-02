@@ -6,14 +6,16 @@ const BaseType = require('./base');
 
 class StringType extends BaseType {
 
-    get () {
-        const val = super.get();
+    apply (val: string): any {
+        this.set(val);
+    }
 
+    set (val: string): any {
         if (val === undefined || val === null) {
-            return;
+            super.set(val);
         }
 
-        return String(val);
+        super.set(String(val));
     }
 
 }

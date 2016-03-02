@@ -1,3 +1,5 @@
+/* @flow */
+
 const { Model, Types } = require('../../src/index');
 const { StringType } = Types;
 

@@ -7,20 +7,68 @@ const RequestCache = require('../util/requestCache');
 
 
 class MultiModel extends BaseType {
-    constructor (owner: Object, Model: Function, options: ?Object) {
+
+    constructor (owner: Object,  parent: Object, Model: Function, options: ?Object) {
         super(owner, options || {});
 
+        this._watchedModels = [];
         this.options = options || {};
         this.map = this.options.map;
         this.Model = Model;
         this.requestCache = new RequestCache();
+        this._listeners = {};
+        this._models = {};
+    }
 
-        //this.owner.on('saveSuccess', this.refresh.bind(this));
+    _instantiateModel (id: ?string): Object {
+        const { Model } = this;
+        const model = new Model(this.owner, this.parent, id, this.options.modelOptions);
+
+        // Add new models to any existing listeners
+        Object.keys(this._listeners).forEach((listenerType) => {
+            const listener = this._listeners[listenerType];
+
+            listener.push({
+                model,
+                event: model.on(listenerType, listener.callback)
+            });
+        });
+
+        return model;
+    }
+
+    on (action: string, callback: Function) {
+        this._listeners[action] = [];
+        this._listeners[action].callback = callback;
+
+        // Listen to existing models
+        Object.keys(this._models).forEach((id) => {
+            this._listeners[action].push({
+                model: this._models[id],
+                event: this._models[id].on(action, callback)
+            });
+        });
+    }
+
+    off (action: string) {
+        const listenerKeys = Object.keys(this._listeners[action]);
+
+        listenerKeys.forEach((listenerType) => {
+            const listener = this._listeners[listenerType];
+
+            if (!listener) {
+                return;
+            }
+
+            listener.forEach(({ model, event }) => {
+                model.off(event);
+            });
+        });
     }
 
     create (): Object {
-        const ModelConstructor = this.Model;
-        return new ModelConstructor(this.owner);
+        const model = this._instantiateModel();
+        return model;
     }
 
     store (response: Array<Object>): void {

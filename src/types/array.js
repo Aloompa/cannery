@@ -5,12 +5,11 @@
 const EventEmitter = require('cannery-event-emitter');
 const BaseType = require('./base');
 const ObjectType = require('./object');
-const addListenersUtil = require('../util/addListeners');
 const validate = require('valid-point');
 
 class ArrayType extends EventEmitter {
 
-    constructor (owner: Object, ArrayType: Function, arrayFields: Object, options: ?Object) {
+    constructor (owner: Object, parent: Object, ArrayType: Function, arrayFields: Object, options: ?Object) {
         super();
 
         this.owner = owner;
@@ -28,8 +27,6 @@ class ArrayType extends EventEmitter {
         const typedItem = this.instantiateItem(item);
 
         typedItem.apply(item);
-
-        addListenersUtil(this, typedItem);
 
         if (typeof index !== 'number') {
             index = array.length;

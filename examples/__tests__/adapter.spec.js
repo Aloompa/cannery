@@ -30,4 +30,6 @@ describe('Adapter', () => {
         });
 
     });
+        zoo.get('exhibits').all();
+    });
 });

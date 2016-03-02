@@ -5,21 +5,13 @@
 const BaseType = require('./base');
 const MultiModel = require('./multiModel');
 const parseFields = require('../util/parseFields');
-const addListenersUtil = require('../util/addListeners');
 const validate = require('valid-point');
 
 class ObjectType extends BaseType {
 
-    constructor (owner: Object, fields: Object, options: ?Object) {
+    constructor (owner: Object,  parent: Object, fields: Object, options: ?Object) {
         super(owner, options || {});
         this.initialize(fields);
-    }
-
-    _addListeners (): void {
-        Object.keys(this._fields).forEach((key) => {
-            const field = this._fields[key];
-            addListenersUtil(this, field);
-        });
     }
 
     _applyFieldNames () {
@@ -37,6 +29,39 @@ class ObjectType extends BaseType {
         });
     }
 
+    on (action: string, callback: Function): Object {
+        const subscriptions = {};
+
+        Object.keys(this._fields).forEach((key) => {
+            const field = this._fields[key];
+
+            subscriptions[key] = field.on(action, function () {
+                callback(arguments);
+            });
+        });
+
+        subscriptions.self = super.on(action, function () {
+            callback(arguments);
+        });
+
+        return subscriptions;
+    }
+
+    off (actionType: string, subscriptions: Object): Object {
+        super.off(actionType, subscriptions.self);
+
+        delete subscriptions.self;
+
+        Object.keys(subscriptions).forEach((key) => {
+            const field = this._fields[key];
+            const subscription = subscriptions[key];
+
+            return field.off(actionType, subscription);
+        });
+
+        return this;
+    }
+
     apply (data: Object): any {
         if (!data) {
             return;
@@ -52,10 +77,9 @@ class ObjectType extends BaseType {
     }
 
     initialize (initalFields: Object) {
-        this._fields = parseFields(initalFields);
+        this._fields = parseFields(this.owner, this.parent, initalFields);
         this._applyFieldNames();
         this._applyFieldParent();
-        this._addListeners();
     }
 
     get (key: string): any {
@@ -101,11 +125,15 @@ class ObjectType extends BaseType {
         return this;
     }
 
-    toJSON (): Object {
+    toJSON (options: ?Object): Object {
         let json = {};
 
         Object.keys(this._fields).map((key) => {
-            json[key] = this._fields[key].toJSON();
+            const value = this._fields[key].toJSON(options);
+
+            if (value !== undefined) {
+                json[key] = value;
+            }
         });
 
         return json;
