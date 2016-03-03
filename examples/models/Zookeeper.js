@@ -9,6 +9,20 @@ class Zookeeper extends Model {
         return {
             id: StringType,
             name: this.define(StringType, {
+                hooks: {
+                    set: (name) => {
+                        return `Mr ${name}`;
+                    },
+                    get: (name) => {
+                        return name.replace('Mr ', '');
+                    },
+                    apply: () => {
+                        return `Mr ${name}`;
+                    },
+                    toJSON: (name) => {
+                        return name.replace('Mr ', '');
+                    }
+                },
                 validations: {
                     isRequired: {
                         message: 'Name is required',

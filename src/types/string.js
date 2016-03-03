@@ -10,12 +10,10 @@ class StringType extends BaseType {
         this.set(val);
     }
 
-    set (val: string): any {
-        if (val === undefined || val === null) {
-            super.set(val);
-        }
+    set (val: ?string): Object {
+        super.set((val) ? String(val) : null);
 
-        super.set(String(val));
+        return this;
     }
 
 }
