@@ -64,4 +64,20 @@ describe('Getters and Setters', () => {
         assert.equal(zookeeper.get('name'), 'Zookeeper Sam');
     });
 
+    it('Should throw an error if you attempt to get a field that does not exist', () => {
+        const zoo = new Zoo();
+
+        assert.throws(() => {
+            zoo.get('icecream');
+        }, Error);
+    });
+
+    it('Should throw an error if you attempt to set to a field that does not exist', () => {
+        const zoo = new Zoo();
+
+        assert.throws(() => {
+            zoo.set('icecream', 'chocolate');
+        }, Error);
+    });
+
 });

@@ -138,4 +138,14 @@ describe('apply and toJSON', () => {
         assert.equal(exhibit.id, '4');
     });
 
+    it('Should silently ignore applying fields that are not defined', () => {
+        const zoo = new Zoo();
+
+        zoo.apply({
+            icecream: 'rocky road'
+        });
+
+        assert.deepEqual(zoo.toJSON().icecream, undefined);
+    });
+
 });
