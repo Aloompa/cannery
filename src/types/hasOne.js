@@ -9,14 +9,19 @@ class HasOne extends BaseType {
     constructor (parentModel: Object, Model: Function, options: { map: string }) {
         super(parentModel, options || {});
 
-        this._parent = parentModel;
-        this.options = options || {};
-        this._map = this.options.map;
-        this._ModelConstructor = Model;
-        this._model = new Model(parentModel);
+        if (!options.map) {
+            throw new Error('The HasOne type must be mapped to an id field');
+        }
+
+        Object.assign(this, {
+            _ModelConstructor: Model,
+            _model: new Model(parentModel),
+            _map: options.map,
+            _fetched: false
+        }, options);
     }
 
-    _getId () {
+    getId () {
         if (!this._map) {
             return;
         }
@@ -25,7 +30,11 @@ class HasOne extends BaseType {
     }
 
     get (): Object {
-        this._model.id = this._getId();
+        if (!this._fetched) {
+            this._model.id = this.getId();
+            this.request();
+        }
+
         return this._model;
     }
 
@@ -35,6 +44,14 @@ class HasOne extends BaseType {
         }
 
         return undefined;
+    }
+
+    request (options: Object = {}): Object {
+        this._model
+            .getAdapter()
+            .fetch(this._model, options, this._model.apply);
+
+        return this;
     }
 
 }

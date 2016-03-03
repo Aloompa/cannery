@@ -20,7 +20,6 @@ class Zoo extends Root {
 
     getFields (): Object {
         const exhibitIds = this.define(ArrayType, NumberType);
-        const zookeeperId = new StringType();
 
         return {
             exhibits: this.define(OwnsMany, Exhibit, {
@@ -30,10 +29,7 @@ class Zoo extends Root {
             isOpen: BooleanType,
             name: StringType,
             exhibitIds: exhibitIds,
-            zookeeperId: zookeeperId,
-            zookeeper: this.define(OwnsOne, Zookeeper, {
-                map: zookeeperId
-            })
+            zookeeper: this.define(OwnsOne, Zookeeper)
         };
     }
 

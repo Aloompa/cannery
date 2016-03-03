@@ -9,11 +9,8 @@ class OwnsOne extends BaseType {
     constructor (parentModel: Object, Model: Function, options: Object = {}) {
         super(parentModel, options);
 
-        if (!options.map) {
-            throw new Error('The OwnsOne type must be mapped to an id field');
-        }
-
         Object.assign(this, {
+            _ModelConstructor: Model,
             _model: new Model(parentModel),
             _fetched: false
         }, options);
@@ -22,8 +19,7 @@ class OwnsOne extends BaseType {
     get (): ?Object {
         if (!this._fetched) {
             this._fetched = true;
-            this._model._owner = this._parent;
-            this._model.id = this.map.get();
+            this._model._parent = this._parent;
             this.request();
         }
 
@@ -44,10 +40,12 @@ class OwnsOne extends BaseType {
         return this;
     }
 
-    request () {
-        this._model.getAdapter().fetch(this._model, {}, (response) => {
-            this._model.apply(response);
-        });
+    request (options: Object = {}): Object {
+        this._model
+            .getAdapter()
+            .fetchWithin(this._ModelConstructor, this._parent, options, this._model.apply);
+
+        return this;
     }
 }
 

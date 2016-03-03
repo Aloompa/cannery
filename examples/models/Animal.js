@@ -7,14 +7,19 @@ const AnimalType = require('./AnimalType');
 class Animal extends Model {
 
     getFields () {
+        const animalTypeId = new StringType();
+
         return {
+            animalTypeId,
             id: StringType,
             name: StringType,
             about: this.define(ObjectType, {
                 isTame: BooleanType
             }),
             cubs: this.define(HasMany, this.constructor),
-            animalType: this.define(HasOne, AnimalType)
+            animalType: this.define(HasOne, AnimalType, {
+                map: animalTypeId
+            })
         };
     }
 
