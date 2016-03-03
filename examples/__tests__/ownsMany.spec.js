@@ -62,4 +62,8 @@ describe('OwnsMay', () => {
         assert.equal(animals.all()[2].get('name'), 'Donkey Kong');
     });
 
+    it('Should let us get a model by the id', () => {
+        assert.equal(animals.get('1').get('name'), 'Curious George');
+    });
+
 });

@@ -101,7 +101,7 @@ class MultiModel extends BaseType {
     }
 
     get (id: string, options: ?Object): any {
-        let model = this.fetch(id);
+        let model = this._getModelById(id);
 
         if  (model) {
             return model;
