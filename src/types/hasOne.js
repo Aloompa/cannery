@@ -18,7 +18,7 @@ class HasOne extends BaseType {
             _model: new Model(parentModel),
             _map: options.map,
             _fetched: false
-        }, options);
+        });
     }
 
     getId () {

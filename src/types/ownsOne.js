@@ -13,7 +13,7 @@ class OwnsOne extends BaseType {
             _ModelConstructor: Model,
             _model: new Model(parentModel),
             _fetched: false
-        }, options);
+        });
     }
 
     get (): ?Object {
