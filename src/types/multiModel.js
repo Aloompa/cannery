@@ -124,23 +124,6 @@ class MultiModel extends BaseType {
         }
     }
 
-    add (model: Object, index: number) {
-        if (this.map) {
-            this._parent.get(this.map).add(model.id, index);
-        }
-    }
-
-    remove (model: Object) {
-        if (this.map) {
-            let mapIds = this._parent.get(this.map).all();
-            let removeIndex = mapIds.indexOf(model.id);
-
-            if (removeIndex >= 0) {
-                this._parent.get(this.map).remove(removeIndex);
-            }
-        }
-    }
-
     refresh () {
         this.requestCache.clear();
     }

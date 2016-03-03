@@ -7,7 +7,7 @@ const AnimalType = require('./AnimalType');
 class Animal extends Model {
 
     getFields () {
-        const animalTypeId = new StringType();
+        const animalTypeId = new StringType(this);
 
         return {
             animalTypeId,

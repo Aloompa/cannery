@@ -1,14 +1,19 @@
 /* @flow */
 
 const { Model, Types } = require('../../src/index');
-const { OwnsMany, StringType } = Types;
+const { OwnsMany, StringType, ArrayType } = Types;
 const Animal = require('./Animal');
 
 class Exhibit extends Model {
 
     getFields () {
+        const animalIds = new ArrayType(this, StringType);
+
         return {
-            animals: this.define(OwnsMany, Animal),
+            animals: this.define(OwnsMany, Animal, {
+                map: animalIds
+            }),
+            animalIds: animalIds,
             id: StringType,
             name: StringType
         };

@@ -65,10 +65,58 @@ class OwnsMany extends MultiModel {
         });
     }
 
+    all () {
+        return this.map.map((id) => {
+            return this._models[id];
+        });
+    }
+
+    add (model: Object, index: ?number) {
+
+        if (!this.map) {
+            throw new Error('An unmapped OwnsMany cannot be added to');
+        }
+
+        this.map.add(model.id, index);
+        this._models[model.id] = model;
+
+        return this;
+    }
+
+    remove (model: Object) {
+
+        if (!this.map) {
+            throw new Error('An unmapped OwnsMany cannot be removed');
+        }
+
+        const mapIds = this.map.all();
+        const removeIndex = mapIds.indexOf(model.id);
+
+        if (removeIndex >= 0) {
+            this.map.remove(removeIndex);
+        }
+    }
+
+    move (model: Object, newIndex: number): Object {
+
+        if (!this.map) {
+            throw new Error('An unmapped OwnsMany cannot be moved');
+        }
+
+        const mapIds = this.map.all();
+        const moveIndex = mapIds.indexOf(model.id);
+
+        if (moveIndex >= 0) {
+            this.map.move(moveIndex, newIndex);
+        }
+
+        return this;
+    }
+
     toJSON (options : Object = {}): any {
         if (options.recursive) {
-            return Object.keys(this._models).map((id) => {
-                return this._models[id].toJSON(options);
+            return this.all().map((model) => {
+                return model.toJSON(options);
             });
         }
 

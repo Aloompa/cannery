@@ -19,7 +19,7 @@ class Zoo extends Root {
     }
 
     getFields (): Object {
-        const exhibitIds = this.define(ArrayType, NumberType);
+        const exhibitIds = new ArrayType(this, NumberType);
 
         return {
             exhibits: this.define(OwnsMany, Exhibit, {
