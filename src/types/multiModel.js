@@ -22,7 +22,7 @@ class MultiModel extends BaseType {
 
     _instantiateModel (id: ?string): Object {
         const { Model } = this;
-        const model = new Model(this._parent, this._parent, id, this.options.modelOptions);
+        const model = new Model(this._parent, id, this.options.modelOptions);
 
         // Add new models to any existing listeners
         Object.keys(this._listeners).forEach((listenerType) => {
@@ -90,7 +90,7 @@ class MultiModel extends BaseType {
     apply (response: any, options: ?Object): any {
         let models = Array.isArray(response) ? response : [response];
 
-        const idKey = this.Model.idField;
+        const idKey = this.Model.getFieldId();
 
         const ids = models.map((modelData) => {
             return modelData[idKey];

@@ -23,6 +23,10 @@ class Animal extends Model {
         };
     }
 
+    static getKey (singular) {
+        return (singular) ? 'animal' : 'animals';
+    }
+
 }
 
 module.exports = Animal;

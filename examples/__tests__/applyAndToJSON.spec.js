@@ -100,7 +100,42 @@ describe('apply and toJSON', () => {
             recursive: true
         }), data);
 
+    });
 
+    it('Should make any id that is supplied in response to a POST be the id of the model', () => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+
+        exhibit.apply({
+            id: '3',
+            name: 'Monkey Business'
+        });
+
+        assert.equal(exhibit.id, '3');
+    });
+
+    it('Should be possible to convert any model to json', () => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+
+        exhibit.apply({
+            name: 'Monkey Business'
+        });
+
+        assert.equal(exhibit.toJSON().name, 'Monkey Business');
+    });
+
+    it('Should never overwrite an existing model id. This is folly', () => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+
+        exhibit.apply({
+            id: '4'
+        }).apply({
+            id: '5'
+        });
+
+        assert.equal(exhibit.id, '4');
     });
 
 });

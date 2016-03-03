@@ -23,6 +23,10 @@ class Zookeeper extends Model {
         };
     }
 
+    static getKey (singular) {
+        return (singular) ? 'zookeeper' : 'zookeepers';
+    }
+
 }
 
 module.exports = Zookeeper;

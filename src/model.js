@@ -8,15 +8,19 @@ const OwnsMany = require('./types/ownsMany');
 
 class Model {
 
-    static fieldId: string;
-
     id: string;
     options: ?Object;
     _parent: Object;
     _fields: Object;
-    _isFetched: boolean;
-    _isChanged: boolean;
-    _isSaving: boolean;
+    state: Object;
+
+    static getKey (singular: ?boolean) {
+        return (singular) ? this.name : `${this.name}s`;
+    }
+
+    static getFieldId () {
+        return 'id';
+    }
 
     constructor (parentModel: Object, id: string, options: ?Object) {
 
@@ -29,36 +33,30 @@ class Model {
             parent: this
         });
 
-        this._isFetched = false;
         this.options = options;
+        this.state = {};
     }
 
-    _doFetch (options: ?Object): Object {
-        const parent = this._parent;
-        const adapter = this.getAdapter();
+    setState (key: string, value: any): Object {
+        this.state[key] = value;
+        this.emit('change');
 
-        options = Object.assign({}, options, this.options);
+        return this;
+    }
 
-        if (parent) {
-            return adapter.fetchWithin(this, parent, options);
-
-        } else {
-            return adapter.fetch(this, options, () => {
-
-            });
-        }
-
+    getState (key: string): any {
+        return this.state[key];
     }
 
     apply (data: Object): Object {
-        const responseId = data.id;
+        const responseId = data[this.constructor.getFieldId()];
 
         if (!this.id) {
             this.id = responseId;
         }
 
         this._fields.apply(data);
-        this._isFetched = true;
+
         return this;
     }
 
@@ -73,20 +71,16 @@ class Model {
         return fn;
     }
 
-    destroy (options: ?Object): void {
+    destroy (options: Object = {}): Object {
         this.getAdapter()
-            .destroy(this, options, () => {
-
+            .destroy(this, this.getScope(), options, (response) => {
+                // TODO: We need to remove the model from its parent
             });
+
+        return this;
     }
 
     get (key: string): Object {
-
-        if (!this._isFetched && this.id) {
-            this._isFetched = true;
-            this.refresh();
-        }
-
         return this._fields.get(key);
     }
 
@@ -96,10 +90,6 @@ class Model {
 
     findOwnsMany (Model: Function) {
         let parent = this.getScope();
-
-        if (!parent) {
-            return;
-        }
 
         while (parent) {
             const fields = parent.getFields();
@@ -124,14 +114,6 @@ class Model {
         throw new Error('The getFields() method is not defined');
     }
 
-    isChanged (): boolean {
-        return this._isChanged;
-    }
-
-    isSaving (): boolean {
-        return this._isSaving;
-    }
-
     off (): any {
         return this._fields.off(...arguments);
     }
@@ -146,18 +128,10 @@ class Model {
         return this;
     }
 
-    refresh (options: ?Object) {
-
-    }
-
     set (key: string, value: any): Object {
         this._fields.set(key, value);
-        this._isChanged = true;
+        this.setState('isChanged', true);
         return this;
-    }
-
-    save (options: Object, single: ?boolean) {
-
     }
 
     toJSON (options: ?Object): Object {
@@ -169,12 +143,33 @@ class Model {
         return this;
     }
 
-    static getKey () {
-        // TODO
+    save (options: Object = {}, single: boolean = false): Object {
+        const saveType = (this.id) ? 'update' : 'create';
+
+        if (!this.getState('isChanged')) {
+            return this;
+        }
+
+        try {
+            this.validate();
+
+        } catch (e) {
+            this.emit('saveError', e);
+            return this;
+        }
+
+        this.setState('saving', true);
+
+        this.getAdapter()
+            [saveType](this, this.getScope(), options, (response) => {
+                this.setState('saving', false);
+                this.setState('isChanged', false);
+                this.apply(response);
+            });
+
+        return this;
     }
 
 }
-
-Model.fieldId = 'id';
 
 module.exports = Model;

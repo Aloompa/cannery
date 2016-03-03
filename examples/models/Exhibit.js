@@ -14,6 +14,10 @@ class Exhibit extends Model {
         };
     }
 
+    static getKey (singular) {
+        return (singular) ? 'exhibit' : 'exhibits';
+    }
+
 }
 
 module.exports = Exhibit;

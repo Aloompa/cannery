@@ -95,4 +95,15 @@ describe('Event bubbling', function () {
         puppy.emit('bark');
     });
 
+    it('Should be possible to emit on the root', (done) => {
+        const zoo = new Zoo();
+
+        const onOpenZoo = zoo.on('open', () => {
+            zoo.off('open', onOpenZoo);
+            done();
+        });
+
+        zoo.emit('open');
+    });
+
 });

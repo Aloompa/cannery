@@ -31,12 +31,8 @@ class Root {
         throw new Error('The getFields() method is not defined on the Root');
     }
 
-    getScope () {
-        // TODO
-    }
-
-    findOwnsMany () {
-        // TODO
+    getScope (): null {
+        return null;
     }
 
     get (key: string): any {
@@ -64,10 +60,6 @@ class Root {
 
     toJSON (options: ?Object): Object {
         return this._fields.toJSON(options);
-    }
-
-    static getKey () {
-        // TODO
     }
 
 }

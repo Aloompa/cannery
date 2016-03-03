@@ -11,7 +11,7 @@ class OwnsMany extends MultiModel {
     }
 
     store (response: Array<Object>) {
-        const idKey = this.Model.idField;
+        const idKey = this.Model.getFieldId();
 
         response.forEach((modelData) => {
             const id = modelData[idKey];
