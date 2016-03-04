@@ -3,8 +3,6 @@
 'use strict';
 
 const BaseType = require('./base');
-const RequestCache = require('../util/requestCache');
-
 
 class MultiModel extends BaseType {
 
@@ -15,7 +13,6 @@ class MultiModel extends BaseType {
         this.options = options || {};
         this.map = this.options.map;
         this.Model = Model;
-        this.requestCache = new RequestCache();
         this._listeners = {};
     }
 
@@ -100,10 +97,6 @@ class MultiModel extends BaseType {
         this.map.add(model.id, index);
 
         return this;
-    }
-
-    refresh () {
-        this.requestCache.clear();
     }
 
     remove (model: Object) {

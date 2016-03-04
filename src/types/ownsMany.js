@@ -3,11 +3,14 @@
 'use strict';
 
 const MultiModel = require('./multiModel');
+const RequestCache = require('../util/requestCache');
 
 class OwnsMany extends MultiModel {
 
     constructor () {
         super(...arguments);
+
+        this.requestCache = new RequestCache();
         this._models = {};
     }
 
@@ -124,6 +127,10 @@ class OwnsMany extends MultiModel {
 
         this.requestMany(options);
         return [];
+    }
+
+    refresh () {
+        this.requestCache.clear();
     }
 }
 
