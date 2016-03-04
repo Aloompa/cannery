@@ -28,28 +28,6 @@ class OwnsMany extends MultiModel {
         });
     }
 
-    store (response: Array<Object>) {
-        const idKey = this.Model.getFieldId();
-
-        response.forEach((modelData) => {
-            const id = modelData[idKey];
-
-            if (!id) {
-                return;
-            }
-
-            let storedModel = this._getModelById(id);
-
-            if (storedModel) {
-                storedModel.apply(modelData);
-            } else {
-                let newModel = this._instantiateModel(id);
-                newModel.apply(response);
-                this._models[id] = newModel;
-            }
-        });
-    }
-
     // @override
     requestOne (id: string, options: ?Object): any {
         let model = this._getModelById(id);

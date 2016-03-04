@@ -59,7 +59,7 @@ class MultiModel extends BaseType {
             }
 
             listener.forEach(({ model, event }) => {
-                model.off(event);
+                model.off(listenerType, event);
             });
         });
     }
@@ -78,19 +78,6 @@ class MultiModel extends BaseType {
 
     requestMany (options: Object): void {
         throw new Error('MultiModel is virtual. It must be extended, and requestMany() must be overriden');
-    }
-
-    apply (response: any, options: Object = {}): any {
-        let models = Array.isArray(response) ? response : [response];
-
-        const idKey = this.Model.getFieldId();
-
-        const ids = models.map((modelData) => {
-            return modelData[idKey];
-        });
-
-        this.requestCache.set(options, ids);
-        this.store(models);
     }
 
     get (id: string, options: Object = {}): any {
