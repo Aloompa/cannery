@@ -36,6 +36,18 @@ class MultiModel extends BaseType {
         return model;
     }
 
+    _getRandomKey (): number {
+        return new Date().getTime();
+    }
+
+    create (): Object {
+        const model = this._instantiateModel();
+
+        this._models[this._getRandomKey()] = model;
+
+        return model;
+    }
+
     off (action: string) {
         const listenerKeys = Object.keys(this._listeners[action]);
 
@@ -50,11 +62,6 @@ class MultiModel extends BaseType {
                 model.off(event);
             });
         });
-    }
-
-    create (): Object {
-        const model = this._instantiateModel();
-        return model;
     }
 
     store (response: Array<Object>): void {
@@ -86,14 +93,14 @@ class MultiModel extends BaseType {
         this.store(models);
     }
 
-    get (id: string, options: ?Object): any {
+    get (id: string, options: Object = {}): any {
         let model = this._getModelById(id);
 
         if  (model) {
             return model;
 
         } else {
-            this.requestOne(id, options || {});
+            this.requestOne(id, options);
         }
     }
 

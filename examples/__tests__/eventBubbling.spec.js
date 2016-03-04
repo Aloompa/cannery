@@ -80,6 +80,21 @@ describe('Event bubbling', function () {
         cub.set('name', 'Little Bear');
     });
 
+    it('Should let us add an event listener after creating models and still be able to listen on them', function (done) {
+        const zoo = new Zoo();
+
+        const exhibit = zoo.get('exhibits').create();
+        const bear = exhibit.get('animals').create();
+        const cub = bear.get('cubs').create();
+
+        const userChange = zoo.on('userChange', () => {
+            zoo.off('userChange', userChange);
+            done();
+        });
+
+        cub.set('name', 'Little Bear');
+    });
+
     it('Should emit any custom event when we set to a deeply nested hasMany', function (done) {
         const zoo = new Zoo();
 
@@ -160,6 +175,19 @@ describe('Event bubbling', function () {
         setTimeout(() => {
             zoo.emit('alert');
         }, 50);
+    });
+
+    it('Should emit HasOne events up to the root', (done) => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+        const bear = exhibit.get('animals').create();
+        const bearType = bear.get('animalType');
+
+        zoo.on('userChange', () => {
+            done();
+        });
+
+        bearType.set('name', 'Bears');
     });
 
 });

@@ -2,23 +2,18 @@
 
 'use strict';
 
-const BaseType = require('./base');
+const SingleModel = require('./singleModel');
 
-class HasOne extends BaseType {
+class HasOne extends SingleModel {
 
     constructor (parentModel: Object, Model: Function, options: { map: string }) {
-        super(parentModel, options || {});
+        super(...arguments);
 
         if (!options.map) {
             throw new Error('The HasOne type must be mapped to an id field');
         }
 
-        Object.assign(this, {
-            _ModelConstructor: Model,
-            _model: new Model(parentModel),
-            _map: options.map,
-            _fetched: false
-        });
+        this._map = options.map;
     }
 
     getId () {
