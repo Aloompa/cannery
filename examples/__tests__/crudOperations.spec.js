@@ -1,7 +1,7 @@
 const assert = require('assert');
 const Zoo = require('../models/Zoo');
 
-describe('Fetch and save', () => {
+describe('CRUD Operations', () => {
 
     it('Should be possible save a ownsOne model'/*, () => {
         const zoo = new Zoo();

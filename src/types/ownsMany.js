@@ -131,14 +131,21 @@ class OwnsMany extends MultiModel {
         let ids = this.requestCache.get(options);
 
         if (ids) {
-            return ids.map((id) => {
+            const models = ids.map((id) => {
                 return this._models[id];
             });
 
-        } else {
-            this.requestMany(options);
-            return [];
+            const anyDestroyed = models.filter((model) => {
+                return model.getState('isDestroyed');
+            }).length;
+
+            if (!anyDestroyed) {
+                return models;
+            }
         }
+
+        this.requestMany(options);
+        return [];
     }
 }
 

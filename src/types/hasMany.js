@@ -42,7 +42,7 @@ class HasMany extends MultiModel {
         return this.map.map((id) => {
             return this.modelStore.get(id);
         }).filter((model) => {
-            return model;
+            return model && !model.getState('isDestroyed');
         });
     }
 

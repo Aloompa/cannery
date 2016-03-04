@@ -113,4 +113,16 @@ describe('HasMany', () => {
         assert.deepEqual(scar.get('cubs').toJSON(), undefined);
     });
 
+    it('Should remove models from the hasMany if they are destroyed', () => {
+        const scar = animals.get('1');
+        const nuka = scar.get('cubs').get('4');
+
+        assert.equal(scar.get('cubs').all().length, 3);
+
+        // TODO: Make this an asyncronous test using destroy()
+        nuka._afterDestroy();
+
+        assert.equal(scar.get('cubs').all().length, 2);
+    });
+
 });

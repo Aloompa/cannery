@@ -71,10 +71,21 @@ class Model {
         return fn;
     }
 
+    // TODO: Move this into the destroy() method once the test adapter lets us mock responses
+    _afterDestroy (response: any) {
+        const ownsManyOwner = this.findOwnsMany(this.constructor);
+
+        if (ownsManyOwner) {
+            ownsManyOwner.remove(this);
+        }
+
+        this.setState('isDestroyed', true);
+    }
+
     destroy (options: Object = {}): Object {
         this.getAdapter()
             .destroy(this, this.getScope(), options, (response) => {
-                // TODO: We need to remove the model from its parent
+                this._afterDestroy(response);
             });
 
         return this;

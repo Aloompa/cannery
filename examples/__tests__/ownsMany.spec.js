@@ -131,4 +131,21 @@ describe('OwnsMay', () => {
         assert.equal(george.length, 1);
     });
 
+    it('Should remove the model from the ownsMany() if it is deleted', () => {
+        const george = animals.get('1');
+
+        assert.equal(animals.all().length, 3);
+        assert.equal(animals.toJSON({
+            recursive: true
+        }).length, 3);
+
+        // TODO: Make this an asyncronous test using destroy()
+        george._afterDestroy();
+
+        assert.equal(animals.all().length, 2);
+        assert.equal(animals.toJSON({
+            recursive: true
+        }).length, 2);
+    });
+
 });
