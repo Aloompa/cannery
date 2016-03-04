@@ -98,7 +98,7 @@ class Model {
                 const field = fields[key];
 
                 if (field.Type === OwnsMany && field.typeArguments[0] === Model) {
-                    return parent.constructor.getKey();
+                    return parent.get(key);
                 }
             }
 

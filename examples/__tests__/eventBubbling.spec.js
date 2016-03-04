@@ -106,4 +106,60 @@ describe('Event bubbling', function () {
         zoo.emit('open');
     });
 
+    it('Should not emit a bunch of times when the same event is triggered on the same tick', (done) => {
+        const zoo = new Zoo();
+
+        zoo.on('close', () => {
+            done();
+        });
+
+        zoo
+            .emit('close')
+            .emit('close')
+            .emit('close');
+    });
+
+    it('Should emit both events of different types if they are performered on the same tick', (done) => {
+        const zoo = new Zoo();
+        let called = false;
+
+        const cb = () => {
+            if (called) {
+                done();
+                zoo.off('first', onFirst);
+                zoo.off('second', onSecond);
+
+            } else {
+                called = true;
+            }
+        };
+
+        const onFirst = zoo.on('first', cb);
+        const onSecond = zoo.on('second', cb);
+
+        zoo
+            .emit('first')
+            .emit('second');
+    });
+
+    it('Should emit both events of the same type if they are spaced out', (done) => {
+        const zoo = new Zoo();
+        let called = false;
+
+        const onAlert = zoo.on('alert', () => {
+            if (called) {
+                done();
+                zoo.off('alert', onAlert);
+            } else {
+                called = true;
+            }
+        });
+
+        zoo.emit('alert');
+
+        setTimeout(() => {
+            zoo.emit('alert');
+        }, 50);
+    });
+
 });

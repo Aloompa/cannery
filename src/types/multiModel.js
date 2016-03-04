@@ -17,7 +17,6 @@ class MultiModel extends BaseType {
         this.Model = Model;
         this.requestCache = new RequestCache();
         this._listeners = {};
-        this._models = {};
     }
 
     _instantiateModel (id: ?string): Object {
@@ -35,19 +34,6 @@ class MultiModel extends BaseType {
         });
 
         return model;
-    }
-
-    on (action: string, callback: Function) {
-        this._listeners[action] = [];
-        this._listeners[action].callback = callback;
-
-        // Listen to existing models
-        Object.keys(this._models).forEach((id) => {
-            this._listeners[action].push({
-                model: this._models[id],
-                event: this._models[id].on(action, callback)
-            });
-        });
     }
 
     off (action: string) {
@@ -83,11 +69,11 @@ class MultiModel extends BaseType {
         throw new Error('MultiModel is virtual. It must be extended, and requestOne() must be overriden');
     }
 
-    requestMany (options: ?Object): void {
+    requestMany (options: Object): void {
         throw new Error('MultiModel is virtual. It must be extended, and requestMany() must be overriden');
     }
 
-    apply (response: any, options: ?Object): any {
+    apply (response: any, options: Object = {}): any {
         let models = Array.isArray(response) ? response : [response];
 
         const idKey = this.Model.getFieldId();
@@ -111,22 +97,51 @@ class MultiModel extends BaseType {
         }
     }
 
-    all (options: ?Object): Array<any> {
-        let ids = this.requestCache.get(options || {});
+    add (model: Object, index: ?number): Object {
 
-        if (ids) {
-            return ids.map((id) => {
-                return this.fetch(id);
-            });
-        } else {
-            this.requestMany(options || {});
-            return [];
+        if (!this.map) {
+            throw new Error('An unmapped OwnsMany cannot be added to');
         }
+
+        this.map.add(model.id, index);
+
+        return this;
     }
 
     refresh () {
         this.requestCache.clear();
     }
+
+    remove (model: Object) {
+
+        if (!this.map) {
+            throw new Error(`An unmapped ${this.constructor.name} cannot be removed`);
+        }
+
+        const mapIds = this.map.all();
+        const removeIndex = mapIds.indexOf(model.id);
+
+        if (removeIndex >= 0) {
+            this.map.remove(removeIndex);
+        }
+    }
+
+    move (model: Object, newIndex: number): Object {
+
+        if (!this.map) {
+            throw new Error('An unmapped OwnsMany cannot be moved');
+        }
+
+        const mapIds = this.map.all();
+        const moveIndex = mapIds.indexOf(model.id);
+
+        if (moveIndex >= 0) {
+            this.map.move(moveIndex, newIndex);
+        }
+
+        return this;
+    }
+
 }
 
 module.exports = MultiModel;

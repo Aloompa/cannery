@@ -66,7 +66,8 @@ describe('apply and toJSON', () => {
                     animalType: {
                         id: '1',
                         name: 'Lion'
-                    }
+                    },
+                    cubIds: []
                 }, {
                     id: '2',
                     name: 'Aslan',
@@ -76,7 +77,8 @@ describe('apply and toJSON', () => {
                     animalType: {
                         id: '1',
                         name: 'Lion'
-                    }
+                    },
+                    cubIds: []
                 }]
             }, {
                 id: '2',
@@ -91,7 +93,8 @@ describe('apply and toJSON', () => {
                     animalType: {
                         id: '2',
                         name: 'Otter'
-                    }
+                    },
+                    cubIds: []
                 }]
             }]
         };

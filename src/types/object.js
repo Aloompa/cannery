@@ -6,6 +6,7 @@ const BaseType = require('./base');
 const MultiModel = require('./multiModel');
 const parseFields = require('../util/parseFields');
 const validate = require('valid-point');
+const debounce = require('lodash.debounce');
 
 class ObjectType extends BaseType {
 
@@ -29,16 +30,20 @@ class ObjectType extends BaseType {
     on (action: string, callback: Function): Object {
         const subscriptions = {};
 
+        const debouncedCallback = debounce(() => {
+            callback(...arguments);
+        });
+
         Object.keys(this._fields).forEach((key) => {
             const field = this._fields[key];
 
             subscriptions[key] = field.on(action, function () {
-                callback(arguments);
+                debouncedCallback(...arguments);
             });
         });
 
         subscriptions.self = super.on(action, function () {
-            callback(arguments);
+            debouncedCallback(...arguments);
         });
 
         return subscriptions;

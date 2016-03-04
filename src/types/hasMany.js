@@ -7,8 +7,13 @@ const MultiModel = require('./multiModel')
 class HasMany extends MultiModel {
 
     constructor (parentModel: Object, Model: Function, options: ?Object) {
-        super(parentModel, Model, options);
+        super(...arguments);
         this.modelStore = parentModel.findOwnsMany(Model);
+    }
+
+    on (action: string, callback: Function) {
+        this._listeners[action] = [];
+        this._listeners[action].callback = callback;
     }
 
     store (response: Array<Object>) {
@@ -26,6 +31,25 @@ class HasMany extends MultiModel {
     requestMany (options: ?Object) {
         this.modelStore.requestMany(options);
     }
+
+    add (model: Object, index: ?number): Object {
+        super.add(...arguments);
+        this.modelStore.add(model);
+        return this;
+    }
+
+    all (options: Object = {}): Array<Object> {
+        return this.map.map((id) => {
+            return this.modelStore.get(id);
+        }).filter((model) => {
+            return model;
+        });
+    }
+
+    get (id: string): Object {
+        return this.modelStore.get(id);
+    }
+
 }
 
 module.exports = HasMany;

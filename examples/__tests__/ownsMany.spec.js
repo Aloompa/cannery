@@ -66,4 +66,69 @@ describe('OwnsMay', () => {
         assert.equal(animals.get('1').get('name'), 'Curious George');
     });
 
+    it('Should be possible to search with a query and get back a subset of the models', () => {
+        const kongOptions = {
+            isKong: true
+        };
+
+        animals.applyQueryResults([
+            animals.get('2').toJSON(),
+            animals.get('3').toJSON()
+        ], kongOptions);
+
+        const theKongs = animals.query(kongOptions);
+
+        assert.equal(theKongs.length, 2);
+    });
+
+    it('Should be possible to search with a query and get back a subset of the models part 2', () => {
+        const georgeOptions = {
+            isGeorge: true
+        };
+
+        animals.applyQueryResults([
+            animals.get('1').toJSON()
+        ], georgeOptions);
+
+        const george = animals.query(georgeOptions);
+
+        assert.equal(george.length, 1);
+    });
+
+    it('Should only hold one instance of each model when we do a query', () => {
+
+        const george = animals.query({
+            isGeorge: true
+        });
+
+        assert.equal(george[0].get('name'), 'Curious George');
+        assert.equal(animals.get('1').get('name'), 'Curious George');
+
+        animals.get('1').set('name', 'Disinterest George');
+
+        assert.equal(animals.get('1').get('name'), 'Disinterest George');
+        assert.equal(george[0].get('name'), 'Disinterest George');
+    });
+
+    it('Should be possible to have a model in multiple query responses', () => {
+        const allMonkeysOptions = {
+            allMonkeys: 'very yes'
+        };
+
+        animals.applyQueryResults([
+            animals.get('1').toJSON(),
+            animals.get('2').toJSON(),
+            animals.get('3').toJSON()
+        ], allMonkeysOptions);
+
+        const monkeys = animals.query(allMonkeysOptions);
+
+        const george = animals.query({
+            isGeorge: true
+        });
+
+        assert.equal(monkeys.length, 3);
+        assert.equal(george.length, 1);
+    });
+
 });
