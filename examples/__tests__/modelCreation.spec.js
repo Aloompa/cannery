@@ -37,8 +37,8 @@ describe('Model Creation', () => {
     });
 
     it('Should default the key name', () => {
-        assert.equal(BadModel.getKey(), 'BadModels');
-        assert.equal(BadModel.getKey(true), 'BadModel');
+        assert.equal(BadModel.getKey(), 'badmodels');
+        assert.equal(BadModel.getKey(true), 'badmodel');
     });
 
 });

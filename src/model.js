@@ -15,7 +15,8 @@ class Model {
     state: Object;
 
     static getKey (singular: ?boolean) {
-        return (singular) ? this.name : `${this.name}s`;
+        const name = this.name.toLowerCase();
+        return (singular) ? name: `${name}s`;
     }
 
     static getFieldId () {
