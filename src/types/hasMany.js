@@ -58,6 +58,10 @@ class HasMany extends MultiModel {
         return this.modelStore.get(id);
     }
 
+    remove (model: Object): Object {
+        return this._remove(...arguments);
+    }
+
 }
 
 module.exports = HasMany;

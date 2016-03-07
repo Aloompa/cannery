@@ -43,7 +43,12 @@ describe('OwnsMay', () => {
     });
 
     it('Should be possible to remove a model from the ownsMany', () => {
-        animals.remove(animals.all()[3]);
+        const donkeyKong = animals.all()[3];
+
+        donkeyKong.destroy();
+
+        zoo.getAdapter().mockData({
+        });
 
         assert.equal(animals.all().length, 3);
     });

@@ -71,7 +71,7 @@ class Model {
         const ownsManyOwner = this.findOwnsMany(this.constructor);
 
         if (ownsManyOwner) {
-            ownsManyOwner.remove(this);
+            ownsManyOwner._remove(this);
         }
 
         this.setState('isDestroyed', true);
@@ -79,7 +79,7 @@ class Model {
 
     destroy (options: Object = {}): Object {
         this.getAdapter()
-            .destroy(this, this.getScope(), options, (response) => {
+            .destroy(this, options, (response) => {
                 this._afterDestroy(response);
             });
 

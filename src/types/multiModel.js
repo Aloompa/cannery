@@ -20,6 +20,22 @@ class MultiModel extends BaseType {
         return new Date().getTime();
     }
 
+    _remove (model: Object): Object {
+
+        if (!this.map) {
+            throw new Error(`An unmapped ${this.constructor.name} cannot be removed`);
+        }
+
+        const mapIds = this.map.all();
+        const removeIndex = mapIds.indexOf(model.id);
+
+        if (removeIndex >= 0) {
+            this.map.remove(removeIndex);
+        }
+
+        return this;
+    }
+
     off (action: string) {
         const listenerKeys = Object.keys(this._listeners[action]);
 
@@ -72,20 +88,6 @@ class MultiModel extends BaseType {
         this.map.add(model.id, index);
 
         return this;
-    }
-
-    remove (model: Object) {
-
-        if (!this.map) {
-            throw new Error(`An unmapped ${this.constructor.name} cannot be removed`);
-        }
-
-        const mapIds = this.map.all();
-        const removeIndex = mapIds.indexOf(model.id);
-
-        if (removeIndex >= 0) {
-            this.map.remove(removeIndex);
-        }
     }
 
     move (model: Object, newIndex: number): Object {

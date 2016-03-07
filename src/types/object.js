@@ -37,12 +37,12 @@ class ObjectType extends BaseType {
         Object.keys(this._fields).forEach((key) => {
             const field = this._fields[key];
 
-            subscriptions[key] = field.on(action, function () {
+            subscriptions[key] = field.on(action, () => {
                 debouncedCallback(...arguments);
             });
         });
 
-        subscriptions.self = super.on(action, function () {
+        subscriptions.self = super.on(action, () => {
             debouncedCallback(...arguments);
         });
 
