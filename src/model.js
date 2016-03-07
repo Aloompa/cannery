@@ -2,6 +2,11 @@
 
 'use strict';
 
+const EventEmitter = require('cannery-event-emitter');
+const snakeCase = require('lodash.snakecase');
+const pluralize = require('pluralize');
+
+const addListenersUtil = require('./util/addListeners');
 const ObjectType = require('./types/object');
 const Adapter = require('./adapters/sessionAdapter');
 const OwnsMany = require('./types/ownsMany');
@@ -169,10 +174,15 @@ class Model {
         return this;
     }
 
-    static getKey () {
-        // TODO
-    }
+    static getKey (singular: ?Boolean): String {
+        let singularKey = snakeCase(this.name);
 
+         if (singular) {
+             return singularKey;
+         } else {
+             return pluralize.plural(singularKey);
+         }
+    }
 }
 
 Model.fieldId = 'id';

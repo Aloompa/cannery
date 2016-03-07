@@ -1,6 +1,8 @@
 /* @flow */
 
 const EventEmitter = require('cannery-event-emitter');
+const snakeCase = require('lodash.snakecase');
+const pluralize = require('pluralize');
 const ObjectType = require('./types/object');
 
 class Root {
@@ -8,7 +10,7 @@ class Root {
     _fields: Object;
 
     constructor () {
-
+        
         const fields = this.getFields(...arguments);
 
         this._fields = new ObjectType(this, fields, {
@@ -32,7 +34,7 @@ class Root {
     }
 
     getScope () {
-        // TODO
+        return null;
     }
 
     findOwnsMany () {
@@ -70,6 +72,15 @@ class Root {
         // TODO
     }
 
+    static getKey (singular: ?Boolean): String {
+            let singularKey = snakeCase(this.name);
+
+             if (singular) {
+                 return singularKey;
+             } else {
+                 return pluralize.plural(singularKey);
+             }
+        }
 }
 
 module.exports = Root;
