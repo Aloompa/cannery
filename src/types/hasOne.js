@@ -44,7 +44,10 @@ class HasOne extends SingleModel {
     request (options: Object = {}): Object {
         this._model
             .getAdapter()
-            .fetch(this._model, options, this._model.apply);
+            .fetch(this._model, options, (data) => {
+                this._fetched = true;
+                this._model.apply(data);
+            });
 
         return this;
     }

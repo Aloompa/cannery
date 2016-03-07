@@ -4,14 +4,14 @@ const { Root, Types } = require('../../src/index');
 const { StringType, NumberType, BooleanType, OwnsMany, ArrayType, OwnsOne } = Types;
 const Exhibit = require('./Exhibit');
 const Zookeeper = require('./Zookeeper');
-const SessionAdapter = require('../../src/adapters/sessionAdapter');
+const TestAdapter = require('../testAdapter');
 
 class Zoo extends Root {
 
     constructor () {
         super(...arguments);
 
-        this.adapter = new SessionAdapter();
+        this.adapter = new TestAdapter();
     }
 
     getAdapter () {

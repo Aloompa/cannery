@@ -10,7 +10,8 @@
     "compile": "node_modules/.bin/babel --presets es2015,stage-0 -d lib/ src/",
     "build": "./node_modules/.bin/webpack",
     "prepublish": "npm run test; npm run compile; npm run build",
-    "watch": "node_modules/.bin/_mocha --watch --compilers js:babel-core/register"
+    "watch": "node_modules/.bin/_mocha --watch --compilers js:babel-core/register",
+    "mocha-debug": "./node_modules/.bin/mocha --compilers js:babel-core/register --debug-brk"
   },
   "repository": {
     "type": "git",
@@ -39,6 +40,8 @@
     "cannery-event-emitter": "^1.0.1",
     "lodash.debounce": "^4.0.0",
     "lodash.isequal": "^4.0.0",
+    "lodash.snakecase": "^4.0.0",
+    "pluralize": "^1.2.1",
     "valid-point": "^1.0.1"
   }
 }

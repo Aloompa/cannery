@@ -16,10 +16,18 @@ class OwnsOne extends SingleModel {
         return this._model;
     }
 
-    request (options: Object = {}): Object {
-        this._model
+    request (options: ?Object = {}): Object {
+        this._parent
             .getAdapter()
-            .fetchWithin(this._ModelConstructor, this._parent, options, this._model.apply);
+            .fetchWithin(
+                this._ModelConstructor,
+                this._parent,
+                options,
+                (data) => {
+                    this._model.apply(data);
+                    this._fetched = true;
+                }
+            );
 
         return this;
     }

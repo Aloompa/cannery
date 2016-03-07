@@ -29,16 +29,21 @@ class Adapter {
             return model.map(this.getPathObject);
 
         } else if (model.constructor.getKey) {
-            return {
+            let obj = {
                 key: model.constructor.getKey(),
-                id: model.id,
                 keySingular: model.constructor.getKey(true)
             };
+
+            if (model.id) {
+                obj.id = model.id;
+            }
+
+            return obj;
 
         } else if (model.getKey) {
             return {
                 key: model.getKey(),
-                singular: model.getKey(true)
+                keySingular: model.getKey(true)
             };
 
         } else {
@@ -63,14 +68,14 @@ class Adapter {
 
     fetch (model: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
-            requestType: 'getOne',
+            requestType: 'fetch',
             path: this.getPath(model),
             id: model.id,
             payload: null,
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(model).handleError(err);
+                model.emit('error', err);
                 return;
             }
 
@@ -80,14 +85,14 @@ class Adapter {
 
     fetchWithin (Model: Function, context: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
-            requestType: 'getOne',
-            path: this.getPath(context).push(Model.getKey(true)),
+            requestType: 'fetchWithin',
+            path: this.getPath(context).concat(this.getPathObject(Model)),
             id: null,
             payload: null,
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(context).handleError(err);
+                context.emit('error', err);
                 return;
             }
 
@@ -97,14 +102,14 @@ class Adapter {
 
     findAll (Model: Function, context: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
-            requestType: 'getMany',
-            path: this.getPath(context).push(Model.getKey()),
+            requestType: 'findAll',
+            path: this.getPath(context).concat(this.getPathObject(Model)),
             id: null,
             payload: null,
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(context).handleError(err);
+                context.emit('error', err);
                 return;
             }
 
@@ -115,13 +120,13 @@ class Adapter {
     create (model: Object, context: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
             requestType: 'create',
-            path: this.getPath(context).push(model.getKey()),
+            path: this.getPath(context).concat(this.getPathObject(model)),
             id: null,
-            payload: model.toJson(),
+            payload: model.toJSON(),
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(context).handleError(err);
+                context.emit('error', err);
                 return;
             }
 
@@ -129,16 +134,16 @@ class Adapter {
         });
     }
 
-    update (model: Object, options: ?Object, callback: Function):any {
+    update (model: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
             requestType: 'update',
             path: this.getPath(model),
             id: model.id,
-            payload: model.toJson({excludeUnchanged: this.options.excludeUnchanged}),
+            payload: model.toJSON({excludeUnchanged: this.options.excludeUnchanged}),
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(model).handleError(err);
+                model.emit('error', err);
                 return;
             }
 
@@ -146,7 +151,7 @@ class Adapter {
         });
     }
 
-    destroy (model: Object, options: ?Object, callback: Function):any {
+    destroy (model: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
             requestType: 'destroy',
             path: this.getPath(model),
@@ -155,7 +160,7 @@ class Adapter {
             options: options
         }, (response, err) => {
             if (err) {
-                this.getRoot(model).handleError(err);
+                model.emit('error', err);
                 return;
             }
 

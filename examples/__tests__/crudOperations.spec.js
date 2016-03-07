@@ -3,18 +3,18 @@ const Zoo = require('../models/Zoo');
 
 describe('CRUD Operations', () => {
 
-    it('Should be possible save a ownsOne model'/*, () => {
+    it('Should be possible save a ownsOne model', () => {
         const zoo = new Zoo();
         const zookeeper = zoo.get('zookeeper');
 
         zookeeper.set('name', 'Zookeeper Sam');
 
         zoo.getAdapter().checkRequest((request) => {
-            assert.equal(request.data.name, 'Zookeeper Sam');
+            assert.equal(request.payload.name, 'Zookeeper Sam');
         });
 
         zookeeper.save();
-    }*/);
+    });
 
     it('Should be possible fetch an ownsOne model'/*, (done) => {
         const zoo = new Zoo();

@@ -2,6 +2,9 @@
 
 'use strict';
 
+const EventEmitter = require('cannery-event-emitter');
+const snakeCase = require('lodash.snakecase');
+const pluralize = require('pluralize');
 const ObjectType = require('./types/object');
 const Adapter = require('./adapters/sessionAdapter');
 const OwnsMany = require('./types/ownsMany');
@@ -13,15 +16,6 @@ class Model {
     _parent: Object;
     _fields: Object;
     state: Object;
-
-    static getKey (singular: ?boolean) {
-        const name = this.name.toLowerCase();
-        return (singular) ? name: `${name}s`;
-    }
-
-    static getFieldId () {
-        return 'id';
-    }
 
     constructor (parentModel: Object, id: string, options: ?Object) {
 
@@ -185,6 +179,20 @@ class Model {
     create (): Object {
         const Field = this.define(...arguments);
         return new Field();
+    }
+
+    static getKey (singular: ?Boolean): String {
+        const singularKey = snakeCase(this.name);
+
+        if (singular) {
+            return singularKey;
+        } else {
+            return pluralize.plural(singularKey);
+        }
+    }
+
+    static getFieldId () {
+        return 'id';
     }
 }
 

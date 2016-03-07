@@ -52,7 +52,7 @@ describe('apply and toJSON', () => {
             id: '1',
             name: 'The Nashville Zoo',
             isOpen: true,
-            exhibitIds: [1, 2],
+            exhibitIds: ['1', '2'],
             exhibits: [{
                 id: '1',
                 name: 'Lion Around',
