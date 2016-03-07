@@ -49,7 +49,9 @@ describe('Getters and Setters', () => {
         const exhibit = zoo.get('exhibits').create();
         const sarafina = exhibit.get('animals').create();
 
-        const nala = sarafina.get('cubs').create();
+        const nala = exhibit.get('animals').create();
+
+        sarafina.get('cubs').add(nala);
 
         nala.set('name', 'Nala');
         assert.equal(nala.get('name'), 'Nala');

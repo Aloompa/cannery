@@ -77,9 +77,9 @@ describe('Event bubbling', function () {
 
         const exhibit = zoo.get('exhibits').create();
         const bear = exhibit.get('animals').create();
-        const cub = bear.get('cubs').create();
+        const cub = exhibit.get('animals').create();
 
-        cub.set('name', 'Little Bear');
+        bear.get('cubs').add(cub);
     });
 
     it('Should let us add an event listener after creating models and still be able to listen on them', function (done) {
@@ -87,7 +87,9 @@ describe('Event bubbling', function () {
 
         const exhibit = zoo.get('exhibits').create();
         const bear = exhibit.get('animals').create();
-        const cub = bear.get('cubs').create();
+        const cub = exhibit.get('animals').create();
+
+        bear.get('cubs').add(cub);
 
         const userChange = zoo.on('userChange', () => {
             zoo.off('userChange', userChange);
@@ -107,7 +109,9 @@ describe('Event bubbling', function () {
 
         const exhibit = zoo.get('exhibits').create();
         const dog = exhibit.get('animals').create();
-        const puppy = dog.get('cubs').create();
+        const puppy = exhibit.get('animals').create();
+
+        dog.get('cubs').add(puppy);
 
         puppy.emit('bark');
     });
