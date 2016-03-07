@@ -61,7 +61,7 @@ class Model {
         return this;
     }
 
-    define (Type: Function, ...args: any): Object {
+    define (Type: Function, ...args: any): Function {
         const fn = () => {
             return new Type(this, ...args);
         };
@@ -182,6 +182,10 @@ class Model {
         return this;
     }
 
+    create (): Object {
+        const Field = this.define(...arguments);
+        return new Field();
+    }
 }
 
 module.exports = Model;

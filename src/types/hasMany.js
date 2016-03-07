@@ -46,7 +46,7 @@ class HasMany extends MultiModel {
         return this;
     }
 
-    all (options: Object = {}): Array<Object> {
+    all (): Array<Object> {
         return this.map.map((id) => {
             return this.modelStore.get(id);
         }).filter((model) => {
