@@ -173,15 +173,30 @@ describe('Event bubbling', function () {
 
     it('Should emit HasOne events up to the root', (done) => {
         const zoo = new Zoo();
-        const exhibit = zoo.get('exhibits').create();
-        const bear = exhibit.get('animals').create();
-        const bearType = bear.get('animalType');
+
+        zoo.apply({
+            animalTypes: [{
+                id: '1',
+                name: 'Lion'
+            }],
+            exhibits: [{
+                id: '1',
+                animalIds: ['1'],
+                animals: [{
+                    id: '1',
+                    animalTypeId: '1'
+                }]
+            }]
+        });
+
+        const animal = zoo.get('exhibits').get('1').get('animals').get('1');
+        const animalType = animal.get('animalType');
 
         zoo.on('userChange', () => {
             done();
         });
 
-        bearType.set('name', 'Bears');
+        animalType.set('name', 'Bears');
     });
 
 });

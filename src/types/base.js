@@ -19,8 +19,6 @@ class BaseType extends EventEmitter {
             this.on('*', function () {
                 parentModel.emit(...arguments);
             });
-        } else {
-            console.log('NO PARENT', parentModel);
         }
 
     }

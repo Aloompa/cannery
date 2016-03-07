@@ -8,6 +8,7 @@ const pluralize = require('pluralize');
 const ObjectType = require('./types/object');
 const Adapter = require('./adapters/sessionAdapter');
 const OwnsMany = require('./types/ownsMany');
+const OwnsOne = require('./types/ownsOne');
 
 class Model extends EventEmitter {
 

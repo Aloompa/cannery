@@ -26,9 +26,14 @@ class Root extends EventEmitter {
     }
 
     define (Type: Function, ...args: any): Object {
-        return () => {
+        const fn = () => {
             return new Type(this, ...args);
         };
+
+        fn.Type = Type;
+        fn.typeArguments = [...args];
+
+        return fn;
     }
 
     getFields (): Object {

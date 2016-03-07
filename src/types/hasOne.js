@@ -2,54 +2,25 @@
 
 'use strict';
 
-const SingleModel = require('./singleModel');
+const BaseType = require('./base');
 
-class HasOne extends SingleModel {
+class HasOne extends BaseType {
 
-    constructor (parentModel: Object, Model: Function, options: { map: string }) {
+    constructor (parentModel: Object, Model: Function, options: Object = {}) {
         super(...arguments);
 
         if (!options.map) {
             throw new Error('The HasOne type must be mapped to an id field');
         }
 
-        this._map = options.map;
-    }
-
-    getId () {
-        if (!this._map) {
-            return;
-        }
-
-        return (typeof this._map.get === 'function') ? this._map.get() : this._map;
+        Object.assign(this, {
+            modelStore: parentModel.findOwnsMany(Model),
+            _map: options.map
+        });
     }
 
     get (): Object {
-        if (!this._fetched) {
-            this._model.id = this.getId();
-            this.request();
-        }
-
-        return this._model;
-    }
-
-    toJSON (options: Object = {}): any {
-        if (options.recursive) {
-            return super.toJSON(options);
-        }
-
-        return undefined;
-    }
-
-    request (options: Object = {}): Object {
-        this._model
-            .getAdapter()
-            .fetch(this._model, options, (data) => {
-                this._fetched = true;
-                this._model.apply(data);
-            });
-
-        return this;
+        return this.modelStore.get(this._map.get());
     }
 
 }

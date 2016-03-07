@@ -53,6 +53,14 @@ describe('apply and toJSON', () => {
             name: 'The Nashville Zoo',
             isOpen: true,
             exhibitIds: ['1', '2'],
+            animalTypeIds: ['1', '2'],
+            animalTypes: [{
+                id: '1',
+                name: 'Lion'
+            }, {
+                id: '2',
+                name: 'Otter'
+            }],
             exhibits: [{
                 id: '1',
                 name: 'Lion Around',
@@ -63,10 +71,7 @@ describe('apply and toJSON', () => {
                     about: {
                         isTame: false
                     },
-                    animalType: {
-                        id: '1',
-                        name: 'Lion'
-                    },
+                    animalTypeId: '1',
                     cubIds: []
                 }, {
                     id: '2',
@@ -74,10 +79,7 @@ describe('apply and toJSON', () => {
                     about: {
                         isTame: false
                     },
-                    animalType: {
-                        id: '1',
-                        name: 'Lion'
-                    },
+                    animalTypeId: '1',
                     cubIds: []
                 }]
             }, {
@@ -90,10 +92,7 @@ describe('apply and toJSON', () => {
                     about: {
                         isTame: true
                     },
-                    animalType: {
-                        id: '2',
-                        name: 'Otter'
-                    },
+                    animalTypeId: '2',
                     cubIds: []
                 }]
             }]

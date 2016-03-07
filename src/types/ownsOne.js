@@ -2,9 +2,19 @@
 
 'use strict';
 
-const SingleModel = require('./singleModel');
+const BaseType = require('./base');
 
-class OwnsOne extends SingleModel {
+class OwnsOne extends BaseType {
+
+    constructor (parentModel: Object, Model: Function, options: Object = {}) {
+        super(...arguments);
+
+        Object.assign(this, {
+            _ModelConstructor: Model,
+            _model: new Model(parentModel),
+            _fetched: false
+        });
+    }
 
     get (): ?Object {
         if (!this._fetched) {
@@ -31,6 +41,7 @@ class OwnsOne extends SingleModel {
 
         return this;
     }
+
 }
 
 module.exports = OwnsOne;
