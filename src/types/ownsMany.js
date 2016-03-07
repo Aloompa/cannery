@@ -16,19 +16,7 @@ class OwnsMany extends MultiModel {
 
     _instantiateModel (id: ?string): Object {
         const { Model } = this;
-        const model = new Model(this._parent, id, this.options.modelOptions);
-
-        // Add new models to any existing listeners
-        Object.keys(this._listeners).forEach((listenerType) => {
-            const listener = this._listeners[listenerType];
-
-            listener.push({
-                model,
-                event: model.on(listenerType, listener.callback)
-            });
-        });
-
-        return model;
+        return new Model(this._parent, id, this.options.modelOptions);
     }
 
     _getModelById (id: string): Object {
@@ -36,24 +24,7 @@ class OwnsMany extends MultiModel {
     }
 
     create (): Object {
-        const model = this._instantiateModel();
-
-        this._models[this._getRandomKey()] = model;
-
-        return model;
-    }
-
-    on (action: string, callback: Function) {
-        this._listeners[action] = [];
-        this._listeners[action].callback = callback;
-
-        // Listen to existing models
-        Object.keys(this._models).forEach((id) => {
-            this._listeners[action].push({
-                model: this._models[id],
-                event: this._models[id].on(action, callback)
-            });
-        });
+        return this._instantiateModel();
     }
 
     // @override

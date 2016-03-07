@@ -36,22 +36,6 @@ class MultiModel extends BaseType {
         return this;
     }
 
-    off (action: string) {
-        const listenerKeys = Object.keys(this._listeners[action]);
-
-        listenerKeys.forEach((listenerType) => {
-            const listener = this._listeners[listenerType];
-
-            if (!listener) {
-                return;
-            }
-
-            listener.forEach(({ model, event }) => {
-                model.off(listenerType, event);
-            });
-        });
-    }
-
     store (response: Array<Object>): void {
         throw new Error('MultiModel is virtual. It must be extended, and store() must be overriden');
     }
@@ -86,6 +70,9 @@ class MultiModel extends BaseType {
         }
 
         this.map.add(model.id, index);
+
+        this.emit('change');
+        this.emit('userChange');
 
         return this;
     }

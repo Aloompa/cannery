@@ -27,43 +27,6 @@ class ObjectType extends BaseType {
         });
     }
 
-    on (action: string, callback: Function): Object {
-        const subscriptions = {};
-
-        const debouncedCallback = debounce(() => {
-            callback(...arguments);
-        });
-
-        Object.keys(this._fields).forEach((key) => {
-            const field = this._fields[key];
-
-            subscriptions[key] = field.on(action, () => {
-                debouncedCallback(...arguments);
-            });
-        });
-
-        subscriptions.self = super.on(action, () => {
-            debouncedCallback(...arguments);
-        });
-
-        return subscriptions;
-    }
-
-    off (actionType: string, subscriptions: Object): Object {
-        super.off(actionType, subscriptions.self);
-
-        delete subscriptions.self;
-
-        Object.keys(subscriptions).forEach((key) => {
-            const field = this._fields[key];
-            const subscription = subscriptions[key];
-
-            return field.off(actionType, subscription);
-        });
-
-        return this;
-    }
-
     apply (data: Object = {}): Object {
 
         Object.keys(data).forEach((key) => {

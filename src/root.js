@@ -4,12 +4,14 @@ const EventEmitter = require('cannery-event-emitter');
 const snakeCase = require('lodash.snakecase');
 const pluralize = require('pluralize');
 const ObjectType = require('./types/object');
+const debounce = require('lodash.debounce');
 
-class Root {
+class Root extends EventEmitter {
 
     _fields: Object;
 
     constructor () {
+        super();
 
         const fields = this.getFields(...arguments);
 
@@ -33,11 +35,11 @@ class Root {
         throw new Error('The getFields() method is not defined on the Root');
     }
 
-    getScope () {
+    getScope (): null {
         return null;
     }
 
-    findOwnsMany () {
+    findOwnsMany (): null {
         return null;
     }
 
@@ -47,20 +49,6 @@ class Root {
 
     set (key: string, value: any): Object {
         this._fields.set(key, value);
-        return this;
-    }
-
-    off (): Object {
-        this._fields.off(...arguments);
-        return this;
-    }
-
-    on (): Function {
-        return this._fields.on(...arguments);
-    }
-
-    emit (): Object {
-        this._fields.emit(...arguments);
         return this;
     }
 

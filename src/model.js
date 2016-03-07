@@ -9,7 +9,7 @@ const ObjectType = require('./types/object');
 const Adapter = require('./adapters/sessionAdapter');
 const OwnsMany = require('./types/ownsMany');
 
-class Model {
+class Model extends EventEmitter {
 
     id: string;
     options: ?Object;
@@ -18,6 +18,11 @@ class Model {
     state: Object;
 
     constructor (parentModel: Object, id: string, options: ?Object) {
+        super();
+
+        if (!parentModel) {
+            throw new Error('Models cannot be created without belonging to another model or root above them');
+        }
 
         this._parent = parentModel;
         this.id = id;
@@ -30,6 +35,10 @@ class Model {
 
         this.options = options;
         this.state = {};
+
+        this.on('*', function () {
+            parentModel.emit(...arguments);
+        });
     }
 
     setState (key: string, value: any): Object {
@@ -118,20 +127,6 @@ class Model {
 
     getFields (): Object {
         throw new Error('The getFields() method is not defined');
-    }
-
-    off (): any {
-        return this._fields.off(...arguments);
-    }
-
-    on (): Function {
-        return this._fields.on(...arguments);
-    }
-
-    emit (): Object {
-        this._fields.emit(...arguments);
-
-        return this;
     }
 
     set (key: string, value: any): Object {

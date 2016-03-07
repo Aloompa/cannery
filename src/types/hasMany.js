@@ -12,18 +12,6 @@ class HasMany extends MultiModel {
         this._models = {};
     }
 
-    on (action: string, callback: Function) {
-        this._listeners[action] = [];
-        this._listeners[action].callback = callback;
-
-        Object.keys(this._models).forEach((id) => {
-            this._listeners[action].push({
-                model: this._models[id],
-                event: this._models[id].on(action, callback)
-            });
-        });
-    }
-
     store (response: Array<Object>) {
         this.modelStore.store(response);
     }

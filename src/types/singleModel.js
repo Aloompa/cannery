@@ -16,20 +16,6 @@ class SingleModel extends BaseType {
         });
     }
 
-    off (): any {
-        this._model.off(...arguments);
-        return this;
-    }
-
-    on (): Function {
-        return this._model.on(...arguments);
-    }
-
-    emit (): Function {
-        this._model.emit(...arguments);
-        return this;
-    }
-
 }
 
 module.exports = SingleModel;

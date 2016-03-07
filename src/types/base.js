@@ -14,6 +14,15 @@ class BaseType extends EventEmitter {
 
         this.validations = options.validations;
         this._applyHooks(options.hooks);
+
+        if (parentModel && parentModel.emit) {
+            this.on('*', function () {
+                parentModel.emit(...arguments);
+            });
+        } else {
+            console.log('NO PARENT', parentModel);
+        }
+
     }
 
     apply (val: any): Object {
