@@ -70,7 +70,6 @@ class Adapter {
         return this.makeRequest({
             requestType: 'fetch',
             path: this.getPath(model),
-            id: model.id,
             payload: null,
             options: options
         }, (response, err) => {
@@ -87,7 +86,6 @@ class Adapter {
         return this.makeRequest({
             requestType: 'fetchWithin',
             path: this.getPath(context).concat(this.getPathObject(Model)),
-            id: null,
             payload: null,
             options: options
         }, (response, err) => {
@@ -104,7 +102,6 @@ class Adapter {
         return this.makeRequest({
             requestType: 'findAll',
             path: this.getPath(context).concat(this.getPathObject(Model)),
-            id: null,
             payload: null,
             options: options
         }, (response, err) => {
@@ -121,7 +118,6 @@ class Adapter {
         return this.makeRequest({
             requestType: 'create',
             path: this.getPath(context).concat(this.getPathObject(model)),
-            id: null,
             payload: model.toJson(),
             options: options
         }, (response, err) => {
@@ -155,7 +151,6 @@ class Adapter {
         return this.makeRequest({
             requestType: 'destroy',
             path: this.getPath(model),
-            id: model.id,
             payload: null,
             options: options
         }, (response, err) => {
