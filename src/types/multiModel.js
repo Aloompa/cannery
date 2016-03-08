@@ -55,7 +55,7 @@ class MultiModel extends BaseType {
     get (id: string, options: Object = {}): any {
         let model = this._getModelById(id);
 
-        if  (model) {
+        if  (model && !model.getState('isDestroyed')) {
             return model;
 
         } else {

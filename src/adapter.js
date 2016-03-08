@@ -132,7 +132,7 @@ class Adapter {
         });
     }
 
-    update (model: Object, options: ?Object, callback: Function): void {
+    update (model: Object, context: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
             requestType: 'update',
             path: this.getPath(model),
