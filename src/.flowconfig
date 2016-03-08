@@ -6,6 +6,7 @@
 ../node_modules/lodash.debounce
 ../node_modules/lodash.snakecase
 ../node_modules/pluralize
+../node_modules/request
 
 [libs]
 

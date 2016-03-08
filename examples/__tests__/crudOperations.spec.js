@@ -16,35 +16,74 @@ describe('CRUD Operations', () => {
         zookeeper.save();
     });
 
-    it('Should be possible fetch an ownsOne model'/*, (done) => {
+    it('Should be possible fetch an ownsMany model', (done) => {
         const zoo = new Zoo();
-        const zookeeper = zoo.get('zookeeper');
+        const exhibit = zoo.get('exhibits').create();
+        const animals = exhibit.get('animals');
 
-        zoo.getAdapter().mockData({
-            name: 'Zookeeper Pete',
-            id: '2'
-        });
+        animals.create().getAdapter().mockData([{
+            id: '1',
+            name: 'Cobra'
+        }]);
 
-        zoo.on('change', () => {
-            const id = zoo.get('zookeeper').get('id');
-            assert.equal(id, '2');
+        const onChange = animals.on('change', () => {
+            assert.equal(animals.get('1').get('name'), 'Cobra');
+            animals.off('change', onChange);
             done();
         });
 
-        zoo.get('zookeeper').get('id');
-    }*/);
+        animals.all();
+    });
 
-    it('Should be possible to get errors from fetching an ownsOne model'/*, (done) => {
+    it('Should be possible fetch a single record from an ownsMany model', (done) => {
         const zoo = new Zoo();
-        const zookeeper = zoo.get('zookeeper');
+        const exhibit = zoo.get('exhibits').create();
+        const animals = exhibit.get('animals');
 
-        zoo.getAdapter().mockError('Oh no!');
+        animals.create().getAdapter().mockData({
+            id: '2',
+            name: 'Viper'
+        });
 
-        zoo.on('error', () => {
+        const onChange = animals.on('change', () => {
+            assert.equal(animals.get('2').get('name'), 'Viper');
+            animals.off('change', onChange);
             done();
         });
 
-        zoo.get('zookeeper').get('id');
-    }*/);
+        animals.get('2');
+    });
+
+    it('Should be possible get errors emitted from single fetch to ownsMany', (done) => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+        const animals = exhibit.get('animals');
+
+        animals.create().getAdapter().mockError('Oops!');
+
+        const onError = zoo.on('error', (message) => {
+            assert.equal(message, 'Oops!');
+            zoo.off('error', onError);
+            done();
+        });
+
+        animals.all();
+    });
+
+    it('Should be possible get errors emitted from single fetch to ownsMany', (done) => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+        const animals = exhibit.get('animals');
+
+        animals.create().getAdapter().mockError('Pete did it!');
+
+        const onError = zoo.on('error', (message) => {
+            assert.equal(message, 'Pete did it!');
+            zoo.off('error', onError);
+            done();
+        });
+
+        animals.get('2');
+    });
 
 });

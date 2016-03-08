@@ -36,7 +36,8 @@ class OwnsMany extends MultiModel {
         }
 
         model.getAdapter().fetch(model, options, (response) => {
-            model.apply(response);
+            this.apply([response]);
+            this.emit('change');
         });
 
         return model;
@@ -49,9 +50,9 @@ class OwnsMany extends MultiModel {
         model
             .getAdapter()
             .findAll(this.Model, this._parent, options, (response) => {
-                return this
-                    .apply(response)
-                    .applyQueryResults(response, options);
+                this.apply(response);
+                this.applyQueryResults(response, options);
+                this.emit('change');
             });
 
         return this;
@@ -59,10 +60,8 @@ class OwnsMany extends MultiModel {
 
     apply (data : Array<Object>): Object {
         data.forEach((item) => {
-            const model = this._instantiateModel();
-
-            this._models[item.id] = model;
-            model.apply(item);
+            this._models[item.id] = this._models[item.id] || this._instantiateModel();
+            this._models[item.id].apply(item);
         });
 
         return this;
@@ -70,6 +69,10 @@ class OwnsMany extends MultiModel {
 
     applyQueryResults (data : Array<Object>, options: Object = {}): Object {
         const idKey = this.Model.getFieldId();
+
+        if (!Array.isArray(data)) {
+            data = [];
+        }
 
         const ids = data.map((modelData) => {
             return modelData[idKey];
@@ -81,9 +84,14 @@ class OwnsMany extends MultiModel {
     }
 
     all (): Array<Object> {
-        return this.map.map((id) => {
-            return this._models[id];
-        });
+        if (Object.keys(this._models).length) {
+            return this.map.map((id) => {
+                return this._models[id];
+            });
+        }
+
+        this.requestMany({});
+        return [];
     }
 
     toJSON (options : Object = {}): any {

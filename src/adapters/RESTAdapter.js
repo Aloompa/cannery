@@ -54,7 +54,7 @@ class RESTAdapter extends BaseAdapter {
         return str;
     }
 
-    method (req) {
+    method (req: Object): Object {
         const methods = {
             fetch: 'GET',
             fetchWithin: 'GET',
@@ -67,7 +67,7 @@ class RESTAdapter extends BaseAdapter {
         return methods[req.requestType];
     }
 
-    query (req) {
+    query (req: Object): Object {
         if (req.options) {
             return req.options.query || {};
         }
@@ -75,7 +75,7 @@ class RESTAdapter extends BaseAdapter {
         return {};
     }
 
-    headers (req) {
+    headers (req: Object): Object {
         return Object.assign(
             {},
             this.options.headers,
