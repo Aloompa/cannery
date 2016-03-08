@@ -6,12 +6,12 @@ const BaseType = require('./base');
 
 class MultiModel extends BaseType {
 
-    constructor (parentModel: Object, Model: Function, options: ?Object) {
+    constructor (parentModel: Object, Model: Function, options: Object = {}) {
         super(parentModel, options || {});
 
         this._watchedModels = [];
-        this.options = options || {};
-        this.map = this.options.map;
+        this.options = options;
+        this.map = options.map;
         this.Model = Model;
         this._listeners = {};
     }
@@ -62,20 +62,6 @@ class MultiModel extends BaseType {
             this.requestOne(id, options);
         }
     }
-
-    /*add (model: Object, index: ?number): Object {
-
-        if (!this.map) {
-            throw new Error('An unmapped OwnsMany cannot be added to');
-        }
-
-        this.map.add(model.id, index);
-
-        this.emit('change');
-        this.emit('userChange');
-
-        return this;
-    }*/
 
     move (model: Object, newIndex: number): Object {
 

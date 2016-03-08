@@ -6,7 +6,7 @@ const MultiModel = require('./multiModel')
 
 class HasMany extends MultiModel {
 
-    constructor (parentModel: Object, Model: Function, options: ?Object) {
+    constructor (parentModel: Object, Model: Function, options: Object = {}) {
         super(...arguments);
         this.modelStore = parentModel.findOwnsMany(Model);
         this._models = {};
@@ -50,6 +50,7 @@ class HasMany extends MultiModel {
     }
 
     get (id: string): Object {
+        console.log('GET HasMany', this.modelStore);
         return this.modelStore.get(id);
     }
 

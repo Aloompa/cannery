@@ -42,6 +42,11 @@ class OwnsOne extends BaseType {
         return this;
     }
 
+    apply (data: Object): Object {
+        this._model.apply(data);
+        return this;
+    }
+
 }
 
 module.exports = OwnsOne;
