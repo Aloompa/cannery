@@ -86,14 +86,6 @@ class OwnsMany extends MultiModel {
         });
     }
 
-    add (model: Object, index: ?number): Object {
-        super.add(...arguments);
-
-        this._models[model.id] = model;
-
-        return this;
-    }
-
     toJSON (options : Object = {}): any {
         if (options.recursive) {
             return this.all().map((model) => {

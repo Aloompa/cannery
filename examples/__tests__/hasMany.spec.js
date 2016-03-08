@@ -49,12 +49,17 @@ describe('HasMany', () => {
 
     it('Should be possible to add hasMany children', () => {
         const scar = animals.get('1');
-        const simba = animals.create();
 
-        simba.apply({
+        const animalsJSON = animals.toJSON();
+
+        animalsJSON.push({
             id: '6',
             name: 'Simba'
         });
+
+        animals.apply(animalsJSON);
+
+        const simba = animals.get('6');
 
         scar.get('cubs').add(simba);
 

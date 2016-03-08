@@ -29,8 +29,15 @@ class HasMany extends MultiModel {
     }
 
     add (model: Object, index: ?number): Object {
-        super.add(...arguments);
-        this.modelStore.add(model);
+        if (!this.map) {
+            throw new Error('An unmapped OwnsMany cannot be added to');
+        }
+
+        this.map.add(model.id, index);
+
+        this.emit('change');
+        this.emit('userChange');
+
         return this;
     }
 

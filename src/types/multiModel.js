@@ -63,7 +63,7 @@ class MultiModel extends BaseType {
         }
     }
 
-    add (model: Object, index: ?number): Object {
+    /*add (model: Object, index: ?number): Object {
 
         if (!this.map) {
             throw new Error('An unmapped OwnsMany cannot be added to');
@@ -75,7 +75,7 @@ class MultiModel extends BaseType {
         this.emit('userChange');
 
         return this;
-    }
+    }*/
 
     move (model: Object, newIndex: number): Object {
 

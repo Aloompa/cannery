@@ -1,4 +1,4 @@
-'use strict';
+ 'use strict';
 
 const assert = require('assert');
 const Zoo = require('../models/Zoo');
@@ -75,9 +75,24 @@ describe('Event bubbling', function () {
             done();
         });
 
-        const exhibit = zoo.get('exhibits').create();
-        const bear = exhibit.get('animals').create();
-        const cub = exhibit.get('animals').create();
+        zoo.apply({
+            animalTypes: [{
+                id: '1',
+                name: 'Lion'
+            }],
+            exhibits: [{
+                id: '1',
+                animals: [{
+                    id: '1'
+                }, {
+                    id: '2'
+                }]
+            }]
+        });
+
+        const exhibit = zoo.get('exhibits').get('1');
+        const bear = exhibit.get('animals').get('1');
+        const cub = exhibit.get('animals').get('2');
 
         bear.get('cubs').add(cub);
     });
@@ -85,11 +100,21 @@ describe('Event bubbling', function () {
     it('Should let us add an event listener after creating models and still be able to listen on them', function (done) {
         const zoo = new Zoo();
 
-        const exhibit = zoo.get('exhibits').create();
-        const bear = exhibit.get('animals').create();
-        const cub = exhibit.get('animals').create();
+        zoo.apply({
+            exhibits: [{
+                id: '1',
+                animals: [{
+                    id: '1',
+                    cubIds: ['2']
+                }, {
+                    id: '2'
+                }]
+            }]
+        });
 
-        bear.get('cubs').add(cub);
+        const exhibit = zoo.get('exhibits').get('1');
+        const bear = exhibit.get('animals').get('1');
+        const cub = bear.get('cubs').get('2');
 
         const userChange = zoo.on('userChange', () => {
             zoo.off('userChange', userChange);

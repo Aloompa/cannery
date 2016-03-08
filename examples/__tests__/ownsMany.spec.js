@@ -27,32 +27,6 @@ describe('OwnsMay', () => {
         assert.equal(animals.all()[0].get('name'), 'King Kong');
     });
 
-    it('Should be possible to add a model the ownsMany', () => {
-        const diddyKong = animals.create();
-
-        diddyKong.apply({
-            id: '4',
-            name: 'Diddy Kong'
-        });
-
-        animals.add(diddyKong);
-
-        assert.equal(animals.all().length, 4);
-
-        assert.equal(animals.all()[3].get('name'), 'Diddy Kong');
-    });
-
-    it('Should be possible to remove a model from the ownsMany', () => {
-        const donkeyKong = animals.all()[3];
-
-        donkeyKong.destroy();
-
-        zoo.getAdapter().mockData({
-        });
-
-        assert.equal(animals.all().length, 3);
-    });
-
     it('Should be possible to move a model from the ownsMany', () => {
         const curiousGeorge = animals.all()[0];
 
