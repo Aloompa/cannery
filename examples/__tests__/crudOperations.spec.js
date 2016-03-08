@@ -86,4 +86,76 @@ describe('CRUD Operations', () => {
         animals.get('2');
     });
 
+    it('Should be possible to create and save a new model', (done) => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+
+        exhibit.getAdapter().mockData({
+            id: '1',
+            name: 'The Nashville Zoo'
+        });
+
+        const onChange = exhibit.on('change', () => {
+            if (!exhibit.getState('saving')) {
+                exhibit.off('change', onChange);
+                assert.equal(exhibit.get('name'), 'The Nashville Zoo');
+                done();
+            }
+        });
+
+        exhibit.save();
+    });
+
+    it('Should be possible to update and save a model', (done) => {
+        const zoo = new Zoo();
+
+        zoo.apply({
+            exhibits: [{
+                id: '2',
+                name: 'The Memphis Zoo'
+            }]
+        });
+
+        const exhibit = zoo.get('exhibits').get('2');
+
+        exhibit.getAdapter().mockData({
+            id: '2',
+            name: 'The Nashville Zoo'
+        });
+
+        const onChange = exhibit.on('change', () => {
+            if (!exhibit.getState('saving')) {
+                exhibit.off('change', onChange);
+                assert.equal(exhibit.get('name'), 'The Nashville Zoo');
+                done();
+            }
+        });
+
+        exhibit.save();
+    });
+
+    it('Should be possible to destroy a model', (done) => {
+        const zoo = new Zoo();
+
+        zoo.apply({
+            exhibits: [{
+                id: '2',
+                name: 'The Memphis Zoo'
+            }]
+        });
+
+        const exhibit = zoo.get('exhibits').get('2');
+
+        exhibit.getAdapter().mockData({});
+
+        const onChange = exhibit.on('change', () => {
+            exhibit.off('change', onChange);
+            assert.ok(!zoo.get('exhibits').get('2'));
+            done();
+        });
+
+        assert.ok(zoo.get('exhibits').get('2'));
+        exhibit.destroy();
+    });
+
 });

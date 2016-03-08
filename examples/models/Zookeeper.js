@@ -14,13 +14,13 @@ class Zookeeper extends Model {
                         return `Mr ${name}`;
                     },
                     get: (name) => {
-                        return name.replace('Mr ', '');
+                        return String(name).replace('Mr ', '');
                     },
                     apply: () => {
                         return `Mr ${name}`;
                     },
                     toJSON: (name) => {
-                        return name.replace('Mr ', '');
+                        return String(name).replace('Mr ', '');
                     }
                 },
                 validations: {
