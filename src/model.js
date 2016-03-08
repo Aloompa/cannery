@@ -144,10 +144,6 @@ class Model extends EventEmitter {
     save (options: Object = {}, single: boolean = false): Object {
         const saveType = (this.id) ? 'update' : 'create';
 
-        if (!this.getState('isChanged')) {
-            return this;
-        }
-
         try {
             this.validate();
 
