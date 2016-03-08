@@ -130,4 +130,28 @@ describe('OwnsMay', () => {
         george.destroy();
     });
 
+    it('Should add a model to the ownsMany() if it is created', (done) => {
+        const louie = animals.create();
+
+        louie.set('name', 'King Louie');
+
+        assert.equal(animals.all().length, 2);
+
+        louie.getAdapter().mockData({
+            name: 'King Louie',
+            id: '8'
+        });
+
+        const onChange = louie.on('change', () => {
+            if (!louie.getState('saving')) {
+                louie.off('change', onChange);
+                assert.equal(animals.all().length, 3);
+                assert.equal(animals.get('8').get('name'), 'King Louie');
+                done();
+            }
+        });
+
+        louie.save();
+    });
+
 });

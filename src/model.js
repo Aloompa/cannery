@@ -160,9 +160,26 @@ class Model extends EventEmitter {
 
         this.getAdapter()
             [saveType](this, this.getScope(), options, (response) => {
+
+                // If we created a model, add the model to the ownsMany that contains the model type
+                if (saveType === 'create') {
+
+                    const ownsManyOwner = this.findOwnsMany(this.constructor);
+
+                    if (ownsManyOwner) {
+                        const fieldId = this.constructor.getFieldId();
+                        const id = response[fieldId];
+
+                        this.id = id;
+                        ownsManyOwner._models[id] = this;
+                        ownsManyOwner.map.add(id);
+                    }
+                }
+
+                this.apply(response);
+
                 this.setState('saving', false);
                 this.setState('isChanged', false);
-                this.apply(response);
             });
 
         return this;
