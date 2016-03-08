@@ -76,21 +76,17 @@ class Model extends EventEmitter {
         return fn;
     }
 
-    // TODO: Move this into the destroy() method once the test adapter lets us mock responses
-    _afterDestroy (response: any) {
-        const ownsManyOwner = this.findOwnsMany(this.constructor);
-
-        if (ownsManyOwner) {
-            ownsManyOwner._remove(this);
-        }
-
-        this.setState('isDestroyed', true);
-    }
-
     destroy (options: Object = {}): Object {
         this.getAdapter()
             .destroy(this, options, (response) => {
-                this._afterDestroy(response);
+                const ownsManyOwner = this.findOwnsMany(this.constructor);
+
+                if (ownsManyOwner) {
+                    ownsManyOwner._remove(this);
+                }
+
+                this.setState('isDestroyed', true);
+                this.emit('change');
             });
 
         return this;
