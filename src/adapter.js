@@ -30,6 +30,7 @@ class Adapter {
 
         } else if (model.constructor.getKey) {
             let obj = {
+                id: null,
                 key: model.constructor.getKey(),
                 keySingular: model.constructor.getKey(true)
             };
