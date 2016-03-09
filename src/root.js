@@ -36,6 +36,11 @@ class Root extends EventEmitter {
         return fn;
     }
 
+    create (): Object {
+        const Field = this.define(...arguments);
+        return new Field();
+    }
+
     getFields (): Object {
         throw new Error('The getFields() method is not defined on the Root');
     }

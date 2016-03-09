@@ -11,15 +11,17 @@ class OwnsOne extends BaseType {
 
         Object.assign(this, {
             _ModelConstructor: Model,
-            _model: new Model(parentModel),
-            _fetched: false
+            _parent: parentModel
         });
     }
 
+    _createModel () {
+        this._model = new this._ModelConstructor(this._parent);
+    }
+
     get (): ?Object {
-        if (!this._fetched) {
-            this._fetched = true;
-            this._model._parent = this._parent;
+        if (!this._model) {
+            this._createModel();
             this.request();
         }
 
@@ -43,7 +45,12 @@ class OwnsOne extends BaseType {
     }
 
     apply (data: Object): Object {
+        if (!this._model) {
+            this._createModel();
+        }
+
         this._model.apply(data);
+        
         return this;
     }
 
