@@ -85,7 +85,16 @@ class OwnsMany extends MultiModel {
 
     all (): Array<Object> {
         if (Object.keys(this._models).length) {
-            return this.map.map((id) => {
+
+            // Mapped owns many
+            if (this.map) {
+                return this.map.map((id) => {
+                    return this._models[id];
+                });
+            }
+
+            // Unmapped
+            return Object.keys(this._models).map((id) => {
                 return this._models[id];
             });
         }
