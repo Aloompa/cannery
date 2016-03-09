@@ -50,7 +50,6 @@ class HasMany extends MultiModel {
     }
 
     get (id: string): Object {
-        console.log('GET HasMany', this.modelStore);
         return this.modelStore.get(id);
     }
 
