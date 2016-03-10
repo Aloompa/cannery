@@ -5,6 +5,7 @@ const snakeCase = require('lodash.snakecase');
 const pluralize = require('pluralize');
 const ObjectType = require('./types/object');
 const debounce = require('lodash.debounce');
+const RestAdapter = require('./adapters/RESTAdapter');
 
 class Root extends EventEmitter {
 
@@ -18,6 +19,12 @@ class Root extends EventEmitter {
         this._fields = new ObjectType(this, fields, {
             parent: this
         });
+
+        this.adapter = new RestAdapter();
+    }
+
+    getAdapter () {
+        return this.adapter;
     }
 
     apply (data: Object): Object {
@@ -66,15 +73,6 @@ class Root extends EventEmitter {
         return this._fields.toJSON(options);
     }
 
-    static getKey (singular: ?Boolean): String {
-        const singularKey = snakeCase(this.name);
-
-        if (singular) {
-            return singularKey;
-        } else {
-            return pluralize.plural(singularKey);
-        }
-    }
 }
 
 module.exports = Root;

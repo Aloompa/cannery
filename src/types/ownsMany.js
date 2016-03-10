@@ -27,7 +27,7 @@ class OwnsMany extends MultiModel {
         return this._instantiateModel();
     }
 
-    // @override
+    // Override
     requestOne (id: string, options: ?Object): any {
         let model = this._getModelById(id);
 
@@ -43,7 +43,7 @@ class OwnsMany extends MultiModel {
         return model;
     }
 
-    // @override
+    // Override
     requestMany (options: Object = {}): any {
         const model = this._instantiateModel();
 
@@ -113,8 +113,8 @@ class OwnsMany extends MultiModel {
         return [];
     }
 
-    query (options: Object = {}): Array<any> {
-        let ids = this.requestCache.get(options);
+    query (query: Object = {}): Array<any> {
+        let ids = this.requestCache.get(query);
 
         if (ids) {
             const models = ids.map((id) => {
@@ -130,12 +130,16 @@ class OwnsMany extends MultiModel {
             }
         }
 
-        this.requestMany(options);
+        this.requestMany({
+            query
+        });
+
         return [];
     }
 
     refresh () {
         this.requestCache.clear();
+        return this;
     }
 }
 

@@ -54,7 +54,7 @@ class RESTAdapter extends BaseAdapter {
         return str;
     }
 
-    method (req: Object): Object {
+    method (req: Object): String {
         const methods = {
             fetch: 'GET',
             fetchWithin: 'GET',
