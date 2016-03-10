@@ -2,7 +2,7 @@
 'use strict';
 
 const BaseAdapter = require('../adapter');
-const request = require('request');
+const request = require('then-request');
 const pathHelpers = require('./util/pathHelpers');
 
 class RESTAdapter extends BaseAdapter {
@@ -20,12 +20,10 @@ class RESTAdapter extends BaseAdapter {
             qs: this.query(req),
             headers: this.headers(req),
             gzip: this.options.gzip
-        }, (err, res, body) => {
-            if (err) {
-                callback(null, res);
-            } else {
-                callback(body, null);
-            }
+        }).then((res) => {
+            callback(res.getBody(), null);
+        }).then((res) => {
+            callback(null, res);
         });
     }
 
