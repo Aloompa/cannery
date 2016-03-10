@@ -13,7 +13,7 @@ class RequestCache {
             return '_no-options';
         }
 
-        return JSON.stringify(options.qs);
+        return JSON.stringify(options);
     }
 
     get (options: Object): Object {

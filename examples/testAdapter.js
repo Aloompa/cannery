@@ -15,7 +15,7 @@ class TestAdapter extends BaseAdapter {
     }
 
     mockError (reason: String): void {
-        this.mockError = reason;
+        this._mockError = reason;
     }
 
     clearError (): void {

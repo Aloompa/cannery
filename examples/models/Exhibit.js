@@ -7,12 +7,20 @@ const Animal = require('./Animal');
 class Exhibit extends Model {
 
     getFields () {
+        const animalIds = new ArrayType(this, StringType);
+
         return {
-            animals: this.define(OwnsMany, Animal, {map: 'animalIds'}),
-            animalIds: this.define(ArrayType, StringType),
+            animals: this.define(OwnsMany, Animal, {
+                map: animalIds
+            }),
+            animalIds: animalIds,
             id: StringType,
             name: StringType
         };
+    }
+
+    static getKey (singular) {
+        return (singular) ? 'exhibit' : 'exhibits';
     }
 
 }

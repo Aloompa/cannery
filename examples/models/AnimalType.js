@@ -14,6 +14,10 @@ class AnimalType extends Model {
         };
     }
 
+    static getKey (singular) {
+        return (singular) ? 'animalType' : 'animalTypes';
+    }
+
 }
 
 module.exports = AnimalType;

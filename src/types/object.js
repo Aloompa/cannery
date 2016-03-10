@@ -6,6 +6,7 @@ const BaseType = require('./base');
 const MultiModel = require('./multiModel');
 const parseFields = require('../util/parseFields');
 const validate = require('valid-point');
+const debounce = require('lodash.debounce');
 
 class ObjectType extends BaseType {
 
@@ -23,49 +24,10 @@ class ObjectType extends BaseType {
     _applyFieldParent () {
         Object.keys(this._fields).forEach((key) => {
             this._fields[key].parent = this._parent;
-            if (typeof this._fields[key].setParent === 'function') {
-                this._fields[key].setParent();
-            }
         });
     }
 
-    on (action: string, callback: Function): Object {
-        const subscriptions = {};
-
-        Object.keys(this._fields).forEach((key) => {
-            const field = this._fields[key];
-
-            subscriptions[key] = field.on(action, function () {
-                callback(arguments);
-            });
-        });
-
-        subscriptions.self = super.on(action, function () {
-            callback(arguments);
-        });
-
-        return subscriptions;
-    }
-
-    off (actionType: string, subscriptions: Object): Object {
-        super.off(actionType, subscriptions.self);
-
-        delete subscriptions.self;
-
-        Object.keys(subscriptions).forEach((key) => {
-            const field = this._fields[key];
-            const subscription = subscriptions[key];
-
-            return field.off(actionType, subscription);
-        });
-
-        return this;
-    }
-
-    apply (data: Object): any {
-        if (!data) {
-            return;
-        }
+    apply (data: Object = {}): Object {
 
         Object.keys(data).forEach((key) => {
             if (this._fields[key]) {
@@ -108,20 +70,15 @@ class ObjectType extends BaseType {
         return field.get();
     }
 
-    getFields (): Object {
-        return this._fields;
-    }
+    set (key: string, value: any): Object {
+        const field = this._fields[key];
 
-    getLastModified (key: string): any {
-        if (key) {
-            return this._fields[key].lastModified;
+        if (!field) {
+            throw new Error(`cannot set "${key}." It is undefined in your Cannery model`);
         }
 
-        throw new Error('getLastModified requires a key');
-    }
+        field.set(value);
 
-    set (key: string, value: any): Object {
-        this._fields[key].set(value);
         return this;
     }
 
@@ -145,7 +102,7 @@ class ObjectType extends BaseType {
         }
 
         return Object.keys(this._fields).map((key) => {
-            if (typeof this._fields[key].validate === 'function') {
+            if (this._fields[key].validate) {
                 return this._fields[key].validate();
             }
         });

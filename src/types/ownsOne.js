@@ -7,41 +7,32 @@ const BaseType = require('./base');
 class OwnsOne extends BaseType {
 
     constructor (parentModel: Object, Model: Function, options: Object = {}) {
-        super(parentModel, options);
+        super(...arguments);
 
-        this.options = options;
-        this._model = new Model(parentModel);
-        this._fetched = false;
+        Object.assign(this, {
+            _ModelConstructor: Model,
+            _parent: parentModel
+        });
     }
 
-    get (options): ?Object {
-        if (!this._fetched) {
-            this._fetched = true;
+    _createModel () {
+        this._model = new this._ModelConstructor(this._parent);
+    }
+
+    get (): ?Object {
+        if (!this._model) {
+            this._createModel();
             this.request();
         }
 
         return this._model;
     }
 
-    off (): any {
-        this._model.off(...arguments);
-        return this;
-    }
-
-    on (): Function {
-        return this._model.on(...arguments);
-    }
-
-    emit (): Function {
-        this._model.emit(...arguments);
-        return this;
-    }
-
-    request (options) {
+    request (options: ?Object = {}): Object {
         this._parent
             .getAdapter()
             .fetchWithin(
-                this._model.constructor,
+                this._ModelConstructor,
                 this._parent,
                 options,
                 (data) => {
@@ -49,7 +40,20 @@ class OwnsOne extends BaseType {
                     this._fetched = true;
                 }
             );
+
+        return this;
     }
+
+    apply (data: Object): Object {
+        if (!this._model) {
+            this._createModel();
+        }
+
+        this._model.apply(data);
+        
+        return this;
+    }
+
 }
 
 module.exports = OwnsOne;
