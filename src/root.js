@@ -4,18 +4,27 @@ const EventEmitter = require('cannery-event-emitter');
 const snakeCase = require('lodash.snakecase');
 const pluralize = require('pluralize');
 const ObjectType = require('./types/object');
+const debounce = require('lodash.debounce');
+const RestAdapter = require('./adapters/RESTAdapter');
 
-class Root {
+class Root extends EventEmitter {
 
     _fields: Object;
 
     constructor () {
-        
+        super();
+
         const fields = this.getFields(...arguments);
 
         this._fields = new ObjectType(this, fields, {
             parent: this
         });
+
+        this.adapter = new RestAdapter();
+    }
+
+    getAdapter () {
+        return this.adapter;
     }
 
     apply (data: Object): Object {
@@ -24,21 +33,31 @@ class Root {
     }
 
     define (Type: Function, ...args: any): Object {
-        return () => {
+        const fn = () => {
             return new Type(this, ...args);
         };
+
+        fn.Type = Type;
+        fn.typeArguments = [...args];
+
+        return fn;
+    }
+
+    create (): Object {
+        const Field = this.define(...arguments);
+        return new Field();
     }
 
     getFields (): Object {
         throw new Error('The getFields() method is not defined on the Root');
     }
 
-    getScope () {
+    getScope (): null {
         return null;
     }
 
-    findOwnsMany () {
-        // TODO
+    findOwnsMany (): null {
+        return null;
     }
 
     get (key: string): any {
@@ -50,37 +69,10 @@ class Root {
         return this;
     }
 
-    off (): Object {
-        this._fields.off(...arguments);
-        return this;
-    }
-
-    on (): Function {
-        return this._fields.on(...arguments);
-    }
-
-    emit (): Object {
-        this._fields.emit(...arguments);
-        return this;
-    }
-
     toJSON (options: ?Object): Object {
         return this._fields.toJSON(options);
     }
 
-    static getKey () {
-        // TODO
-    }
-
-    static getKey (singular: ?Boolean): String {
-            let singularKey = snakeCase(this.name);
-
-             if (singular) {
-                 return singularKey;
-             } else {
-                 return pluralize.plural(singularKey);
-             }
-        }
 }
 
 module.exports = Root;

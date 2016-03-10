@@ -7,15 +7,13 @@ const BaseType = require('./base');
 class StringType extends BaseType {
 
     apply (val: string): any {
-        this.set(val);
+        return this.set(val);
     }
 
-    set (val: string): any {
-        if (val === undefined || val === null) {
-            super.set(val);
-        }
+    set (val: ?string): Object {
+        super.set((val) ? String(val) : null);
 
-        super.set(String(val));
+        return this;
     }
 
 }

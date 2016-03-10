@@ -11,6 +11,16 @@ describe('Array Operations', () => {
         assert.equal(exhibitIds.get(0), 1);
     });
 
+    it('Should allow us to add an item to an array at an index specified', () => {
+        const zoo = new Zoo();
+        const exhibitIds = zoo.get('exhibitIds');
+
+        exhibitIds.add(2);
+        exhibitIds.add(1, 0);
+
+        assert.equal(exhibitIds.get(0), 1);
+    });
+
     it('Should allow us to apply data to an array', () => {
         const zoo = new Zoo();
         const exhibitIds = zoo.get('exhibitIds');

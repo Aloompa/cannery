@@ -36,8 +36,23 @@ describe('Getters and Setters', () => {
 
     it('Should allow us to get and set AnimalType hasOne relationship on Animal', () => {
         const zoo = new Zoo();
-        const exhibit = zoo.get('exhibits').create();
-        const animal = exhibit.get('animals').create();
+
+        zoo.apply({
+            animalTypes: [{
+                id: '1',
+                name: 'Lion'
+            }],
+            exhibits: [{
+                id: '1',
+                animalIds: ['1'],
+                animals: [{
+                    id: '1',
+                    animalTypeId: '1'
+                }]
+            }]
+        });
+
+        const animal = zoo.get('exhibits').get('1').get('animals').get('1');
         const animalType = animal.get('animalType');
 
         animalType.set('name', 'Zebra');
@@ -49,7 +64,9 @@ describe('Getters and Setters', () => {
         const exhibit = zoo.get('exhibits').create();
         const sarafina = exhibit.get('animals').create();
 
-        const nala = sarafina.get('cubs').create();
+        const nala = exhibit.get('animals').create();
+
+        sarafina.get('cubs').add(nala);
 
         nala.set('name', 'Nala');
         assert.equal(nala.get('name'), 'Nala');
@@ -62,6 +79,22 @@ describe('Getters and Setters', () => {
         zookeeper.set('name', 'Zookeeper Sam');
 
         assert.equal(zookeeper.get('name'), 'Zookeeper Sam');
+    });
+
+    it('Should throw an error if you attempt to get a field that does not exist', () => {
+        const zoo = new Zoo();
+
+        assert.throws(() => {
+            zoo.get('icecream');
+        }, Error);
+    });
+
+    it('Should throw an error if you attempt to set to a field that does not exist', () => {
+        const zoo = new Zoo();
+
+        assert.throws(() => {
+            zoo.set('icecream', 'chocolate');
+        }, Error);
     });
 
 });

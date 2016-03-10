@@ -30,6 +30,7 @@ class Adapter {
 
         } else if (model.constructor.getKey) {
             let obj = {
+                id: null,
                 key: model.constructor.getKey(),
                 keySingular: model.constructor.getKey(true)
             };
@@ -118,7 +119,8 @@ class Adapter {
         return this.makeRequest({
             requestType: 'create',
             path: this.getPath(context).concat(this.getPathObject(model)),
-            payload: model.toJson(),
+            id: null,
+            payload: model.toJSON(),
             options: options
         }, (response, err) => {
             if (err) {
@@ -130,12 +132,12 @@ class Adapter {
         });
     }
 
-    update (model: Object, options: ?Object, callback: Function): void {
+    update (model: Object, context: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
             requestType: 'update',
             path: this.getPath(model),
             id: model.id,
-            payload: model.toJson({excludeUnchanged: this.options.excludeUnchanged}),
+            payload: model.toJSON({excludeUnchanged: this.options.excludeUnchanged}),
             options: options
         }, (response, err) => {
             if (err) {

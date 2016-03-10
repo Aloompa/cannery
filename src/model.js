@@ -5,25 +5,25 @@
 const EventEmitter = require('cannery-event-emitter');
 const snakeCase = require('lodash.snakecase');
 const pluralize = require('pluralize');
-
-const addListenersUtil = require('./util/addListeners');
 const ObjectType = require('./types/object');
 const Adapter = require('./adapters/sessionAdapter');
 const OwnsMany = require('./types/ownsMany');
+const OwnsOne = require('./types/ownsOne');
 
-class Model {
-
-    static fieldId: string;
+class Model extends EventEmitter {
 
     id: string;
     options: ?Object;
     _parent: Object;
     _fields: Object;
-    _isFetched: boolean;
-    _isChanged: boolean;
-    _isSaving: boolean;
+    state: Object;
 
     constructor (parentModel: Object, id: string, options: ?Object) {
+        super();
+
+        if (!parentModel) {
+            throw new Error('Models cannot be created without belonging to another model or root above them');
+        }
 
         this._parent = parentModel;
         this.id = id;
@@ -34,40 +34,38 @@ class Model {
             parent: this
         });
 
-        this._isFetched = false;
         this.options = options;
+        this.state = {};
+
+        this.on('*', function () {
+            parentModel.emit(...arguments);
+        });
     }
 
-    _doFetch (options: ?Object): Object {
-        const parent = this._parent;
-        const adapter = this.getAdapter();
+    setState (key: string, value: any): Object {
+        this.state[key] = value;
+        this.emit('change');
 
-        options = Object.assign({}, options, this.options);
+        return this;
+    }
 
-        if (parent) {
-            return adapter.fetchWithin(this, parent, options);
-
-        } else {
-            return adapter.fetch(this, options, () => {
-
-            });
-        }
-
+    getState (key: string): any {
+        return this.state[key];
     }
 
     apply (data: Object): Object {
-        const responseId = data.id;
+        const responseId = data[this.constructor.getFieldId()];
 
         if (!this.id) {
             this.id = responseId;
         }
 
         this._fields.apply(data);
-        this._isFetched = true;
+
         return this;
     }
 
-    define (Type: Function, ...args: any): Object {
+    define (Type: Function, ...args: any): Function {
         const fn = () => {
             return new Type(this, ...args);
         };
@@ -78,20 +76,23 @@ class Model {
         return fn;
     }
 
-    destroy (options: ?Object): void {
+    destroy (options: Object = {}): Object {
         this.getAdapter()
-            .destroy(this, options, () => {
+            .destroy(this, options, (response) => {
+                const ownsManyOwner = this.findOwnsMany(this.constructor);
 
+                if (ownsManyOwner) {
+                    ownsManyOwner._remove(this);
+                }
+
+                this.setState('isDestroyed', true);
+                this.emit('change');
             });
+
+        return this;
     }
 
     get (key: string): Object {
-
-        if (!this._isFetched && this.id) {
-            this._isFetched = true;
-            this.refresh();
-        }
-
         return this._fields.get(key);
     }
 
@@ -102,10 +103,6 @@ class Model {
     findOwnsMany (Model: Function) {
         let parent = this.getScope();
 
-        if (!parent) {
-            return;
-        }
-
         while (parent) {
             const fields = parent.getFields();
 
@@ -113,7 +110,7 @@ class Model {
                 const field = fields[key];
 
                 if (field.Type === OwnsMany && field.typeArguments[0] === Model) {
-                    return parent.constructor.getKey();
+                    return parent.get(key);
                 }
             }
 
@@ -129,40 +126,10 @@ class Model {
         throw new Error('The getFields() method is not defined');
     }
 
-    isChanged (): boolean {
-        return this._isChanged;
-    }
-
-    isSaving (): boolean {
-        return this._isSaving;
-    }
-
-    off (): any {
-        return this._fields.off(...arguments);
-    }
-
-    on (): Function {
-        return this._fields.on(...arguments);
-    }
-
-    emit (): Object {
-        this._fields.emit(...arguments);
-
-        return this;
-    }
-
-    refresh (options: ?Object) {
-
-    }
-
     set (key: string, value: any): Object {
         this._fields.set(key, value);
-        this._isChanged = true;
+        this.setState('isChanged', true);
         return this;
-    }
-
-    save (options: Object, single: ?boolean) {
-
     }
 
     toJSON (options: ?Object): Object {
@@ -174,17 +141,64 @@ class Model {
         return this;
     }
 
-    static getKey (singular: ?Boolean): String {
-        let singularKey = snakeCase(this.name);
+    save (options: Object = {}, single: boolean = false): Object {
+        const saveType = (this.id) ? 'update' : 'create';
 
-         if (singular) {
-             return singularKey;
-         } else {
-             return pluralize.plural(singularKey);
-         }
+        try {
+            this.validate();
+
+        } catch (e) {
+            this.emit('saveError', e);
+            return this;
+        }
+
+        this.setState('saving', true);
+
+        this.getAdapter()
+            [saveType](this, this.getScope(), options, (response) => {
+
+                // If we created a model, add the model to the ownsMany that contains the model type
+                if (saveType === 'create') {
+
+                    const ownsManyOwner = this.findOwnsMany(this.constructor);
+
+                    if (ownsManyOwner) {
+                        const fieldId = this.constructor.getFieldId();
+                        const id = response[fieldId];
+
+                        this.id = id;
+                        ownsManyOwner._models[id] = this;
+                        ownsManyOwner.map.add(id);
+                    }
+                }
+
+                this.apply(response);
+
+                this.setState('saving', false);
+                this.setState('isChanged', false);
+            });
+
+        return this;
+    }
+
+    create (): Object {
+        const Field = this.define(...arguments);
+        return new Field();
+    }
+
+    static getKey (singular: ?Boolean): String {
+        const singularKey = snakeCase(this.name);
+
+        if (singular) {
+            return singularKey;
+        } else {
+            return pluralize.plural(singularKey);
+        }
+    }
+
+    static getFieldId () {
+        return 'id';
     }
 }
-
-Model.fieldId = 'id';
 
 module.exports = Model;

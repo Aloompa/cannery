@@ -9,12 +9,12 @@ const validate = require('valid-point');
 
 class ArrayType extends EventEmitter {
 
-    constructor (parentModel: Object, ArrayType: Function, arrayFields: Object, options: ?Object) {
+    constructor (parentModel: Object, ArrayType: Function = BaseType, arrayFields: Object, options: Object = {}) {
         super();
 
         this._parent = parentModel;
-        this.options = options || {};
-        this.Type = ArrayType || BaseType;
+        this.options = options;
+        this.Type = ArrayType;
         this._typeOptions = [];
         this._fields = arrayFields;
         this._typeOptions = this.options;
@@ -79,10 +79,6 @@ class ArrayType extends EventEmitter {
         return this.all()[index];
     }
 
-    getType (): Function {
-        return this.Type;
-    }
-
     instantiateItem (): Object {
         return new this.Type(Object.assign({}, this._fields), Object.assign({}, this._typeOptions));
     }
@@ -135,27 +131,6 @@ class ArrayType extends EventEmitter {
 
     toJSON (): Array<any> {
         return this.all();
-    }
-
-    validate (noRecursion: boolean) {
-        if (!noRecursion && this._typeOptions) {
-            this._typeOptions.forEach((arrayItem) => {
-                arrayItem.validate();
-            });
-        }
-
-        if (this.validations) {
-            const fieldName = this.validations.field || 'all';
-
-            return validate({
-                data: {
-                    [ fieldName ]: this.all()
-                },
-                validations: {
-                    [ fieldName ]: this.validations
-                }
-            });
-        }
     }
 
 }

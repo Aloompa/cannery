@@ -53,45 +53,47 @@ describe('apply and toJSON', () => {
             name: 'The Nashville Zoo',
             isOpen: true,
             exhibitIds: ['1', '2'],
+            animalTypeIds: ['1', '2'],
+            animalTypes: [{
+                id: '1',
+                name: 'Lion'
+            }, {
+                id: '2',
+                name: 'Otter'
+            }],
             exhibits: [{
                 id: '1',
                 name: 'Lion Around',
-                animalIds: [1, 2],
+                animalIds: ['1', '2'],
                 animals: [{
                     id: '1',
                     name: 'Simba',
                     about: {
                         isTame: false
                     },
-                    animalType: {
-                        id: '1',
-                        name: 'Lion'
-                    }
+                    animalTypeId: '1',
+                    cubIds: []
                 }, {
                     id: '2',
                     name: 'Aslan',
                     about: {
                         isTame: false
                     },
-                    animalType: {
-                        id: '1',
-                        name: 'Lion'
-                    }
+                    animalTypeId: '1',
+                    cubIds: []
                 }]
             }, {
                 id: '2',
                 name: 'Get Otter Here',
-                animalIds: [3],
+                animalIds: ['3'],
                 animals: [{
                     id: '3',
                     name: 'Emmit',
                     about: {
                         isTame: true
                     },
-                    animalType: {
-                        id: '2',
-                        name: 'Otter'
-                    }
+                    animalTypeId: '2',
+                    cubIds: []
                 }]
             }]
         };
@@ -102,7 +104,52 @@ describe('apply and toJSON', () => {
             recursive: true
         }), data);
 
+    });
 
+    it('Should make any id that is supplied in response to a POST be the id of the model', () => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+
+        exhibit.apply({
+            id: '3',
+            name: 'Monkey Business'
+        });
+
+        assert.equal(exhibit.id, '3');
+    });
+
+    it('Should be possible to convert any model to json', () => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+
+        exhibit.apply({
+            name: 'Monkey Business'
+        });
+
+        assert.equal(exhibit.toJSON().name, 'Monkey Business');
+    });
+
+    it('Should never overwrite an existing model id. This is folly', () => {
+        const zoo = new Zoo();
+        const exhibit = zoo.get('exhibits').create();
+
+        exhibit.apply({
+            id: '4'
+        }).apply({
+            id: '5'
+        });
+
+        assert.equal(exhibit.id, '4');
+    });
+
+    it('Should silently ignore applying fields that are not defined', () => {
+        const zoo = new Zoo();
+
+        zoo.apply({
+            icecream: 'rocky road'
+        });
+
+        assert.deepEqual(zoo.toJSON().icecream, undefined);
     });
 
 });

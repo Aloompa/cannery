@@ -10,38 +10,21 @@ class BaseType extends EventEmitter {
     constructor (parentModel: Object, options: Object = {}) {
         super();
 
-        this.lastModified = new Date().getTime();
         this._parent = parentModel;
 
-        Object.assign(this, options);
-
-        Object.keys(options.hooks || {}).forEach((key) => {
-            const originalMethod = this[key];
-
-            if (key === 'apply' || key === 'set') {
-                this[key] = function (val) {
-                    return originalMethod.call(this, options.hooks[key](val));
-                };
-
-                return;
-            }
-
-            this[key] = function () {
-                const val = originalMethod.apply(this, arguments);
-                return options.hooks[key](val);
-            };
-        });
-
         this.validations = options.validations;
+        this._applyHooks(options.hooks);
+
+        if (parentModel && parentModel.emit) {
+            this.on('*', function () {
+                parentModel.emit(...arguments);
+            });
+        }
+
     }
 
     apply (val: any): Object {
-        if (!this.isValueChanged(val)) {
-            return this;
-        }
-
         this._value = val;
-        this.lastModified = new Date().getTime();
         this.emit('change');
 
         return this;
@@ -51,17 +34,8 @@ class BaseType extends EventEmitter {
         return this._value;
     }
 
-    isValueChanged (val: any): boolean {
-        return this._value !== val;
-    }
-
-    set (val: string): Object {
-        if (!this.isValueChanged(val)) {
-            return this;
-        }
-
+    set (val: any): Object {
         this._value = val;
-        this.lastModified = new Date().getTime();
         this.emit('change');
         this.emit('userChange');
         return this;
@@ -82,6 +56,25 @@ class BaseType extends EventEmitter {
                 }
             });
         }
+    }
+
+    _applyHooks (hooks: Object = {}) {
+        Object.keys(hooks).forEach((key) => {
+            const originalMethod = this[key];
+
+            if (key === 'apply' || key === 'set') {
+                this[key] = function (val) {
+                    return originalMethod.call(this, hooks[key](val));
+                };
+
+                return;
+            }
+
+            this[key] = function () {
+                const val = originalMethod.apply(this, arguments);
+                return hooks[key](val);
+            };
+        });
     }
 
 }

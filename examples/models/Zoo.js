@@ -5,6 +5,7 @@ const { StringType, NumberType, BooleanType, OwnsMany, ArrayType, OwnsOne } = Ty
 const Exhibit = require('./Exhibit');
 const Zookeeper = require('./Zookeeper');
 const TestAdapter = require('../testAdapter');
+const AnimalType = require('./AnimalType');
 
 class Zoo extends Root {
 
@@ -19,16 +20,22 @@ class Zoo extends Root {
     }
 
     getFields (): Object {
+        const exhibitIds = new ArrayType(this, NumberType);
+        const animalTypeIds = new ArrayType(this, StringType);
 
         return {
             exhibits: this.define(OwnsMany, Exhibit, {
-                map: 'exhibitIds'
+                map: exhibitIds
             }),
             id: StringType,
             isOpen: BooleanType,
             name: StringType,
-            exhibitIds: this.define(ArrayType, StringType),
-            zookeeper: this.define(OwnsOne, Zookeeper)
+            exhibitIds: exhibitIds,
+            zookeeper: this.define(OwnsOne, Zookeeper),
+            animalTypeIds: animalTypeIds,
+            animalTypes: this.define(OwnsMany, AnimalType, {
+                map: animalTypeIds
+            })
         };
     }
 
