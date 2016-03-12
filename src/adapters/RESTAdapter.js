@@ -12,17 +12,21 @@ class RESTAdapter extends BaseAdapter {
     }
 
     makeRequest (req: Object, callback: Function) {
-        request({
-            url: this.url(req),
-            method: this.method(req),
+        request(this.method(req), this.url(req), {
             json: true,
             body: req.payload,
             qs: this.query(req),
             headers: this.headers(req),
             gzip: this.options.gzip
         }).then((res) => {
-            callback(res.getBody(), null);
-        }).then((res) => {
+
+            if (res.statusCode === 200) {
+                return callback(JSON.parse(res.getBody()), null);
+            }
+
+            return callback(null, res);
+
+        }).catch((res) => {
             callback(null, res);
         });
     }

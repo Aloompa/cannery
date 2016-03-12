@@ -59,6 +59,7 @@ describe('CRUD Operations', () => {
         const exhibit = zoo.get('exhibits').create();
         const animals = exhibit.get('animals');
 
+        animals.create().getAdapter().mockData(null);
         animals.create().getAdapter().mockError('Oops!');
 
         const onError = zoo.on('error', (message) => {
@@ -149,9 +150,10 @@ describe('CRUD Operations', () => {
         exhibit.getAdapter().mockData({});
 
         const onChange = exhibit.on('change', () => {
-            exhibit.off('change', onChange);
-            assert.ok(!zoo.get('exhibits').get('2'));
-            done();
+            if (!zoo.get('exhibits').get('2')) {
+                exhibit.off('change', onChange);
+                done();
+            }
         });
 
         assert.ok(zoo.get('exhibits').get('2'));

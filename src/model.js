@@ -53,14 +53,14 @@ class Model extends EventEmitter {
         return this.state[key];
     }
 
-    apply (data: Object): Object {
+    apply (data: Object, options: Object = {}): Object {
         const responseId = data[this.constructor.getFieldId()];
 
         if (!this.id) {
             this.id = responseId;
         }
 
-        this._fields.apply(data);
+        this._fields.apply(data, options);
 
         return this;
     }
@@ -166,7 +166,10 @@ class Model extends EventEmitter {
                         const fieldId = this.constructor.getFieldId();
                         const id = response[fieldId];
 
-                        this.id = id;
+                        if (!this.id) {
+                            this.id = id;
+                        }
+
                         ownsManyOwner._models[id] = this;
                         ownsManyOwner.map.add(id);
                     }
@@ -186,7 +189,7 @@ class Model extends EventEmitter {
         return new Field();
     }
 
-    static getKey (singular: ?Boolean): String {
+    static getKey (singular: ?Boolean, uri: ?Boolean): String {
         const singularKey = snakeCase(this.name);
 
         if (singular) {

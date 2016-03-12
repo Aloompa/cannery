@@ -27,11 +27,11 @@ class ObjectType extends BaseType {
         });
     }
 
-    apply (data: Object = {}): Object {
+    apply (data: Object = {}, options: Object = {}): Object {
 
         Object.keys(data).forEach((key) => {
             if (this._fields[key]) {
-                this._fields[key].apply(data[key]);
+                this._fields[key].apply(data[key], options);
             }
         });
 

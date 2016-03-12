@@ -1,30 +1,39 @@
 const assert = require('assert');
 const Zoo = require('../models/Zoo');
 
-describe('OwnsMay', () => {
+describe('OwnsMany', () => {
 
     const zoo = new Zoo();
     const exhibit = zoo.get('exhibits').create();
     const animals = exhibit.get('animals');
 
+    const animalData = [{
+        id: '1',
+        name: 'Curious George'
+    }, {
+        id: '2',
+        name: 'King Kong'
+    }, {
+        id: '3',
+        name: 'Donkey Kong'
+    }];
+
     exhibit.apply({
         animalIds: ['2', '1', '3'],
-        animals: [{
-            id: '1',
-            name: 'Curious George'
-        }, {
-            id: '2',
-            name: 'King Kong'
-        }, {
-            id: '3',
-            name: 'Donkey Kong'
-        }]
+        animals: animalData
     });
 
-    it('Should map the models to the mapped array', () => {
-        assert.equal(animals.all().length, 3);
+    it('Should map the models to the mapped array', (done) => {
+        exhibit.getAdapter().mockData(animalData);
 
-        assert.equal(animals.all()[0].get('name'), 'King Kong');
+        const onChange = animals.on('change', () => {
+            assert.equal(animals.length(), 3);
+            assert.equal(animals.all()[0].get('name'), 'King Kong');
+            animals.off('change', onChange);
+            done();
+        });
+
+        animals.all();
     });
 
     it('Should be possible to move a model from the ownsMany', () => {
@@ -53,7 +62,9 @@ describe('OwnsMay', () => {
         animals.applyQueryResults([
             animals.get('2').toJSON(),
             animals.get('3').toJSON()
-        ], kongOptions);
+        ], {
+            query: kongOptions
+        });
 
         const theKongs = animals.query(kongOptions);
 
@@ -67,7 +78,9 @@ describe('OwnsMay', () => {
 
         animals.applyQueryResults([
             animals.get('1').toJSON()
-        ], georgeOptions);
+        ], {
+            query: georgeOptions
+        });
 
         const george = animals.query(georgeOptions);
 
@@ -98,7 +111,9 @@ describe('OwnsMay', () => {
             animals.get('1').toJSON(),
             animals.get('2').toJSON(),
             animals.get('3').toJSON()
-        ], allMonkeysOptions);
+        ], {
+            query: allMonkeysOptions
+        });
 
         const monkeys = animals.query(allMonkeysOptions);
 

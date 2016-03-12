@@ -13,20 +13,20 @@ class RequestCache {
             return '_no-options';
         }
 
-        return JSON.stringify(options);
+        return JSON.stringify(options.query);
     }
 
-    get (options: Object): Object {
+    get (options: Object = {}): Object {
         const key = this.getKey(options);
         return this._cache[key];
     }
 
-    set (options: Object, data: Array<any>) {
+    set (options: Object = {}, data: Array<any>) {
         const key = this.getKey(options);
         this._cache[key] = data || [];
     }
 
-    clear (options: Object) {
+    clear (options: ?Object) {
         if (options) {
             const key = this.getKey(options);
             delete this._cache[key];

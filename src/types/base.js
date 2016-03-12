@@ -23,9 +23,12 @@ class BaseType extends EventEmitter {
 
     }
 
-    apply (val: any): Object {
+    apply (val: any, options: Object = {}): Object {
         this._value = val;
-        this.emit('change');
+
+        if (!options.silent) {
+            this.emit('change');
+        }
 
         return this;
     }

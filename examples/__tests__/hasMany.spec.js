@@ -105,13 +105,6 @@ describe('HasMany', () => {
         assert.equal(scar.get('cubs').all().length, 3);
     });
 
-    it('Should ignore ids that have no model', () => {
-        const scar = animals.get('1');
-        const nuka = scar.get('cubs').get('4');
-
-        assert.equal(nuka.get('cubs').all().length, 1);
-    });
-
     it('Should return undefined when it is converted to JSON. Everything interesting lives in the map or the model', () => {
         const scar = animals.get('1');
 

@@ -25,12 +25,27 @@ class HasMany extends MultiModel {
     }
 
     requestMany (options: ?Object) {
-        this.modelStore.requestMany(options);
+        const model = this.modelStore._instantiateModel();
+
+        model.getAdapter()
+            .findAll(this.Model, this._parent, options, (response, error) => {
+                const idKey = this.Model.getFieldId();
+
+                if (response) {
+                    this.modelStore.apply(response);
+
+                    this.virtualMap = response.map((item) => {
+                        return item[idKey];
+                    });
+
+                    this.emit('change');
+                }
+            });
     }
 
     add (model: Object, index: ?number): Object {
         if (!this.map) {
-            throw new Error('An unmapped OwnsMany cannot be added to');
+            throw new Error('An unmapped HasMany cannot be added to');
         }
 
         this.map.add(model.id, index);
@@ -42,7 +57,13 @@ class HasMany extends MultiModel {
     }
 
     all (): Array<Object> {
-        return this.map.map((id) => {
+
+        if (!this.map && !this.virtualMap) {
+            this.virtualMap = [];
+            this.requestMany();
+        }
+
+        return (this.map || this.virtualMap).map((id) => {
             return this.modelStore.get(id);
         }).filter((model) => {
             return model && !model.getState('isDestroyed');
