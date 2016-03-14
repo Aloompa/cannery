@@ -1,6 +1,6 @@
 const assert = require('assert');
 const Zoo = require('../models/Zoo');
-const TestAdapter = require('../testAdapter');
+const { TestAdapter } = require('../../src/index');
 
 let testAdapter = new TestAdapter();
 

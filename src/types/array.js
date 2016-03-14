@@ -14,7 +14,7 @@ class ArrayType extends EventEmitter {
 
         this._parent = parentModel;
         this.options = options;
-        this.Type = ArrayType;
+        this._Type = ArrayType;
         this._typeOptions = [];
         this._fields = arrayFields;
         this._typeOptions = this.options;
@@ -80,7 +80,8 @@ class ArrayType extends EventEmitter {
     }
 
     instantiateItem (): Object {
-        return new this.Type(Object.assign({}, this._fields), Object.assign({}, this._typeOptions));
+        const { _Type } = this;
+        return new _Type(Object.assign({}, this._fields), Object.assign({}, this._typeOptions));
     }
 
     length (): number {

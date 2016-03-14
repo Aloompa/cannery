@@ -1,6 +1,6 @@
 /* @flow */
 
-const { BaseAdapter } = require('../src/index.js');
+const BaseAdapter = require('../adapter');
 
 class TestAdapter extends BaseAdapter {
     constructor (options: ?Object) {

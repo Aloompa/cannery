@@ -23,17 +23,10 @@ describe('OwnsMany', () => {
         animals: animalData
     });
 
-    it('Should map the models to the mapped array', (done) => {
+    it('Should map the models to the mapped array', () => {
         exhibit.getAdapter().mockData(animalData);
-
-        const onChange = animals.on('change', () => {
-            assert.equal(animals.length(), 3);
-            assert.equal(animals.all()[0].get('name'), 'King Kong');
-            animals.off('change', onChange);
-            done();
-        });
-
-        animals.all();
+        assert.equal(animals.length(), 3);
+        assert.equal(animals.all()[0].get('name'), 'King Kong');
     });
 
     it('Should be possible to move a model from the ownsMany', () => {

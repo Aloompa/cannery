@@ -114,10 +114,11 @@ class OwnsMany extends MultiModel {
 
         const idKey = this.Model.getFieldId();
 
+        this._hasFetchedAll = true;
+
         data.forEach((item) => {
             const key = item[idKey];
             this._models[key] = this._models[key] || this._instantiateModel();
-
             this._models[key].apply(item);
         });
 
@@ -182,7 +183,7 @@ class OwnsMany extends MultiModel {
             if (model.getState('isDestroyed')) {
                 return null;
             }
-            
+
             return model;
         }
 
