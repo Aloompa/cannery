@@ -20,6 +20,12 @@ class ArrayType extends EventEmitter {
         this._typeOptions = this.options;
         this.validations = this.options.validations;
         this.set([]);
+
+        if (parentModel && parentModel.emit) {
+            this.on('*', function () {
+                parentModel.emit(...arguments);
+            });
+        }
     }
 
     add (item: any, index: number): Object {
@@ -37,6 +43,7 @@ class ArrayType extends EventEmitter {
         this.set(array);
 
         this.emit('userChange');
+        this.emit('change');
 
         return this;
     }
@@ -101,6 +108,7 @@ class ArrayType extends EventEmitter {
         this.set(array);
 
         this.emit('userChange');
+        this.emit('change');
 
         return this;
     }
@@ -113,6 +121,7 @@ class ArrayType extends EventEmitter {
         this.set(array);
 
         this.emit('userChange');
+        this.emit('change');
 
         return this;
     }
@@ -121,6 +130,7 @@ class ArrayType extends EventEmitter {
         this.set([]);
 
         this.emit('userChange');
+        this.emit('change');
 
         return this;
     }
