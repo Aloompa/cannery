@@ -66,8 +66,12 @@ class HasMany extends MultiModel {
         return (this.map || this.virtualMap).map((id) => {
             return this.modelStore.get(id);
         }).filter((model) => {
-            return model && !model.getState('isDestroyed');
+            return model && model.get(model.constructor.getFieldId()) && !model.getState('isDestroyed');
         });
+    }
+
+    query (options: Object = {}) {
+        return this.all();
     }
 
     get (id: string): Object {

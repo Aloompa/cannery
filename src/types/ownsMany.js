@@ -212,7 +212,7 @@ class OwnsMany extends MultiModel {
             const models = ids.map((id) => {
                 return this._models[id];
             }).filter((model) => {
-                return model;
+                return model && model.get(model.constructor.getFieldId());
             });
 
             const anyDestroyed = models.filter((model) => {
