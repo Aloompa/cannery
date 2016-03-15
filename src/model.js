@@ -1,231 +1,207 @@
+/* @flow */
+
 'use strict';
 
 const EventEmitter = require('cannery-event-emitter');
-const addListenersUtil = require('./util/addListeners');
-const Adapter = require('cannery-adapter');
+const snakeCase = require('lodash.snakecase');
+const pluralize = require('pluralize');
 const ObjectType = require('./types/object');
-const fields = Symbol();
-const isFetched = Symbol();
-const isChanged = Symbol();
-const isSaving = Symbol();
-const doFetch = Symbol();
-const saveThis = Symbol();
-const saveChildren = Symbol();
+const Adapter = require('./adapters/sessionAdapter');
+const OwnsMany = require('./types/ownsMany');
+const OwnsOne = require('./types/ownsOne');
 
 class Model extends EventEmitter {
 
-    constructor (id, options) {
+    id: string;
+    options: ?Object;
+    _parent: Object;
+    _fields: Object;
+    state: Object;
+
+    constructor (parentModel: Object, id: string, options: ?Object) {
         super();
 
-        this.id = id;
-        this[fields] = new ObjectType(this.getFields(...arguments), {
-            parent: this
-        });
-        this[isFetched] = false;
-        this.options = options;
-
-        addListenersUtil(this, this[fields]);
-
-        this.on('userChange', () => {
-            this[isChanged] = true;
-        });
-
-        this.on('saving', () => {
-            this[isSaving] = true;
-            this.emit('change');
-        });
-
-        this.on('saveSuccess', () => {
-            this[isChanged] = false;
-            this[isSaving] = false;
-        });
-
-        this.on('saveError', () => {
-            this[isSaving] = false;
-        });
-    }
-
-    static all (options) {
-        return new this().getAdapter().findAll(this, options).then(this.applyModels.bind(this));
-    }
-
-    static applyModels (arr) {
-        let models = [];
-
-        arr.forEach((obj) => {
-            const model = new this(obj.id);
-            model.apply(obj);
-            models.push(model);
-        });
-
-        models.on = (evt, callback) => {
-            let subscriptions = [];
-
-            models.forEach((model) => {
-                subscriptions.push(model.on(evt, callback));
-            });
-
-            return subscriptions;
-        };
-
-        return models;
-    }
-
-    [ doFetch ] (options) {
-        const parent = this.getParent();
-        const adapter = this.getAdapter();
-
-        options = Object.assign({}, options, this.options);
-
-        if (parent) {
-            return adapter.fetchWithin(this, parent, options);
-
-        } else {
-            return adapter.fetch(this, options);
+        if (!parentModel) {
+            throw new Error('Models cannot be created without belonging to another model or root above them');
         }
 
+        this._parent = parentModel;
+        this.id = id;
+
+        const fields = this.getFields(...arguments);
+
+        this._fields = new ObjectType(this, fields, {
+            parent: this
+        });
+
+        this.options = options;
+        this.state = {};
+
+        this.on('*', function () {
+            parentModel.emit(...arguments);
+        });
     }
 
-    apply (data) {
-        const responseId = data[this.constructor.fieldId];
+    setState (key: string, value: any): Object {
+        this.state[key] = value;
+        this.emit('change');
+
+        return this;
+    }
+
+    getState (key: string): any {
+        return this.state[key];
+    }
+
+    apply (data: Object, options: Object = {}): Object {
+        const responseId = data[this.constructor.getFieldId()];
 
         if (!this.id) {
             this.id = responseId;
         }
 
-        this[fields].apply(data);
-        this[isFetched] = true;
+        this._fields.apply(data, options);
+
         return this;
     }
 
-    destroy (options) {
-        return this.getAdapter().destroy(this, options);
+    define (Type: Function, ...args: any): Function {
+        const fn = () => {
+            return new Type(this, ...args);
+        };
+
+        fn.Type = Type;
+        fn.typeArguments = [...args];
+
+        return fn;
     }
 
-    get (key) {
+    destroy (options: Object = {}): Object {
+        this.getAdapter()
+            .destroy(this, options, (response) => {
+                const ownsManyOwner = this.findOwnsMany(this.constructor);
 
-        if (!this[isFetched] && this.id) {
-            this[isFetched] = true;
-            this.refresh();
+                if (ownsManyOwner) {
+                    ownsManyOwner._remove(this);
+                }
+
+                this.setState('isDestroyed', true);
+                this.emit('change');
+            });
+
+        return this;
+    }
+
+    get (key: string): Object {
+        return this._fields.get(key);
+    }
+
+    getScope (): Object {
+        return this._parent;
+    }
+
+    findOwnsMany (Model: Function) {
+        let parent = this.getScope();
+
+        while (parent) {
+            const fields = parent.getFields();
+
+            for (let key in fields) {
+                const field = fields[key];
+
+                if (field.Type === OwnsMany && field.typeArguments[0] === Model) {
+                    return parent.get(key);
+                }
+            }
+
+            parent = parent.getScope();
         }
-
-        return this[fields].get(key);
     }
 
-    getAdapter () {
-        return new Adapter();
+    getAdapter (): Object {
+        return this.getScope().getAdapter(...arguments);
     }
 
-    getParent () {
-        return null;
-    }
-
-    getFields () {
+    getFields (): Object {
         throw new Error('The getFields() method is not defined');
     }
 
-    isChanged () {
-        return this[isChanged];
-    }
-
-    isSaving () {
-        return this[isSaving];
-    }
-
-    refresh (options) {
-        this.emit('fetching');
-
-        const modelOptions = Object.assign({}, this, options);
-
-        return this[doFetch](modelOptions).then((data) => {
-
-            this.apply(data);
-
-            this.emit('fetchSuccess');
-            return this;
-
-        }).catch((e) => {
-            this.emit('fetchError', e);
-            throw new Error(e.message);
-        });
-    }
-
-    set (key, value) {
-        this[fields].set(key, value);
-        this[isChanged] = true;
+    set (key: string, value: any): Object {
+        this._fields.set(key, value);
+        this.setState('isChanged', true);
         return this;
     }
 
-    save (options, single) {
-        if (!single) {
-            return this[saveChildren](options)
-                .then(this[saveThis].bind(this, options))
-                .catch((e) => {
-                    this.emit('saveError', e);
-                    return Promise.reject(e);
-                });
-        } else {
-            return this[saveThis](options)
-                .catch((e) => {
-                    this.emit('saveError', e);
-                    return Promise.reject(e);
-                });
-        }
+    toJSON (options: ?Object): Object {
+        return this._fields.toJSON(options);
     }
 
-    toJSON () {
-        return this[fields].toJSON();
-    }
-
-    validate (key) {
-        this[fields].validate(key);
+    validate (key: ?string): Object {
+        this._fields.validate(key);
         return this;
     }
 
-    [ saveThis ] (options) {
-        if (!this.isChanged()) {
-            return Promise.resolve();
-        }
-
-        const requestType = (this.id) ? 'update' : 'create';
-
-        this.emit('saving');
+    save (options: Object = {}, single: boolean = false): Object {
+        const saveType = (this.id) ? 'update' : 'create';
 
         try {
             this.validate();
+
         } catch (e) {
             this.emit('saveError', e);
-            return Promise.reject(e);
+            return this;
         }
 
-        return this.getAdapter()[requestType](this, options).then((data) => {
+        this.setState('saving', true);
 
-            if (!this.id) {
-                this.id = data[this.constructor.idField];
-            }
+        this.getAdapter()
+            [saveType](this, this.getScope(), options, (response) => {
 
-            this.emit('saveSuccess');
+                // If we created a model, add the model to the ownsMany that contains the model type
+                if (saveType === 'create') {
 
-            return this.apply(data);
+                    const ownsManyOwner = this.findOwnsMany(this.constructor);
 
-        });
+                    if (ownsManyOwner) {
+                        const fieldId = this.constructor.getFieldId();
+                        const id = response[fieldId];
+
+                        if (!this.id) {
+                            this.id = id;
+                        }
+
+                        ownsManyOwner._models[id] = this;
+                        ownsManyOwner.map.add(id);
+                    }
+                }
+
+                this.apply(response);
+
+                this.setState('saving', false);
+                this.setState('isChanged', false);
+            });
+
+        return this;
     }
 
-    [ saveChildren ] (options) {
-        let fields = this.getFields();
-        let promises = [];
-        Object.keys(fields).forEach((key) => {
-            if (fields[key].constructor.name === 'HasMany') {
-                promises.concat(this.get(key).saveChildren(options));
-            } else if (fields[key].constructor.name === 'HasOne') {
-                promises.push(this.get(key).save(options));
-            }
-        });
+    create (): Object {
+        const Field = this.define(...arguments);
+        return new Field();
+    }
 
-        return Promise.all(promises);
+    static getKey (singular: ?Boolean, uri: ?Boolean): String {
+        const singularKey = snakeCase(this.name);
+
+        if (singular) {
+            return singularKey;
+        } else {
+            return pluralize.plural(singularKey);
+        }
+    }
+
+    static getFieldId () {
+        return 'id';
     }
 }
-
-Model.fieldId = 'id';
 
 module.exports = Model;

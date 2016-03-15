@@ -1,0 +1,13 @@
+[ignore]
+
+[include]
+../node_modules/valid-point
+../node_modules/cannery-event-emitter
+../node_modules/lodash.debounce
+../node_modules/lodash.snakecase
+../node_modules/pluralize
+../node_modules/request
+
+[libs]
+
+[options]

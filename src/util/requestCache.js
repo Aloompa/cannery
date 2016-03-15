@@ -1,34 +1,37 @@
-const cache = Symbol();
+/* @flow */
 
 class RequestCache {
+
+    _cache: Object;
+
     constructor () {
-        this[cache] = {};
+        this._cache = {};
     }
 
-    getKey (options = {}) {
+    getKey (options: Object = {}): string {
         if (!Object.keys(options).length) {
             return '_no-options';
         }
 
-        return JSON.stringify(options.qs);
+        return JSON.stringify(options.query);
     }
 
-    get (options) {
+    get (options: Object = {}): Object {
         const key = this.getKey(options);
-        return this[cache][key];
+        return this._cache[key];
     }
 
-    set (options, data = []) {
+    set (options: Object = {}, data: Array<any>) {
         const key = this.getKey(options);
-        this[cache][key] = data;
+        this._cache[key] = data || [];
     }
 
-    clear (options) {
+    clear (options: ?Object) {
         if (options) {
             const key = this.getKey(options);
-            delete this[cache][key];
+            delete this._cache[key];
         } else {
-            this[cache] = {};
+            this._cache = {};
         }
     }
 }
