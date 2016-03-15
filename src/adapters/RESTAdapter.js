@@ -13,14 +13,13 @@ class RESTAdapter extends BaseAdapter {
 
     makeRequest (req: Object, callback: Function) {
         request(this.method(req), this.url(req), {
-            json: true,
-            body: req.payload,
+            json: req.payload,
             qs: this.query(req),
             headers: this.headers(req),
             gzip: this.options.gzip
         }).then((res) => {
 
-            if (res.statusCode === 200) {
+            if (res.statusCode === 200 || res.statusCode === 304) {
                 return callback(JSON.parse(res.getBody()), null);
             }
 

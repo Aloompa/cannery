@@ -136,12 +136,14 @@ class Adapter {
             requestType: 'create',
             path: path,
             id: null,
-            payload: model.toJSON(),
+            payload: model.toJSON({
+                saving: true
+            }),
             options: options,
             Model: model.constructor
         }, (response, err) => {
             if (err) {
-                context.emit('error', err);
+                context.emit('saveError', err);
                 return;
             }
 
@@ -154,12 +156,15 @@ class Adapter {
             requestType: 'update',
             path: this.getPath(model),
             id: model.id,
-            payload: model.toJSON({excludeUnchanged: this.options.excludeUnchanged}),
+            payload: model.toJSON({
+                saving: true,
+                excludeUnchanged: this.options.excludeUnchanged
+            }),
             options: options,
             Model: model.constructor
         }, (response, err) => {
             if (err) {
-                model.emit('error', err);
+                model.emit('saveError', err);
                 return;
             }
 
@@ -176,7 +181,7 @@ class Adapter {
             Model: model.constructor
         }, (response, err) => {
             if (err) {
-                model.emit('error', err);
+                model.emit('deleteError', err);
                 return;
             }
 

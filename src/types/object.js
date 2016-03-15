@@ -15,18 +15,6 @@ class ObjectType extends BaseType {
         this.initialize(fields);
     }
 
-    _applyFieldNames () {
-        Object.keys(this._fields).forEach((key) => {
-            this._fields[key].fieldName = key;
-        });
-    }
-
-    _applyFieldParent () {
-        Object.keys(this._fields).forEach((key) => {
-            this._fields[key].parent = this._parent;
-        });
-    }
-
     apply (data: Object = {}, options: Object = {}): Object {
 
         Object.keys(data).forEach((key) => {
@@ -38,10 +26,15 @@ class ObjectType extends BaseType {
         return this;
     }
 
+    _applyFieldNames () {
+        Object.keys(this._fields).forEach((key) => {
+            this._fields[key].fieldName = key;
+        });
+    }
+
     initialize (initalFields: Object) {
         this._fields = parseFields(this._parent, initalFields);
         this._applyFieldNames();
-        this._applyFieldParent();
     }
 
     get (key: string): any {
