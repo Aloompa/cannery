@@ -20,7 +20,21 @@ class HasOne extends BaseType {
     }
 
     get (): Object {
-        return this.modelStore.get(this._map.get());
+
+        if (!this._map.get()) {
+            return this.modelStore.get(null);
+        }
+
+        if (!this.model) {
+            const parent = this._parent;
+            this.model = this.modelStore.get(this._map.get());
+
+            this.model.on('*', function () {
+                parent.emit(...arguments);
+            });
+        }
+
+        return this.model;
     }
 
 }
