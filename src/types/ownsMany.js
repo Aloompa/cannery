@@ -43,6 +43,8 @@ class OwnsMany extends MultiModel {
             model = this._instantiateModel(id);
         }
 
+        this.emit('fetching');
+
         model.getAdapter().fetch(model, options, (response, error) => {
 
             if (error) {
@@ -64,6 +66,7 @@ class OwnsMany extends MultiModel {
                 this._models[id] = this._models[responseId];
             }
 
+            this.emit('fetchSuccess');
             this.emit('change');
         });
 
@@ -80,6 +83,8 @@ class OwnsMany extends MultiModel {
         }
 
         this._isRequesting[requestKey] = true;
+
+        this.emit('fetching');
 
         model
             .getAdapter()
@@ -102,6 +107,8 @@ class OwnsMany extends MultiModel {
 
                         this._models[id].apply(item);
                     });
+
+                    this.emit('fetchSuccess');
 
                     return this.emit('change');
                 }
@@ -220,19 +227,29 @@ class OwnsMany extends MultiModel {
             }).length;
 
             if (!anyDestroyed) {
+                models.getState = () => {
+                    return 'loaded';
+                };
+
                 return models;
             }
         }
 
+        const temporaryArray = [];
+
+        temporaryArray.getState = () => {
+            return 'loading';
+        };
+
         this.requestCache.set({
             query
-        }, []);
+        }, temporaryArray);
 
         this.requestMany({
             query
         });
 
-        return [];
+        return temporaryArray;
     }
 
     refresh () {
