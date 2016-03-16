@@ -88,7 +88,7 @@ class ArrayType extends EventEmitter {
 
     instantiateItem (): Object {
         const { _Type } = this;
-        return new _Type(Object.assign({}, this._fields), Object.assign({}, this._typeOptions));
+        return new _Type(this._parent, Object.assign({}, this._fields), Object.assign({}, this._typeOptions));
     }
 
     length (): number {

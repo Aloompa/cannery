@@ -101,6 +101,10 @@ class Model extends EventEmitter {
     }
 
     get (key: string): Object {
+        if (!this._fields) {
+            return;
+        }
+        
         return this._fields.get(key);
     }
 
