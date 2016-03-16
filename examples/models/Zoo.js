@@ -10,6 +10,7 @@ const AnimalType = require('./AnimalType');
 class Zoo extends Root {
 
     constructor () {
+        debugger;
         super(...arguments);
 
         this.adapter = new TestAdapter();

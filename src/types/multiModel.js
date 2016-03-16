@@ -79,6 +79,10 @@ class MultiModel extends BaseType {
         return this;
     }
 
+    length () {
+        return this.map.all().length;
+    }
+
 }
 
 module.exports = MultiModel;

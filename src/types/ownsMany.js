@@ -3,24 +3,64 @@
 'use strict';
 
 const MultiModel = require('./multiModel');
-const RequestCache = require('../util/requestCache');
 
 class OwnsMany extends MultiModel {
 
-    constructor () {
+    constructor (parentModel: Object, Model: Function, options: Object = {}) {
         super(...arguments);
-
-        this.requestCache = new RequestCache();
+        this.defaultQuery = options.defaultQuery || {};
+        this.requestCache = this._parent.getRoot().requestCache;
         this._models = {};
+        this._hasFetchedAll = false;
+        this._meta = {};
     }
 
     _instantiateModel (id: ?string): Object {
         const { Model } = this;
-        return new Model(this._parent, id, this.options.modelOptions);
+        let newModel =  new Model(this._parent, id, this.options.modelOptions);
+
+        newModel.on('destroy', this.handleDestroy);
+
+        return newModel;
     }
 
-    _getModelById (id: string): Object {
+    getModel (id: string): Object {
         return this._models[id];
+    }
+
+    apply (response: Object, query: Object = {}): void {
+        const models = Array.isArray(response) ? response : [response];
+        const idKey = this.Model.getFieldId();
+        const ids = [];
+
+        models.forEach((modelData) => {
+            const id = String(modelData[idKey]);
+            ids.push(id);
+
+            const storedModel = this.getModel(id);
+
+            if (storedModel) {
+                storedModel.apply(modelData);
+            } else {
+                const newModel = this._instantiateModel(id).apply(modelData);
+                this._models[id] = newModel;
+            }
+
+        });
+
+        this.requestCache.set(query, ids);
+
+        ids.forEach((id) => {
+            const storedModel = this.getModel();
+            if (storedModel) {
+                store
+            }
+        });
+    }
+
+    getMeta (query) {
+        this.query(query);
+        return this._meta[this.requestCache.getKey()];
     }
 
     create (): Object {
@@ -29,14 +69,32 @@ class OwnsMany extends MultiModel {
 
     // Override
     requestOne (id: string, options: ?Object): any {
-        let model = this._getModelById(id);
+        let model = this.getModel(id);
 
         if (!model) {
             model = this._instantiateModel(id);
         }
 
-        model.getAdapter().fetch(model, options, (response) => {
-            this.apply([response]);
+        this.emit('fetching');
+
+        model.getAdapter().fetch(model, options, (response, error) => {
+
+            if (error) {
+                this._models[id] = this.create();
+
+                return;
+            }
+
+            this.apply(response, options.query);
+
+            const responseId = response[this.Model.getFieldId()];
+
+            if (id && (String(id) !== String(responseId))) {
+                this._models[responseId].id = responseId;
+                this._models[id] = this._models[responseId];
+            }
+
+            this.emit('fetchSuccess');
             this.emit('change');
         });
 
@@ -49,63 +107,75 @@ class OwnsMany extends MultiModel {
 
         model
             .getAdapter()
-            .findAll(this.Model, this._parent, options, (response) => {
-                this.apply(response);
-                this.applyQueryResults(response, options);
-                this.emit('change');
+            .findAll(this.Model, this._parent, options, (response, err) => {
+                if (response) {
+                    const key = this.Model.getFieldId();
+
+                    this.apply(response, options);
+
+                    this._meta[this.requestCache.getKey()] = response.meta;
+
+                    response.forEach((item) => {
+                        const id = item[key];
+                        if (!this._models[id]) {
+                            this._models[id] = this.create();
+                            this._models[id].id = id;
+                        }
+
+                        this._models[id].apply(item);
+                    });
+
+                    this.emit('fetchSuccess');
+
+                    return this.emit('change');
+                }
             });
 
         return this;
     }
 
-    apply (data : Array<Object>): Object {
-        data.forEach((item) => {
-            this._models[item.id] = this._models[item.id] || this._instantiateModel();
-            this._models[item.id].apply(item);
+    allModels () : Array<Object> {
+        return Object.keys(this._models).map((id) => {
+            return this._models[id];
         });
-
-        return this;
     }
 
-    applyQueryResults (data : Array<Object>, options: Object = {}): Object {
-        const idKey = this.Model.getFieldId();
-
-        if (!Array.isArray(data)) {
-            data = [];
+    handleDestroy (model: Object) : void {
+        if (this.map) {
+            let modelIndex = this.map.all().indexOf(model.id);
+            if (modelIndex >= 0) {
+                this.map.remove(modelIndex);
+            }
         }
 
-        const ids = data.map((modelData) => {
-            return modelData[idKey];
-        });
-
-        this.requestCache.set(options, ids);
-
-        return this;
+        if (this._models[model.id]) {
+            delete this._models[model.id];
+        }
     }
 
     all (): Array<Object> {
-        if (Object.keys(this._models).length) {
-
-            // Mapped owns many
-            if (this.map) {
-                return this.map.map((id) => {
-                    return this._models[id];
-                });
-            }
-
-            // Unmapped
-            return Object.keys(this._models).map((id) => {
-                return this._models[id];
-            });
+        if (!this.requestCache.get(this.defaultQuery)) {
+            this.requestMany(this.defaultQuery);
         }
 
-        this.requestMany({});
-        return [];
+        if (this.map) {
+            // Mapped owns many
+            return this
+                .allModels()
+                .filter((model) => {
+                    return this.map.indexOf(model.id) >= 0;
+                }).sort((modelA, modelB) => {
+                    return this.map.indexOf(modelA.id) - this.map.indexOf(modelB.id);
+                });
+        } else {
+            // Unmapped
+            return this.allModels();
+        }
     }
 
     toJSON (options : Object = {}): any {
         if (options.recursive) {
-            return this.all().map((model) => {
+            return this.allModels().map((model) => {
                 return model.toJSON(options);
             });
         }
@@ -117,18 +187,26 @@ class OwnsMany extends MultiModel {
         let ids = this.requestCache.get(query);
 
         if (ids) {
-            const models = ids.map((id) => {
+            const models = ids.all().map((id) => {
                 return this._models[id];
             });
 
-            const anyDestroyed = models.filter((model) => {
-                return model.getState('isDestroyed');
-            }).length;
+            models.getState = () => {
+                return 'loaded';
+            };
 
-            if (!anyDestroyed) {
-                return models;
-            }
+            return models;
         }
+
+        const temporaryArray = [];
+
+        temporaryArray.getState = () => {
+            return 'loading';
+        };
+
+        this.requestCache.set({
+            query
+        }, []);
 
         this.requestMany({
             query

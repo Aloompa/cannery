@@ -6,6 +6,7 @@ const pluralize = require('pluralize');
 const ObjectType = require('./types/object');
 const debounce = require('lodash.debounce');
 const RestAdapter = require('./adapters/RESTAdapter');
+const RequestCache = require('./util/RequestCache');
 
 class Root extends EventEmitter {
 
@@ -16,11 +17,12 @@ class Root extends EventEmitter {
 
         const fields = this.getFields(...arguments);
 
+        this.adapter = new RestAdapter();
+        this.requestCache = new RequestCache();
+
         this._fields = new ObjectType(this, fields, {
             parent: this
         });
-
-        this.adapter = new RestAdapter();
     }
 
     getAdapter () {
@@ -54,6 +56,10 @@ class Root extends EventEmitter {
 
     getScope (): null {
         return null;
+    }
+
+    getRoot (): Object {
+        return this;
     }
 
     findOwnsMany (): null {

@@ -57,7 +57,7 @@ class Model extends EventEmitter {
         const responseId = data[this.constructor.getFieldId()];
 
         if (!this.id) {
-            this.id = responseId;
+            this.id = String(responseId);
         }
 
         this._fields.apply(data);
@@ -79,16 +79,11 @@ class Model extends EventEmitter {
     destroy (options: Object = {}): Object {
         this.getAdapter()
             .destroy(this, options, (response) => {
-                const ownsManyOwner = this.findOwnsMany(this.constructor);
-
-                if (ownsManyOwner) {
-                    ownsManyOwner._remove(this);
-                }
-
-                this.setState('isDestroyed', true);
+                this.emit('destroy', this);
                 this.emit('change');
             });
 
+        this.getRoot().requestCache.clear(this.constructor);
         return this;
     }
 
@@ -98,6 +93,16 @@ class Model extends EventEmitter {
 
     getScope (): Object {
         return this._parent;
+    }
+
+    getRoot (): Object {
+        let root = this.getScope();
+
+        while (root.getScope()) {
+            root = root.getScope();
+        }
+
+        return root;
     }
 
     findOwnsMany (Model: Function) {
@@ -177,6 +182,8 @@ class Model extends EventEmitter {
                 this.setState('saving', false);
                 this.setState('isChanged', false);
             });
+
+        this.getRoot().requestCache.clear(this.constructor);
 
         return this;
     }
