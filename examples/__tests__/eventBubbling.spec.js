@@ -198,6 +198,7 @@ describe('Event bubbling', function () {
 
     it('Should emit HasOne events up to the root', (done) => {
         const zoo = new Zoo();
+        let complete = false;
 
         zoo.apply({
             animalTypes: [{
@@ -218,7 +219,10 @@ describe('Event bubbling', function () {
         const animalType = animal.get('animalType');
 
         zoo.on('userChange', () => {
-            done();
+            if (!complete) {
+                complete = true;
+                done();
+            }
         });
 
         animalType.set('name', 'Bears');
