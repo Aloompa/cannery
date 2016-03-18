@@ -104,7 +104,7 @@ class Model extends EventEmitter {
         if (!this._fields) {
             return;
         }
-        
+
         return this._fields.get(key);
     }
 
@@ -153,33 +153,43 @@ class Model extends EventEmitter {
     }
 
     _saveSuccess (response) {
-        const saveType = (this.id) ? 'update' : 'create';
+        try {
 
-        // If we created a model, add the model to the ownsMany that contains the model type
-        if (saveType === 'create') {
+            const saveType = (this.id) ? 'update' : 'create';
 
-            const ownsManyOwner = this.findOwnsMany(this.constructor);
+            // If we created a model, add the model to the ownsMany that contains the model type
+            if (saveType === 'create') {
 
-            if (ownsManyOwner) {
-                const fieldId = this.constructor.getFieldId();
-                const id = response[fieldId];
+                const ownsManyOwner = this.findOwnsMany(this.constructor);
 
-                if (!this.id) {
-                    this.id = id;
+                if (ownsManyOwner) {
+                    const fieldId = this.constructor.getFieldId();
+                    const id = response[fieldId];
+
+                    if (!this.id) {
+                        this.id = id;
+                    }
+
+                    ownsManyOwner._models[id] = this;
+
+                    if (ownsManyOwner.map) {
+                        ownsManyOwner.map.add(id);
+                    }
                 }
-
-                ownsManyOwner._models[id] = this;
-                ownsManyOwner.map.add(id);
             }
+
+            this.apply(response);
+
+            this.setState('saving', false);
+            this.setState('isChanged', false);
+
+            this.emit('saveSuccess');
+            this.emit('change');
+
+        } catch (e) {
+            this.emit('saveError', e.message);
         }
 
-        this.apply(response);
-
-        this.setState('saving', false);
-        this.setState('isChanged', false);
-
-        this.emit('saveSuccess');
-        this.emit('change');
     }
 
     save (options: Object = {}, single: boolean = false): Object {
@@ -189,7 +199,7 @@ class Model extends EventEmitter {
             this.validate();
 
         } catch (e) {
-            this.emit('saveError', e);
+            this.emit('saveError', e.message);
             return this;
         }
 

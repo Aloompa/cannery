@@ -63,7 +63,7 @@ class ArrayType extends EventEmitter {
     }
 
     apply (data: Array<any>): Object {
-        const array = data.map((item) => {
+        const array = (data || []).map((item) => {
 
             const typedItem = this.instantiateItem(item);
 
