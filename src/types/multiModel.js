@@ -143,7 +143,7 @@ class MultiModel extends BaseType {
         return model;
     }
 
-    requestMany (options: Object): void {
+    requestMany (options: Object = {}): void {
         const query = options.query || {};
 
         this.emit('fetching');
@@ -183,8 +183,11 @@ class MultiModel extends BaseType {
         return this.map.all().length;
     }
 
-    refresh () {
-        this.modelStore.clear();
+    refresh (deep: Boolean) {
+        if (deep) {
+            this.modelStore.clear();
+        }
+
         this._idAliases = {};
         this.requestCache.clear(this.Model);
         return this;

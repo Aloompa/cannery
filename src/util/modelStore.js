@@ -1,7 +1,17 @@
 /* @flow */
-class ModelStore {
+
+const EventEmitter = require('cannery-event-emitter');
+
+class ModelStore extends EventEmitter{
     constructor (Model: Function, context: Object) {
+        super();
+
+        if (!Model || !context) {
+            throw new Error('ModelStore must be scoped and typed');
+        }
+
         this.Model = Model;
+        this._context = context;
         this._models = {};
         this._listeners = {};
     }
@@ -20,7 +30,7 @@ class ModelStore {
             const id = String(modelData[idKey]);
             ids.push(id);
 
-            const storedModel = this.getModel(id);
+            const storedModel = this.get(id);
 
             if (storedModel) {
                 storedModel.apply(modelData);
@@ -57,7 +67,7 @@ class ModelStore {
         const Model = this.Model;
         let newModel =  new Model(this._context, id, options);
 
-        this.newModel.once('destroy', this._handleDestroy.bind(this));
+        newModel.once('destroy', this._handleDestroy.bind(this));
 
         return newModel;
     }
@@ -67,7 +77,8 @@ class ModelStore {
     }
 
     _handleDestroy (model: Object) {
-        this.remove(model.id)
+        this.remove(model.id);
+        this.emit('modelDestroyed');
     }
 }
 
