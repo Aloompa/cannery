@@ -17,7 +17,7 @@ class ObjectType extends BaseType {
 
     apply (data: Object = {}, options: Object = {}): Object {
 
-        Object.keys(data).forEach((key) => {
+        Object.keys(data || {}).forEach((key) => {
             if (this._fields[key]) {
                 this._fields[key].apply(data[key], options);
             }

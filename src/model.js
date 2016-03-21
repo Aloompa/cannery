@@ -187,7 +187,7 @@ class Model extends EventEmitter {
             this.emit('change');
 
         } catch (e) {
-            this.emit('saveError', e.message);
+            this.emit('saveError', e);
         }
 
     }
@@ -199,7 +199,7 @@ class Model extends EventEmitter {
             this.validate();
 
         } catch (e) {
-            this.emit('saveError', e.message);
+            this.emit('saveError', e);
             return this;
         }
 
