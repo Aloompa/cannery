@@ -1,74 +1,132 @@
 ## Welcome to Cannery
 
-A modern ES6 class-based event-driven ORM for client-side or server-side JavaScript.
+A modern ES6 event-driven ORM for client-side or server-side JavaScript.
+
+## Installing Cannery
+
+Cannery is available on npm.
+
+```
+npm install cannery --save
+```
 
 ##  Getting Started
 
-Getting started with Cannery is easy. You just need to extend the Cannery base Model class and provide a `getFields()` method that returns an object describing the fields on the model. From there, we can instantiate the model and use `get()` and `set()` to set and get data on the model fields.
+Every Cannery API needs to have a root to contain your models. Create a class that extends `Cannery.Root` and define your fields within the `getFields()` method:
 
 ```
-const { Model, Type } = require('cannery');
-const { StringType, NumberType } = Type;
+import Cannery from 'cannery';
+import Monkey from 'path/to/Monkey';
 
-class Car extends Model {
+const { OwnsMany } = Cannery;
+
+class Api extends Cannery.Root {
 
     getFields () {
         return {
-            make: StringType,
-            model: StringType,
-            year: NumberType
+            monkey: this.define(OwnsMany, Monkey)
         };
     }
 
 }
 
-const myCar = new Car();
-
-myCar.set('make', 'Ford');
-
-console.log(myCar.get('make')); // Ford
+export default Api;
 ```
 
-So far, this is all pretty much what you might expect from any JavaScript model layer, but it gets better when you start handling async data. We'll get into how to define where our data is coming from (ajax, websockets, localStorage, some database, etc...) in the documentation, but for now, let's just say that the secret sauce of Cannery is that every field is return synchronously at first, and then events are triggered once the data is retrieved so that the UI layer can redraw with the updated data.
+Models have a very similar API to the Cannery Root. They return an object of fields through the `getFields()` method.
 
 ```
-const myCar = new Car(1);
+import Cannery from 'cannery';
 
-// This is triggered any time data is retrieved from some remote source such as an Ajax call
-myCar.on('change', () => {
-    myCar.get('make'); // returns the value of the make retrieved from the server
-});
+const { StringType, NumberType } = Cannery;
 
-myCar.get('make'); // returns an empty string immediately
-```
+class Monkey extends Cannery.Model {
 
-## API
-
-### Adapters
-
-To change what type of data store you set and get data from, just switch out the adapter. For example, you may want to get data from ajax, mongoDB, localStorage, etc. No problem, just replace the `getAdapter()` method with your own:
-
-```
-const Cannery = require('cannery');
-
-class User extends Cannery.Model {
-
-    getAdapter () {
-        return new MyAdapter();
+    getFields () {
+        return {
+            id: NumberType,
+            name: StringType
+        };
     }
 
 }
 
-module.exports = User;
+export default Monkey;
 ```
 
-### Cannery.Type
+Cannery has no dependency on React or any other front-end component library. But here is an example of using our API with React:
 
-Fields in cannery can have types. Different types operate in different ways to handle data that is set and gotten from the model.
+```
+import React from 'react';
+import Api from 'path/to/Api';
+import MonkeysListing from 'path/to/MonkeysListing.jsx';
 
-### Cannery.Model
+class AppLayout extends React.Component {
 
-This is the base model class where all the magic happens.
+    constructor () {
+        super();
+
+        this.state = {
+            api: new Api()
+        };
+    }
+
+    componentWillMount () {
+        this.onApiChange = this.state.api.on('change', () => {
+            this.forceUpdate();
+        });
+    }
+
+    componentWillUnmount () {
+        this.state.api.off('change', this.onApiChange);
+    }
+
+    render () {
+        return (
+            <div>
+                <MonkeysListing api={this.state.api} />
+            </div>
+        );
+    }
+
+}
+
+export default AppLayout;
+```
+
+Our API needs to flow down from the top-level component to lower-level components:
+
+```
+import React from 'react';
+
+class MonkeysListing extends React.Component {
+
+    renderMonkey (monkey, key) {
+        return (
+            <div key={key}>
+                <label>Name</label>
+                <input value={monkey.get('name')} onChange={(e) => {
+                    monkey.set('name', e.target.value);
+                }} />
+                <button onClick={() => {
+                    monkey.save();
+                }}>Save</button>
+            </div>
+        );
+    }
+
+    render () {
+        return (
+            <div>
+                {this.props.api.get('monkeys').all().map(this.renderMonkey.bind(this))}
+            </div>
+        );
+    }
+
+}
+
+export default MonkeysListing;
+```
 
 ## Contributing
 
