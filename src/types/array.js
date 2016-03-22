@@ -14,12 +14,18 @@ class ArrayType extends EventEmitter {
 
         this._parent = parentModel;
         this.options = options;
-        this.Type = ArrayType;
+        this._Type = ArrayType;
         this._typeOptions = [];
         this._fields = arrayFields;
         this._typeOptions = this.options;
         this.validations = this.options.validations;
         this.set([]);
+
+        if (parentModel && parentModel.emit) {
+            this.on('*', function () {
+                parentModel.emit(...arguments);
+            });
+        }
     }
 
     add (item: any, index: number): Object {
@@ -37,6 +43,7 @@ class ArrayType extends EventEmitter {
         this.set(array);
 
         this.emit('userChange');
+        this.emit('change');
 
         return this;
     }
@@ -56,7 +63,7 @@ class ArrayType extends EventEmitter {
     }
 
     apply (data: Array<any>): Object {
-        const array = data.map((item) => {
+        const array = (data || []).map((item) => {
 
             const typedItem = this.instantiateItem(item);
 
@@ -80,7 +87,8 @@ class ArrayType extends EventEmitter {
     }
 
     instantiateItem (): Object {
-        return new this.Type(Object.assign({}, this._fields), Object.assign({}, this._typeOptions));
+        const { _Type } = this;
+        return new _Type(this._parent, Object.assign({}, this._fields), Object.assign({}, this._typeOptions));
     }
 
     length (): number {
@@ -100,6 +108,7 @@ class ArrayType extends EventEmitter {
         this.set(array);
 
         this.emit('userChange');
+        this.emit('change');
 
         return this;
     }
@@ -112,6 +121,7 @@ class ArrayType extends EventEmitter {
         this.set(array);
 
         this.emit('userChange');
+        this.emit('change');
 
         return this;
     }
@@ -120,6 +130,7 @@ class ArrayType extends EventEmitter {
         this.set([]);
 
         this.emit('userChange');
+        this.emit('change');
 
         return this;
     }

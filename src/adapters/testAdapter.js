@@ -1,6 +1,6 @@
 /* @flow */
 
-const { BaseAdapter } = require('../src/index.js');
+const BaseAdapter = require('../adapter');
 
 class TestAdapter extends BaseAdapter {
     constructor (options: ?Object) {
@@ -18,6 +18,10 @@ class TestAdapter extends BaseAdapter {
         this._mockError = reason;
     }
 
+    clearData () {
+        this._mockData = null;
+    }
+
     clearError (): void {
         this._mockError = null;
     }
@@ -26,13 +30,23 @@ class TestAdapter extends BaseAdapter {
         this._requestCheck = fn;
     }
 
+    clearAll () {
+        this.clearData();
+        this.clearError();
+    }
+
     clearCheck (): void {
-        this._requestCheck = () => { return true; }
+        this._requestCheck = () => {
+            return true;
+        };
     }
 
     makeRequest (request: Object, callback: Function) {
         this._requestCheck(request);
-        callback(this._mockData, this._mockError);
+
+        if (this._mockData || this._mockError) {
+            callback(this._mockData, this._mockError);
+        }
     }
 }
 

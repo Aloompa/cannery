@@ -7,6 +7,8 @@ const Cannery = {
     Root: require('./root'),
     BaseAdapter: require('./adapter'),
     RestAdapter: require('./adapters/RESTAdapter'),
+    TestAdapter: require('./adapters/testAdapter'),
+    StubAdapter: require('./adapters/stubAdapter'),
     Types: {
         AnyType: require('./types/base'),
         BooleanType: require('./types/boolean'),

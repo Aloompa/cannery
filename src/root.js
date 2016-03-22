@@ -11,8 +11,8 @@ class Root extends EventEmitter {
 
     _fields: Object;
 
-    constructor () {
-        super();
+    constructor (options: Object = {}) {
+        super(options);
 
         const fields = this.getFields(...arguments);
 

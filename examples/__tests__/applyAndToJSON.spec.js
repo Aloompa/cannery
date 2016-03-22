@@ -1,5 +1,14 @@
 const assert = require('assert');
-const Zoo = require('../models/Zoo');
+const OriginalZoo = require('../models/Zoo');
+const { StubAdapter } = require('../../src/index');
+
+class Zoo extends OriginalZoo {
+
+    getAdapter () {
+        return new StubAdapter();
+    }
+
+}
 
 describe('apply and toJSON', () => {
 

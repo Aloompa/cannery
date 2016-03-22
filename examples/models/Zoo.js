@@ -1,10 +1,9 @@
 /* @flow */
 
-const { Root, Types } = require('../../src/index');
+const { Root, Types, TestAdapter } = require('../../src/index');
 const { StringType, NumberType, BooleanType, OwnsMany, ArrayType, OwnsOne } = Types;
 const Exhibit = require('./Exhibit');
 const Zookeeper = require('./Zookeeper');
-const TestAdapter = require('../testAdapter');
 const AnimalType = require('./AnimalType');
 
 class Zoo extends Root {
