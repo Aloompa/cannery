@@ -20,8 +20,10 @@ class MultiModel extends BaseType {
         this.Model = Model;
 
         this.modelStore = this.getModelStore();
+        this.modelStore.setEventHandler(this._handleEvent.bind(this));
         this.requestCache = parentModel.getRoot().requestCache;
         this._idAliases = {};
+        this.allowRecurse = false;
     }
 
     getModelStore () {
@@ -61,6 +63,10 @@ class MultiModel extends BaseType {
         this.requestCache.setMeta(this.Model, this._parent, query, meta);
 
         this.emit('change');
+    }
+
+    toJSON (options: ?Object = {}) {
+        return;
     }
 
     all (): Array<Object> {
@@ -166,7 +172,7 @@ class MultiModel extends BaseType {
 
     move (model: Object, newIndex: number): Object {
         if (!this.map) {
-            throw new Error('An unmapped OwnsMany cannot be moved');
+            throw new Error('An unmapped MultiModel cannot be reordered');
         }
 
         const mapIds = this.map.all();
@@ -191,6 +197,10 @@ class MultiModel extends BaseType {
         this._idAliases = {};
         this.requestCache.clear(this.Model);
         return this;
+    }
+
+    _handleEvent (event, ...args) {
+        this.emit(event, ...args);
     }
 }
 

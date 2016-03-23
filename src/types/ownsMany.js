@@ -9,6 +9,15 @@ class OwnsMany extends MultiModel {
     getModelStore () {
         return new ModelStore(this.Model, this._parent);
     }
+
+    // Override
+    toJSON (options: Object = {}) {
+        if (options.recursive) {
+            return this.modelStore.all().map((model) => {
+                return model.toJSON(options);
+            });
+        }
+    }
 }
 
 module.exports = OwnsMany;

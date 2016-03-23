@@ -1,11 +1,7 @@
 /* @flow */
 
-const EventEmitter = require('cannery-event-emitter');
-
-class ModelStore extends EventEmitter{
+class ModelStore {
     constructor (Model: Function, context: Object) {
-        super();
-
         if (!Model || !context) {
             throw new Error('ModelStore must be scoped and typed');
         }
@@ -13,7 +9,12 @@ class ModelStore extends EventEmitter{
         this.Model = Model;
         this._context = context;
         this._models = {};
-        this._listeners = {};
+        this._listeners = [];
+        this._eventHandler = () => {};
+    }
+
+    setEventHandler (fn: Function) {
+        this._eventHandler = fn;
     }
 
     get (id: String) : Object {
@@ -43,6 +44,11 @@ class ModelStore extends EventEmitter{
         return ids;
     }
 
+    addExisting (model: Object, id: String) {
+        const normalizedId = String(id);
+        this._models[normalizedId] = model;
+    }
+
     stub (id: String) : Object {
         const newModel = instantiateModel(id);
         this._models[id] = newModel;
@@ -61,24 +67,57 @@ class ModelStore extends EventEmitter{
         if (this._models[normalizedId]) {
             delete this._models[normalizedId];
         }
+
+        const modelListeners = this.listeners.filter((listener) => {
+            return String(listener.model.id) === normalizedId;
+        });
+
+        modelListeners.forEach((listener) => {
+            listener.model.off(listener.event, listener.fn);
+        });
+
+        this._listeners = this._listeners.filter((listener) => {
+            return modelListeners.indexOf(listener) >= 0;
+        });
     }
 
     instantiateModel (id: ?string, options: Object = {}): Object {
         const Model = this.Model;
         let newModel =  new Model(this._context, id, options);
 
-        newModel.once('destroy', this._handleDestroy.bind(this));
-
         return newModel;
     }
 
     clear () {
+        let listener = this._listeners.pop();
+        while (listener) {
+            listener.model.off(listener.event, listener.fn);
+            listener = this._listeners.pop();
+        }
+
         this._models = {};
     }
 
     _handleDestroy (model: Object) {
         this.remove(model.id);
-        this.emit('modelDestroyed');
+    }
+
+    _listen (model: Object) {
+        let startFn = newModel.on('*', (...args) => {
+            this._eventHandler(...args);
+        });
+        this._listeners.push({
+            event: '*',
+            model: newModel,
+            fn: startFn
+        });
+
+        let destroyFn = newModel.once('destroy', this._handleDestroy.bind(this));
+        this._listeners.push({
+            event: 'destroy',
+            model: newModel,
+            fn: destroyFn
+        });
     }
 }
 

@@ -68,7 +68,11 @@ class RequestCache {
     }
 
     _contextKey(context: Object) : String {
-        return `${context.constructor.getKey()}:${context.id}`;
+        if (context.getScope() === null) {
+            return 'root'
+        } else {
+            return `${context.constructor.getKey()}:${context.id}`;
+        }
     }
 
     _queryKey(query: Object) : String {

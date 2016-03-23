@@ -172,7 +172,7 @@ class Model extends EventEmitter {
                         const id = response[fieldId];
 
                         this.id = id;
-                        ownsManyOwner._models[id] = this;
+                        ownsManyOwner.modelStore.addExisting(this, id);
                         ownsManyOwner.map.add(id);
                     }
                 }
