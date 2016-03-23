@@ -59,6 +59,7 @@ class RequestCache {
     }
 
     clear (Model: Function) {
+        debugger;
         const modelKey = this._modelKey(Model);
         this.data[modelKey] = {};
     }
@@ -100,10 +101,7 @@ class RequestCache {
         }
         const queryKey = this._queryKey(query);
         if (!contextData[queryKey]) {
-            contextData[queryKey] = {
-                ids: [],
-                meta: {}
-            };
+            contextData[queryKey] = {};
         }
     }
 }

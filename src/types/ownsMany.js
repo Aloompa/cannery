@@ -18,6 +18,10 @@ class OwnsMany extends MultiModel {
             });
         }
     }
+
+    _handleEvent (event, ...args) {
+        this.emit(event, ...args);
+    }
 }
 
 module.exports = OwnsMany;

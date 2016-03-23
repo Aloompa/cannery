@@ -65,7 +65,7 @@ describe('Getters and Setters', () => {
         const sarafina = exhibit.get('animals').create();
 
         const nala = exhibit.get('animals').create();
-
+        nala.apply({id: '1'});
         sarafina.get('cubs').add(nala);
 
         nala.set('name', 'Nala');

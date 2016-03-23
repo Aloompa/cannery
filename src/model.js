@@ -77,13 +77,13 @@ class Model extends EventEmitter {
     }
 
     destroy (options: Object = {}): Object {
+        this.getRoot().requestCache.clear(this.constructor);
+
         this.getAdapter()
             .destroy(this, options, (response) => {
                 this.emit('destroy', this);
                 this.emit('change');
             });
-
-        this.getRoot().requestCache.clear(this.constructor);
         return this;
     }
 

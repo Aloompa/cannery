@@ -47,10 +47,11 @@ class ModelStore {
     addExisting (model: Object, id: String) {
         const normalizedId = String(id);
         this._models[normalizedId] = model;
+        this._listen(model);
     }
 
     stub (id: String) : Object {
-        const newModel = instantiateModel(id);
+        const newModel = this.instantiateModel(id);
         this._models[id] = newModel;
         return newModel;
     }
@@ -68,7 +69,7 @@ class ModelStore {
             delete this._models[normalizedId];
         }
 
-        const modelListeners = this.listeners.filter((listener) => {
+        const modelListeners = this._listeners.filter((listener) => {
             return String(listener.model.id) === normalizedId;
         });
 
@@ -85,11 +86,13 @@ class ModelStore {
         const Model = this.Model;
         let newModel =  new Model(this._context, id, options);
 
+        this._listen(newModel);
         return newModel;
     }
 
     clear () {
         let listener = this._listeners.pop();
+
         while (listener) {
             listener.model.off(listener.event, listener.fn);
             listener = this._listeners.pop();
@@ -103,19 +106,20 @@ class ModelStore {
     }
 
     _listen (model: Object) {
-        let startFn = newModel.on('*', (...args) => {
+        let starFn = model.on('*', (...args) => {
             this._eventHandler(...args);
         });
+
         this._listeners.push({
             event: '*',
-            model: newModel,
-            fn: startFn
+            model: model,
+            fn: starFn
         });
 
-        let destroyFn = newModel.once('destroy', this._handleDestroy.bind(this));
+        let destroyFn = model.once('destroy', this._handleDestroy.bind(this));
         this._listeners.push({
             event: 'destroy',
-            model: newModel,
+            model: model,
             fn: destroyFn
         });
     }

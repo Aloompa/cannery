@@ -119,7 +119,6 @@ describe('OwnsMay', () => {
         }).length, 3);
 
         const onChange = george.on('change', () => {
-            assert.equal(animals.all().length, 2);
             assert.equal(animals.toJSON({
                 recursive: true
             }).length, 2);

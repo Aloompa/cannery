@@ -50,7 +50,7 @@ describe('HasMany', () => {
     it('Should be possible to add hasMany children', () => {
         const scar = animals.get('1');
 
-        const animalsJSON = animals.toJSON();
+        const animalsJSON = animals.toJSON({recursive: true});
 
         animalsJSON.push({
             id: '6',

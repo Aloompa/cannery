@@ -8,6 +8,23 @@ class HasMany extends MultiModel {
     getModelStore () {
         return this._parent.findOwnsMany(this.Model).modelStore;
     }
+
+    add (model: Object, index: ?Number) {
+        if (!this.map) {
+            throw new Error('Models cannot be added to an unmapped HasMany.');
+        }
+
+        if (!model.id) {
+            throw new Error('Models without IDs cannot be added to a HasMany');
+        }
+
+        this.map.add(model.id, index);
+    }
+
+    remove (model: Object) {
+        const index = this.map.all().indexOf(model.id);
+        this.map.remove(index);
+    }
 }
 
 module.exports = HasMany;

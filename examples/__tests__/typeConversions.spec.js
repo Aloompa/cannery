@@ -8,7 +8,7 @@ describe('Type conversions', () => {
 
         zookeeper.set('isGood', 'true');
 
-        assert.equal(zookeeper.get('isGood'), true);
+        assert.strictEqual(zookeeper.get('isGood'), true);
     });
 
     it('Should convert numbers', () => {
@@ -17,7 +17,7 @@ describe('Type conversions', () => {
 
         zookeeper.set('luckyNumber', '43');
 
-        assert.equal(zookeeper.get('luckyNumber'), 43);
+        assert.strictEqual(zookeeper.get('luckyNumber'), 43);
     });
 
     it('Should convert strings', () => {
@@ -26,6 +26,6 @@ describe('Type conversions', () => {
 
         zookeeper.set('name', 41);
 
-        assert.equal(zookeeper.get('name'), '41');
+        assert.strictEqual(zookeeper.get('name'), '41');
     });
 });

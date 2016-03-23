@@ -70,8 +70,9 @@ class MultiModel extends BaseType {
     }
 
     all (): Array<Object> {
+        debugger;
         if (!this.requestCache.get(this.Model, this._parent, this.defaultQuery)) {
-            this.requestMany(this.defaultQuery);
+            this.requestMany(this.options.defaultQuery);
         }
 
         if (this.map) {
@@ -121,7 +122,7 @@ class MultiModel extends BaseType {
         let model = this.modelStore.get(id);
 
         if (!model) {
-            model = this._instantiateModel(id);
+            model = this.modelStore.stub(id);
         }
 
         this.emit('fetching');
@@ -200,6 +201,7 @@ class MultiModel extends BaseType {
     }
 
     _handleEvent (event, ...args) {
+        return;
         this.emit(event, ...args);
     }
 }
