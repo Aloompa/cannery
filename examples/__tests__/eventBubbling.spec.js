@@ -135,6 +135,7 @@ describe('Event bubbling', function () {
         const exhibit = zoo.get('exhibits').create();
         const dog = exhibit.get('animals').create();
         const puppy = exhibit.get('animals').create();
+        puppy.apply({id: '4'});
 
         dog.get('cubs').add(puppy);
 
@@ -217,7 +218,7 @@ describe('Event bubbling', function () {
         const animal = zoo.get('exhibits').get('1').get('animals').get('1');
         const animalType = animal.get('animalType');
 
-        zoo.on('userChange', () => {
+        zoo.once('userChange', () => {
             done();
         });
 

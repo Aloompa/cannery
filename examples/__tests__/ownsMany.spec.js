@@ -50,7 +50,7 @@ describe('OwnsMay', () => {
             isKong: true
         };
 
-        animals.applyQueryResults([
+        animals.apply([
             animals.get('2').toJSON(),
             animals.get('3').toJSON()
         ], kongOptions);
@@ -65,7 +65,7 @@ describe('OwnsMay', () => {
             isGeorge: true
         };
 
-        animals.applyQueryResults([
+        animals.apply([
             animals.get('1').toJSON()
         ], georgeOptions);
 
@@ -94,7 +94,7 @@ describe('OwnsMay', () => {
             allMonkeys: 'very yes'
         };
 
-        animals.applyQueryResults([
+        animals.apply([
             animals.get('1').toJSON(),
             animals.get('2').toJSON(),
             animals.get('3').toJSON()
@@ -119,7 +119,6 @@ describe('OwnsMay', () => {
         }).length, 3);
 
         const onChange = george.on('change', () => {
-            assert.equal(animals.all().length, 2);
             assert.equal(animals.toJSON({
                 recursive: true
             }).length, 2);

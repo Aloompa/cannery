@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "cannery-adapter": "^1.0.0",
-    "cannery-event-emitter": "^1.1.0",
+    "cannery-event-emitter": "^1.2.0",
     "lodash.debounce": "^4.0.0",
     "lodash.isequal": "^4.0.0",
     "lodash.snakecase": "^4.0.0",
