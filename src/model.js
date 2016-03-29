@@ -182,7 +182,7 @@ class Model extends EventEmitter {
                     }
                 }
 
-                if (single) {
+                if (saveType === 'create') {
                     this.apply(response);
                 }
 
@@ -190,7 +190,7 @@ class Model extends EventEmitter {
                 this.setState('isChanged', false);
             });
 
-        if (single) {
+        if (saveType === 'create') {
             this.getRoot().requestCache.clear(this.constructor);
         }
 
