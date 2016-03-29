@@ -38,6 +38,10 @@ class Model extends EventEmitter {
         this.options = options;
         this.state = {};
 
+        this.on('userChange', () => {
+            this.setState('isChanged', true);
+        });
+
         this.on('*', function () {
             parentModel.emit(...arguments);
         });
@@ -178,13 +182,17 @@ class Model extends EventEmitter {
                     }
                 }
 
-                this.apply(response);
+                if (single) {
+                    this.apply(response);
+                }
 
                 this.setState('saving', false);
                 this.setState('isChanged', false);
             });
 
-        this.getRoot().requestCache.clear(this.constructor);
+        if (single) {
+            this.getRoot().requestCache.clear(this.constructor);
+        }
 
         return this;
     }

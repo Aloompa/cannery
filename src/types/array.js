@@ -27,6 +27,15 @@ class ArrayType extends EventEmitter {
         }
     }
 
+    _userChange (array) {
+        this.set(array);
+
+        this.emit('userChange');
+        this.emit('change');
+
+        return this;
+    }
+
     add (item: any, index: number): Object {
         let array = this._clone();
         const typedItem = this.instantiateItem(item);
@@ -39,11 +48,7 @@ class ArrayType extends EventEmitter {
 
         array.splice(index, 0, typedItem);
 
-        this.set(array);
-
-        this.emit('userChange');
-
-        return this;
+        return this._userChange(array);
     }
 
     all (): Array<any> {
@@ -103,12 +108,7 @@ class ArrayType extends EventEmitter {
 
         array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
 
-        this.set(array);
-
-        this.emit('userChange');
-        this.emit('change');
-
-        return this;
+        return this._userChange(array);
     }
 
     remove (index: number): Object {
@@ -116,21 +116,11 @@ class ArrayType extends EventEmitter {
 
         array.splice(index, 1);
 
-        this.set(array);
-
-        this.emit('userChange');
-        this.emit('change');
-
-        return this;
+        return this._userChange(array);
     }
 
     removeAll (): Object {
-        this.set([]);
-
-        this.emit('userChange');
-        this.emit('change');
-
-        return this;
+        return this._userChange([]);
     }
 
     _clone () {

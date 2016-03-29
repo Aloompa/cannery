@@ -35,7 +35,7 @@ class ObjectType extends BaseType {
                 this._fields[key].apply(data[key]);
             }
         });
-        
+
         return this;
     }
 
