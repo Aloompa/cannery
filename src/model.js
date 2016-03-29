@@ -26,6 +26,7 @@ class Model extends EventEmitter {
         }
 
         this._parent = parentModel;
+
         this.id = id;
 
         const fields = this.getFields(...arguments);

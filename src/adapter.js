@@ -24,15 +24,15 @@ class Adapter {
         return this.getAncestry(modelScope).concat(model);
     }
 
-    getPathObject (model: any): Object {
+    getPathObject (model: any, context: any): Object {
         if (Array.isArray(model)) {
-            return model.map(this.getPathObject);
+            return model.map(this.getPathObject, true, context);
 
         } else if (model.constructor.getKey) {
             let obj = {
                 id: null,
-                key: model.constructor.getKey(),
-                keySingular: model.constructor.getKey(true)
+                key: model.constructor.getKey(false, true, context),
+                keySingular: model.constructor.getKey(true, true, context)
             };
 
             if (model.id) {
@@ -43,8 +43,8 @@ class Adapter {
 
         } else if (model.getKey) {
             return {
-                key: model.getKey(),
-                keySingular: model.getKey(true)
+                key: model.getKey(false, true, context),
+                keySingular: model.getKey(true, true, context)
             };
 
         } else {
@@ -54,9 +54,9 @@ class Adapter {
         }
     }
 
-    getPath (model: Object): any {
+    getPath (model: Object, context: Object): any {
         const ancestory = this.getAncestry(model);
-        return this.getPathObject(ancestory);
+        return this.getPathObject(ancestory, context || model);
     }
 
     getRoot (model: Object): Object {
@@ -68,84 +68,101 @@ class Adapter {
     }
 
     fetch (model: Object, options: ?Object, callback: Function): void {
+
+        const path = this.getPath(model);
+
         return this.makeRequest({
             requestType: 'fetch',
-            path: this.getPath(model),
+            path: path,
             payload: null,
-            options: options
+            options: options,
+            Model: model.constructor
         }, (response, err) => {
             if (err) {
                 model.emit('error', err);
-                return;
             }
 
-            callback(response);
+            callback(response, err);
         });
     }
 
     fetchWithin (Model: Function, context: Object, options: ?Object, callback: Function): void {
+        const path = this.getPath(context);
+        path.push(this.getPathObject(Model, context));
+
         return this.makeRequest({
             requestType: 'fetchWithin',
-            path: this.getPath(context).concat(this.getPathObject(Model)),
+            path: path,
             payload: null,
-            options: options
+            options: options,
+            Model: Model
         }, (response, err) => {
             if (err) {
                 context.emit('error', err);
-                return;
             }
 
-            callback(response);
+            callback(response, err);
         });
     }
 
     findAll (Model: Function, context: Object, options: ?Object, callback: Function): void {
+        const path = this.getPath(context);
+        path.push(this.getPathObject(Model, context));
+
         return this.makeRequest({
             requestType: 'findAll',
-            path: this.getPath(context).concat(this.getPathObject(Model)),
+            path: path,
             payload: null,
-            options: options
+            options: options,
+            Model: Model
         }, (response, err) => {
             if (err) {
                 context.emit('error', err);
-                return;
             }
 
-            callback(response);
+            callback(response, err);
         });
     }
 
     create (model: Object, context: Object, options: ?Object, callback: Function): void {
+        const path = this.getPath(context);
+        path.push(this.getPathObject(model, context));
+
         return this.makeRequest({
             requestType: 'create',
-            path: this.getPath(context).concat(this.getPathObject(model)),
+            path: path,
             id: null,
-            payload: model.toJSON(),
-            options: options
+            payload: model.toJSON({
+                saving: true
+            }),
+            options: options,
+            Model: model.constructor
         }, (response, err) => {
             if (err) {
-                context.emit('error', err);
-                return;
+                context.emit('saveError', err);
             }
 
-            callback(response);
+            callback(response, err);
         });
     }
 
     update (model: Object, context: Object, options: ?Object, callback: Function): void {
         return this.makeRequest({
             requestType: 'update',
-            path: this.getPath(model),
+            path: this.getPath(model, context),
             id: model.id,
-            payload: model.toJSON({excludeUnchanged: this.options.excludeUnchanged}),
-            options: options
+            payload: model.toJSON({
+                saving: true,
+                excludeUnchanged: this.options.excludeUnchanged
+            }),
+            options: options,
+            Model: model.constructor
         }, (response, err) => {
             if (err) {
-                model.emit('error', err);
-                return;
+                model.emit('saveError', err);
             }
 
-            callback(response);
+            callback(response, err);
         });
     }
 
@@ -154,14 +171,14 @@ class Adapter {
             requestType: 'destroy',
             path: this.getPath(model),
             payload: null,
-            options: options
+            options: options,
+            Model: model.constructor
         }, (response, err) => {
             if (err) {
-                model.emit('error', err);
-                return;
+                model.emit('deleteError', err);
             }
 
-            callback(response);
+            callback(response, err);
         });
     }
 }

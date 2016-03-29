@@ -7,7 +7,8 @@ const BaseType = require('./base');
 const defaultOptions = {
     map: null,
     metaFeild: 'meta',
-    defaultQuery: {}
+    defaultQuery: {},
+    batchRequest: true
 };
 
 class MultiModel extends BaseType {
@@ -15,7 +16,7 @@ class MultiModel extends BaseType {
     constructor (parentModel: Object, Model: Function, options: Object = {}) {
         super(parentModel, options || {});
 
-        this.options = Object.assign(defaultOptions, options);
+        this.options = Object.assign({}, defaultOptions, options);
         this.map = options.map;
         this.Model = Model;
 
@@ -31,17 +32,17 @@ class MultiModel extends BaseType {
     }
 
     get (id: string, options: Object = {}, depth: Number = 0) : any {
-        let model = this.modelStore.get(id);
+        const aliasId = (this._idAliases) ? this._idAliases[id] : null;
+        let model;
+
+        if (aliasId && depth < 4) {
+            return this.get(aliasId, options, depth + 1);
+        }
+
+        model = this.modelStore.get(id);
 
         if (!model) {
-            const aliasId = this._idAliases[id];
-
-            if (aliasId && depth < 4) {
-                return this.get(aliasId, options, depth + 1);
-            }
-
-            this.requestOne(id, options);
-            model = null;
+            model = this.requestOne(id, options);
         }
 
         return model;
@@ -70,8 +71,7 @@ class MultiModel extends BaseType {
     }
 
     all (): Array<Object> {
-        debugger;
-        if (!this.requestCache.get(this.Model, this._parent, this.defaultQuery)) {
+        if (!this.requestCache.get(this.Model, this._parent, this.options.defaultQuery)) {
             this.requestMany(this.options.defaultQuery);
         }
 
@@ -127,11 +127,12 @@ class MultiModel extends BaseType {
 
         this.emit('fetching');
 
-        model.getAdapter().fetch(model, options, (response, error) => {
+        const requestResponse = (response, error) => {
 
             if (error) {
-                this.emit('fetchError');
                 this.modelStore.stub(id);
+                this.emit('fetchError');
+                this.emit('change');
                 return;
             }
 
@@ -139,13 +140,15 @@ class MultiModel extends BaseType {
 
             const responseId = response[this.Model.getFieldId()];
 
-            if (id && (String(id) !== String(responseId))) {
-                this._idAliases[id] = String(responseId);
+            if (responseId && id && (String(id) !== String(responseId))) {
+                this._idAliases[id] = (responseId) ? String(responseId) : undefined;
             }
 
             this.emit('fetchSuccess');
             this.emit('change');
-        });
+        };
+
+        model.getAdapter().fetch(model, options, requestResponse.bind(this));
 
         return model;
     }
@@ -155,14 +158,26 @@ class MultiModel extends BaseType {
 
         this.emit('fetching');
 
-        this._parent.getAdapter().findAll(this.Model, this._parent, options, (response, err) => {
-            if (response) {
-                const key = this.Model.getFieldId();
+        if (!this.options.batchRequest) {
+            this.map.all().forEach((id) => {
+                this.requestOne(id, options);
+            });
+            return;
+        }
 
+        this._parent.getAdapter().findAll(this.Model, this._parent, options, (response, err) => {
+
+            if (response) {
                 this.apply(response, query);
                 this.emit('fetchSuccess');
                 this.emit('change');
+                return;
             }
+
+            this.emit('fetchError');
+            this.emit('change');
+            this.apply([], query);
+
         });
     }
 
@@ -187,7 +202,7 @@ class MultiModel extends BaseType {
     }
 
     length () {
-        return this.map.all().length;
+        return (this.map) ? this.map.all().length : 0;
     }
 
     refresh (deep: Boolean) {

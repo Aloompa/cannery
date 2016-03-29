@@ -12,6 +12,7 @@ class ObjectType extends BaseType {
 
     constructor (parentModel: Object, fields: Object, options: ?Object) {
         super(parentModel, options || {});
+
         this.initialize(fields);
     }
 
@@ -34,7 +35,7 @@ class ObjectType extends BaseType {
                 this._fields[key].apply(data[key]);
             }
         });
-
+        
         return this;
     }
 
