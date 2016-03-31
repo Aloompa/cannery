@@ -24,7 +24,7 @@ class Adapter {
         return this.getAncestry(modelScope).concat(model);
     }
 
-    getPathObject (model: any, context: any): Object {
+    getPathObject (model: any, context: ?any): Object {
         if (Array.isArray(model)) {
             return model.map(this.getPathObject, true, context);
 
@@ -54,7 +54,7 @@ class Adapter {
         }
     }
 
-    getPath (model: Object, context: Object): any {
+    getPath (model: Object, context: ?Object): any {
         const ancestory = this.getAncestry(model);
         return this.getPathObject(ancestory, context || model);
     }

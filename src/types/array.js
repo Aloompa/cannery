@@ -27,7 +27,7 @@ class ArrayType extends EventEmitter {
         }
     }
 
-    _userChange (array) {
+    _userChange (array: Array<any>): Object {
         this.set(array);
 
         this.emit('userChange');
@@ -123,7 +123,7 @@ class ArrayType extends EventEmitter {
         return this._userChange([]);
     }
 
-    _clone () {
+    _clone (): Array<Object> {
         return this._typedArray.slice(0);
     }
 

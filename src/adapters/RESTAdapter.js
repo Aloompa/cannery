@@ -6,7 +6,8 @@ const request = require('then-request');
 const pathHelpers = require('./util/pathHelpers');
 
 class RESTAdapter extends BaseAdapter {
-    constructor (options: Object) {
+
+    constructor (options: Object = {}) {
         super(options);
         this.options = Object.assign({}, this.constructor.defaultOptions(), this.options);
     }

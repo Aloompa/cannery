@@ -1,6 +1,13 @@
 /* @flow */
 
 class ModelStore {
+
+    _models: Object;
+    _listeners: Array<Object>;
+    _eventHandler: Function;
+    _context: Object;
+    Model: Function;
+
     constructor (Model: Function, context: Object) {
         if (!Model || !context) {
             throw new Error('ModelStore must be scoped and typed');
@@ -17,12 +24,12 @@ class ModelStore {
         this._eventHandler = fn;
     }
 
-    get (id: String) : Object {
+    get (id: string) : Object {
         let normalizedId = String(id);
         return this._models[id];
     }
 
-    apply (response: Object) : Array<String> {
+    apply (response: Object) : Array<string> {
         const models = Array.isArray(response) ? response : [response];
         const idKey = this.Model.getFieldId();
         const ids = [];
@@ -44,13 +51,13 @@ class ModelStore {
         return ids;
     }
 
-    addExisting (model: Object, id: String) {
+    addExisting (model: Object, id: string) {
         const normalizedId = String(id);
         this._models[normalizedId] = model;
         this._listen(model);
     }
 
-    stub (id: String) : Object {
+    stub (id: string) : Object {
         const newModel = this.instantiateModel(id);
         this._models[id] = newModel;
         return newModel;
@@ -62,7 +69,7 @@ class ModelStore {
         });
     }
 
-    remove (id: String) : void {
+    remove (id: string) : void {
         let normalizedId = String(id);
 
         if (this._models[normalizedId]) {
