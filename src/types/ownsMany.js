@@ -19,7 +19,7 @@ class OwnsMany extends MultiModel {
         }
     }
 
-    _handleEvent (event, ...args) {
+    _handleEvent (event: string, ...args: any) {
         this.emit(event, ...args);
     }
 }

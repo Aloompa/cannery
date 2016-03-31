@@ -11,13 +11,14 @@ const RequestCache = require('./util/requestCache');
 class Root extends EventEmitter {
 
     _fields: Object;
+    _adapter: Object;
 
     constructor () {
         super();
 
         const fields = this.getFields(...arguments);
 
-        this.adapter = new RestAdapter();
+        this._adapter = new RestAdapter();
         this.requestCache = new RequestCache();
 
         this._fields = new ObjectType(this, fields, {
@@ -25,8 +26,8 @@ class Root extends EventEmitter {
         });
     }
 
-    getAdapter () {
-        return this.adapter;
+    getAdapter (): Object {
+        return this._adapter;
     }
 
     apply (data: Object): Object {
@@ -34,7 +35,7 @@ class Root extends EventEmitter {
         return this;
     }
 
-    define (Type: Function, ...args: any): Object {
+    define (Type: Function, ...args: any): Function {
         const fn = () => {
             return new Type(this, ...args);
         };

@@ -1,11 +1,14 @@
 /* @flow */
 
 class RequestCache {
+
+    data: Object;
+
     constructor () {
         this.data = {};
     }
 
-    set (Model: Function, context: Object, query: ?Object = {}, ids: Array = []) : void {
+    set (Model: Function, context: Object, query: Object = {}, ids: Array<string> = []) : void {
         if (!Model || !context) {
             throw new TypeError('RequestCache.set(): Model and context are not optional');
         }
@@ -19,7 +22,7 @@ class RequestCache {
         this.data[modelKey][contextKey][queryKey].ids = normalizedIds;
     }
 
-    get (Model: Function, context: Object, query: ?Object = {}) : Array {
+    get (Model: Function, context: Object, query: Object = {}) : ?Array<Object> {
         if (!Model || !context) {
             throw new TypeError('RequestCache.get(): Model and context are not optional');
         }
@@ -45,7 +48,7 @@ class RequestCache {
         return (isInitialized) ? [] : null;
     }
 
-    getMeta (Model: Function, context: Object, query: ?Object = {}) {
+    getMeta (Model: Function, context: Object, query: Object = {}): ?Object {
         if (!Model || !context) {
             throw new TypeError('RequestCache.getMeta(): Model and context are not optional');
         }
@@ -58,7 +61,7 @@ class RequestCache {
         return this.data[modelKey][contextKey][queryKey].meta;
     }
 
-    setMeta (Model: Function, context: Object, query: ?Object = {}, data: Object = {}) {
+    setMeta (Model: Function, context: Object, query: Object = {}, data: Object = {}) {
         if (!Model || !context) {
             throw new TypeError('RequestCache.setMeta(): Model and context are not optional');
         }
@@ -76,11 +79,11 @@ class RequestCache {
         this.data[modelKey] = {};
     }
 
-    _modelKey(Model: Function) : String {
+    _modelKey(Model: Function) : string {
         return Model.getKey();
     }
 
-    _contextKey(context: Object) : String {
+    _contextKey(context: Object) : string {
         if (context.getScope() === null) {
             return 'root'
         } else {
@@ -88,7 +91,7 @@ class RequestCache {
         }
     }
 
-    _queryKey(query: Object) : String {
+    _queryKey(query: Object) : string {
         let parsedQuery = {};
 
         Object.keys(query).forEach((key) => {
@@ -100,7 +103,7 @@ class RequestCache {
         return JSON.stringify(parsedQuery);
     }
 
-    _initialize (Model: Function, context: ?Object, query: ?Object) : Any {
+    _initialize (Model: Function, context: ?Object, query: ?Object) : any {
         const modelKey = this._modelKey(Model);
         if (!this.data[modelKey]) {
             this.data[modelKey] = {};

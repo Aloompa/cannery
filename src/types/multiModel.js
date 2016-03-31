@@ -21,17 +21,16 @@ class MultiModel extends BaseType {
         this.Model = Model;
 
         this.modelStore = this.getModelStore();
-        this.modelStore.setEventHandler(this._handleEvent.bind(this));
         this.requestCache = parentModel.getRoot().requestCache;
         this._idAliases = {};
         this.allowRecurse = false;
     }
 
-    getModelStore () {
+    getModelStore (): ?Object {
         throw new Error('MultiModel is virtual. It must be extended, and getModelStore() must be overriden');
     }
 
-    get (id: string, options: Object = {}, depth: Number = 0) : any {
+    get (id: string, options: Object = {}, depth: number = 0) : any {
         const aliasId = (this._idAliases) ? this._idAliases[id] : null;
         let model;
 
@@ -48,7 +47,7 @@ class MultiModel extends BaseType {
         return model;
     }
 
-    set () {
+    set (): void {
         throw new Error('MultiModels are not settable.');
     }
 
@@ -56,7 +55,7 @@ class MultiModel extends BaseType {
         return this.modelStore.instantiateModel(null, options);
     }
 
-    apply (response: Object, query: Object = {}) : void {
+    apply (response: Object, query: Object = {}) : Object {
         const ids = this.modelStore.apply(response);
         const meta = response[this.options.metaFeild];
 
@@ -64,9 +63,11 @@ class MultiModel extends BaseType {
         this.requestCache.setMeta(this.Model, this._parent, query, meta);
 
         this.emit('change');
+
+        return this;
     }
 
-    toJSON (options: ?Object = {}) {
+    toJSON (options: Object = {}) {
         return;
     }
 
@@ -103,10 +104,6 @@ class MultiModel extends BaseType {
             return models;
         } else {
             const temporaryArray = [];
-
-            temporaryArray.getState = () => {
-                return 'loading';
-            };
 
             this.requestCache.set(this.Model, this._parent, query, []);
 
@@ -176,12 +173,12 @@ class MultiModel extends BaseType {
 
             this.emit('fetchError');
             this.emit('change');
-            this.apply([], query);
+            this.apply({}, query);
 
         });
     }
 
-    getMeta (query) {
+    getMeta (query: Object): Object {
         this.query(query);
         return this.requestCache.getMeta(this.Model, this._parent, query);
     }
@@ -201,23 +198,19 @@ class MultiModel extends BaseType {
         return this;
     }
 
-    length () {
+    length (): number {
         return (this.map) ? this.map.all().length : 0;
     }
 
-    refresh (deep: Boolean) {
+    refresh (deep: boolean): Object {
         if (deep) {
             this.modelStore.clear();
         }
 
         this._idAliases = {};
         this.requestCache.clear(this.Model);
-        return this;
-    }
 
-    _handleEvent (event, ...args) {
-        return;
-        this.emit(event, ...args);
+        return this;
     }
 }
 
