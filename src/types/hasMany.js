@@ -18,6 +18,7 @@ class HasMany extends MultiModel {
             throw new Error('Models without IDs cannot be added to a HasMany');
         }
 
+        this.modelStore.addExisting(model, model.get('id'));
         this.map.add(model.id, index);
     }
 

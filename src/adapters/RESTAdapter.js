@@ -8,21 +8,25 @@ const pathHelpers = require('./util/pathHelpers');
 class RESTAdapter extends BaseAdapter {
     constructor (options: Object) {
         super(options);
-        this.options = Object.assign(this.constructor.defaultOptions(), this.options);
+        this.options = Object.assign({}, this.constructor.defaultOptions(), this.options);
     }
 
     makeRequest (req: Object, callback: Function) {
-        request({
-            url: this.url(req),
-            method: this.method(req),
-            json: true,
-            body: req.payload,
+
+        request(this.method(req), this.url(req), {
+            json: req.payload,
             qs: this.query(req),
             headers: this.headers(req),
             gzip: this.options.gzip
         }).then((res) => {
-            callback(res.getBody(), null);
-        }).then((res) => {
+
+            if (res.statusCode === 200 || res.statusCode === 304) {
+                return callback(JSON.parse(res.getBody()), null);
+            }
+
+            return callback(null, res);
+
+        }).catch((res) => {
             callback(null, res);
         });
     }

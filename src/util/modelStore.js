@@ -84,6 +84,7 @@ class ModelStore {
 
     instantiateModel (id: ?string, options: Object = {}): Object {
         const Model = this.Model;
+
         let newModel =  new Model(this._context, id, options);
 
         this._listen(newModel);

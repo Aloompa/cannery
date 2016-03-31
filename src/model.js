@@ -26,6 +26,7 @@ class Model extends EventEmitter {
         }
 
         this._parent = parentModel;
+
         this.id = id;
 
         const fields = this.getFields(...arguments);
@@ -36,6 +37,10 @@ class Model extends EventEmitter {
 
         this.options = options;
         this.state = {};
+
+        this.on('userChange', () => {
+            this.setState('isChanged', true);
+        });
 
         this.on('*', function () {
             parentModel.emit(...arguments);
@@ -177,13 +182,17 @@ class Model extends EventEmitter {
                     }
                 }
 
-                this.apply(response);
+                if (saveType === 'create') {
+                    this.apply(response);
+                }
 
                 this.setState('saving', false);
                 this.setState('isChanged', false);
             });
 
-        this.getRoot().requestCache.clear(this.constructor);
+        if (saveType === 'create') {
+            this.getRoot().requestCache.clear(this.constructor);
+        }
 
         return this;
     }

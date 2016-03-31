@@ -15,15 +15,29 @@ class ArrayType extends EventEmitter {
         this._parent = parentModel;
         this.options = options;
         this.Type = ArrayType;
-        this._typeOptions = [];
+        this._typedArray = [];
         this._fields = arrayFields;
         this._typeOptions = this.options;
         this.validations = this.options.validations;
-        this.set([]);
+
+        if (parentModel && parentModel.emit) {
+            this.on('*', function () {
+                parentModel.emit(...arguments);
+            });
+        }
+    }
+
+    _userChange (array) {
+        this.set(array);
+
+        this.emit('userChange');
+        this.emit('change');
+
+        return this;
     }
 
     add (item: any, index: number): Object {
-        let array = this._typeOptions.slice(0);
+        let array = this._clone();
         const typedItem = this.instantiateItem(item);
 
         typedItem.apply(item);
@@ -34,15 +48,11 @@ class ArrayType extends EventEmitter {
 
         array.splice(index, 0, typedItem);
 
-        this.set(array);
-
-        this.emit('userChange');
-
-        return this;
+        return this._userChange(array);
     }
 
     all (): Array<any> {
-        const arr = this._typeOptions.slice(0).map((item) => {
+        const arr = this._typedArray.map((item) => {
 
             // Object
             if (item instanceof ObjectType) {
@@ -56,6 +66,7 @@ class ArrayType extends EventEmitter {
     }
 
     apply (data: Array<any>): Object {
+
         const array = data.map((item) => {
 
             const typedItem = this.instantiateItem(item);
@@ -92,40 +103,32 @@ class ArrayType extends EventEmitter {
     }
 
     move (oldIndex: number, newIndex: number): Object {
-        let array = this._typeOptions.slice(0);
+        let array = this._clone();
         const item = array[oldIndex];
 
         array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
 
-        this.set(array);
-
-        this.emit('userChange');
-
-        return this;
+        return this._userChange(array);
     }
 
     remove (index: number): Object {
-        let array = this._typeOptions.slice(0);
+        let array = this._clone();
 
         array.splice(index, 1);
 
-        this.set(array);
-
-        this.emit('userChange');
-
-        return this;
+        return this._userChange(array);
     }
 
     removeAll (): Object {
-        this.set([]);
+        return this._userChange([]);
+    }
 
-        this.emit('userChange');
-
-        return this;
+    _clone () {
+        return this._typedArray.slice(0);
     }
 
     set (arr: Array<any>) {
-        this._typeOptions = arr;
+        this._typedArray = arr;
         this.emit('change');
     }
 

@@ -103,7 +103,7 @@ describe('CRUD Operations', () => {
             }
         });
 
-        exhibit.save();
+        exhibit.save(null, true);
     });
 
     it('Should be possible to update and save a model', (done) => {
@@ -120,13 +120,13 @@ describe('CRUD Operations', () => {
 
         exhibit.getAdapter().mockData({
             id: '2',
-            name: 'The Nashville Zoo'
+            name: 'The Memphis Zoo'
         });
 
         const onChange = exhibit.on('change', () => {
             if (!exhibit.getState('saving')) {
                 exhibit.off('change', onChange);
-                assert.equal(exhibit.get('name'), 'The Nashville Zoo');
+                assert.equal(exhibit.get('name'), 'The Memphis Zoo');
                 done();
             }
         });
@@ -149,9 +149,10 @@ describe('CRUD Operations', () => {
         exhibit.getAdapter().mockData({});
 
         const onChange = exhibit.on('change', () => {
-            exhibit.off('change', onChange);
-            assert.ok(!zoo.get('exhibits').get('2'));
-            done();
+            if (!!zoo.get('exhibits').get('2')) {
+                exhibit.off('change', onChange);
+                done();
+            }
         });
 
         assert.ok(zoo.get('exhibits').get('2'));

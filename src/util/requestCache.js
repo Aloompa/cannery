@@ -28,8 +28,21 @@ class RequestCache {
         const contextKey = this._contextKey(context);
         const queryKey = this._queryKey(query);
 
-        this._initialize(Model, context, query);
-        return this.data[modelKey][contextKey][queryKey].ids;
+        let isInitialized = false;
+
+        if (this.data[modelKey] && this.data[modelKey][contextKey] && this.data[modelKey][contextKey][queryKey]) {
+            isInitialized = true;
+        }
+
+        if (!isInitialized) {
+            this._initialize(Model, context, query);
+        }
+
+        if (this.data[modelKey][contextKey][queryKey].ids) {
+            return this.data[modelKey][contextKey][queryKey].ids;
+        }
+
+        return (isInitialized) ? [] : null;
     }
 
     getMeta (Model: Function, context: Object, query: ?Object = {}) {
@@ -59,7 +72,6 @@ class RequestCache {
     }
 
     clear (Model: Function) {
-        debugger;
         const modelKey = this._modelKey(Model);
         this.data[modelKey] = {};
     }
@@ -77,7 +89,15 @@ class RequestCache {
     }
 
     _queryKey(query: Object) : String {
-        return JSON.stringify(query);
+        let parsedQuery = {};
+
+        Object.keys(query).forEach((key) => {
+            if (query[key]) {
+                parsedQuery[key] = query[key];
+            }
+        });
+
+        return JSON.stringify(parsedQuery);
     }
 
     _initialize (Model: Function, context: ?Object, query: ?Object) : Any {
@@ -99,6 +119,7 @@ class RequestCache {
         if (!query) {
             return;
         }
+
         const queryKey = this._queryKey(query);
         if (!contextData[queryKey]) {
             contextData[queryKey] = {};

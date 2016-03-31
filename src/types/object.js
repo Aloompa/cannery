@@ -12,6 +12,7 @@ class ObjectType extends BaseType {
 
     constructor (parentModel: Object, fields: Object, options: ?Object) {
         super(parentModel, options || {});
+
         this.initialize(fields);
     }
 

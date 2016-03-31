@@ -5,12 +5,11 @@ function expandPath (arr: Array<Object>) : Array<String> {
     let expandedPath = [];
 
     arr.forEach((item) => {
-        if (!item.id) {
-            throw new Error(`Cannot expand path. ${item.key} has no ID`);
-        }
-
         expandedPath.push(item.key);
-        expandedPath.push(item.id);
+
+        if (item.id && item.id !== 'undefined') {
+            expandedPath.push(item.id);
+        }
     });
 
     return expandedPath;

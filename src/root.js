@@ -6,7 +6,7 @@ const pluralize = require('pluralize');
 const ObjectType = require('./types/object');
 const debounce = require('lodash.debounce');
 const RestAdapter = require('./adapters/RESTAdapter');
-const RequestCache = require('./util/RequestCache');
+const RequestCache = require('./util/requestCache');
 
 class Root extends EventEmitter {
 
