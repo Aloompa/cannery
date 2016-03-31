@@ -34,14 +34,14 @@ class BaseType extends EventEmitter {
         return this._value;
     }
 
-    set (val: any): Object {
+    set (val: any): ?Object {
         this._value = val;
         this.emit('change');
         this.emit('userChange');
         return this;
     }
 
-    toJSON (): Object {
+    toJSON (): ?Object {
         return this._value;
     }
 
