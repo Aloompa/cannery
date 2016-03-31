@@ -1,74 +1,26 @@
+/* @flow */
+
 'use strict';
 
 const BaseType = require('./base');
-const addListenersUtil = require('../util/addListeners');
-const ModelConstructor = Symbol();
-const model = Symbol();
-const map = Symbol();
-const updateMapping = Symbol();
-const getId = Symbol();
 
 class HasOne extends BaseType {
 
-    constructor (Model, options = {}) {
-        super(options);
+    constructor (parentModel: Object, Model: Function, options: Object = {}) {
+        super(...arguments);
 
-        this.options = options;
-        this[map] = options.map;
-        this[ModelConstructor] = Model;
-    }
-
-    [ getId ] () {
-        if (!this[map]) {
-            return;
+        if (!options.map) {
+            throw new Error('The HasOne type must be mapped to an id field');
         }
 
-        return (typeof this[map].get === 'function') ? this[map].get() : this[map];
+        Object.assign(this, {
+            modelStore: parentModel.findOwnsMany(Model),
+            _map: options.map
+        });
     }
 
-    [ updateMapping ] () {
-        if (this[getId]() !== this[model].id) {
-            this[model].id = this[getId]();
-            this[model].emit('change');
-        }
-    }
-
-    setParent () {
-        if (!this[model]) {
-            return;
-        }
-
-        this[model].getParent = () => {
-            return this.parent;
-        };
-
-        this[updateMapping]();
-
-        this.parent.on('change', this[updateMapping].bind(this));
-
-        addListenersUtil(this.parent, this[model]);
-    }
-
-    get () {
-        if (!this[model]) {
-            this[model] = new this[ModelConstructor](this[getId](), this.options);
-
-            this[model].on('change', () => {
-                this.emit('change');
-            });
-
-            this.setParent();
-        }
-
-        return this[model];
-    }
-
-    set () {
-        throw new Error('You cannot set directly on a model');
-    }
-
-    toJSON () {
-        return null;
+    get (): Object {
+        return this.modelStore.get(this._map.get());
     }
 
 }

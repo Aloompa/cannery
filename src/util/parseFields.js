@@ -1,11 +1,12 @@
+/* @flow */
+
 'use strict';
 
-module.exports = (fields) => {
+module.exports = (parentModel: Object, fields: Object): Object => {
     for (let field in fields) {
-        /* istanbul ignore else */
         if (fields.hasOwnProperty(field)) {
             if (typeof fields[field] === 'function') {
-                fields[field] = new fields[field]();
+                fields[field] = new fields[field](parentModel);
             }
         }
     }

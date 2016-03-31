@@ -1,17 +1,21 @@
+/* @flow */
+
 'use strict';
 
 const BaseType = require('./base');
 
 class StringType extends BaseType {
 
-    get () {
-        const val = super.get();
+    _parseString (val: ?string): string {
+        return (val) ? String(val) : null;
+    }
 
-        if (val === undefined || val === null) {
-            return;
-        }
+    apply (val: string): any {
+        return super.apply(this._parseString(val));
+    }
 
-        return String(val);
+    set (val: ?string): Object {
+        return super.set(this._parseString(val));
     }
 
 }

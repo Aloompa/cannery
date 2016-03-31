@@ -1,25 +1,70 @@
+/* @flow */
+
 'use strict';
 
 const EventEmitter = require('cannery-event-emitter');
 const validate = require('valid-point');
-const value = Symbol();
 
 class BaseType extends EventEmitter {
 
-    constructor (options = {}) {
-
+    constructor (parentModel: Object, options: Object = {}) {
         super();
 
-        this.lastModified = new Date().getTime();
+        this._parent = parentModel;
 
-        Object.assign(this, options);
+        this.validations = options.validations;
+        this._applyHooks(options.hooks);
 
-        Object.keys(options.hooks || {}).forEach((key) => {
+        if (parentModel && parentModel.emit) {
+            this.on('*', function () {
+                parentModel.emit(...arguments);
+            });
+        }
+
+    }
+
+    apply (val: any): Object {
+        this._value = val;
+        this.emit('change');
+
+        return this;
+    }
+
+    get (key: any): any {
+        return this._value;
+    }
+
+    set (val: any): Object {
+        this._value = val;
+        this.emit('change');
+        this.emit('userChange');
+        return this;
+    }
+
+    toJSON (): Object {
+        return this._value;
+    }
+
+    validate (key: string): any {
+        if (this.validations) {
+            return validate({
+                data: {
+                    [ this.fieldName ]: this._value
+                },
+                validations: {
+                    [ this.fieldName ]: this.validations
+                }
+            });
+        }
+    }
+
+    _applyHooks (hooks: Object = {}) {
+        Object.keys(hooks).forEach((key) => {
             const originalMethod = this[key];
 
             if (key === 'apply' || key === 'set') {
                 this[key] = function (val) {
-                    return originalMethod.call(this, options.hooks[key](val));
+                    return originalMethod.call(this, hooks[key](val));
                 };
 
                 return;
@@ -27,60 +72,9 @@ class BaseType extends EventEmitter {
 
             this[key] = function () {
                 const val = originalMethod.apply(this, arguments);
-                return options.hooks[key](val);
+                return hooks[key](val);
             };
         });
-
-        this.validations = options.validations;
-    }
-
-    apply (val) {
-        if (!this.isValueChanged(val)) {
-            return this;
-        }
-
-        this[value] = val;
-        this.lastModified = new Date().getTime();
-        this.emit('change');
-
-        return this;
-    }
-
-    get () {
-        return this[value];
-    }
-
-    isValueChanged (val) {
-        return this[value] !== val;
-    }
-
-    set (val) {
-        if (!this.isValueChanged(val)) {
-            return this;
-        }
-
-        this[value] = val;
-        this.lastModified = new Date().getTime();
-        this.emit('change');
-        this.emit('userChange');
-        return this;
-    }
-
-    toJSON () {
-        return this.get();
-    }
-
-    validate () {
-        if (this.validations) {
-            return validate({
-                data: {
-                    [ this.fieldName ]: this.get()
-                },
-                validations: {
-                    [ this.fieldName ]: this.validations
-                }
-            });
-        }
     }
 
 }

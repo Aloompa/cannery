@@ -1,37 +1,46 @@
+/* @flow */
+
 'use strict';
 
 const EventEmitter = require('cannery-event-emitter');
 const BaseType = require('./base');
 const ObjectType = require('./object');
-const addListenersUtil = require('../util/addListeners');
-const isEqual = require('lodash.isequal');
 const validate = require('valid-point');
-const fields = Symbol();
-const Type = Symbol();
-const getTyped = Symbol();
-const typeOptions = Symbol();
-const typedArray = Symbol();
 
 class ArrayType extends EventEmitter {
 
-    constructor (ArrayType, arrayFields, options = {}) {
+    constructor (parentModel: Object, ArrayType: Function = BaseType, arrayFields: Object, options: Object = {}) {
         super();
 
-        this[typedArray] = [];
-        this.Type = ArrayType || BaseType;
-        this[fields] = arrayFields;
-        this[typeOptions] = options;
-        this.validations = options.validations;
-        this.set([]);
+        this._parent = parentModel;
+        this.options = options;
+        this.Type = ArrayType;
+        this._typedArray = [];
+        this._fields = arrayFields;
+        this._typeOptions = this.options;
+        this.validations = this.options.validations;
+
+        if (parentModel && parentModel.emit) {
+            this.on('*', function () {
+                parentModel.emit(...arguments);
+            });
+        }
     }
 
-    add (item, index) {
-        let array = this[typedArray].slice(0);
+    _userChange (array) {
+        this.set(array);
+
+        this.emit('userChange');
+        this.emit('change');
+
+        return this;
+    }
+
+    add (item: any, index: number): Object {
+        let array = this._clone();
         const typedItem = this.instantiateItem(item);
 
         typedItem.apply(item);
-
-        addListenersUtil(this, typedItem);
 
         if (typeof index !== 'number') {
             index = array.length;
@@ -39,15 +48,11 @@ class ArrayType extends EventEmitter {
 
         array.splice(index, 0, typedItem);
 
-        this.set(array);
-
-        this.emit('userChange');
-
-        return this;
+        return this._userChange(array);
     }
 
-    all () {
-        const arr = this[typedArray].slice(0).map((item) => {
+    all (): Array<any> {
+        const arr = this._typedArray.map((item) => {
 
             // Object
             if (item instanceof ObjectType) {
@@ -60,7 +65,8 @@ class ArrayType extends EventEmitter {
         return arr;
     }
 
-    apply (data) {
+    apply (data: Array<any>): Object {
+
         const array = data.map((item) => {
 
             const typedItem = this.instantiateItem(item);
@@ -76,95 +82,58 @@ class ArrayType extends EventEmitter {
         return this;
     }
 
-    forEach (callback) {
+    forEach (callback: Function): void {
         return this.all().forEach(callback);
     }
 
-    get (index) {
+    get (index: number): any {
         return this.all()[index];
     }
 
-    getType () {
-        return this.Type;
+    instantiateItem (): Object {
+        return new this.Type(Object.assign({}, this._fields), Object.assign({}, this._typeOptions));
     }
 
-    instantiateItem () {
-        return new this.Type(Object.assign({}, this[fields]), Object.assign({}, this[typeOptions]));
-    }
-
-    isValueChanged (val) {
-        return !isEqual(this.get(), val);
-    }
-
-    length () {
+    length (): number {
         return this.all().length;
     }
 
-    map (callback) {
+    map (callback: Function): Array<any> {
         return this.all().map(callback);
     }
 
-    move (oldIndex, newIndex) {
-        let array = this[typedArray].slice(0);
+    move (oldIndex: number, newIndex: number): Object {
+        let array = this._clone();
         const item = array[oldIndex];
 
         array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
 
-        this.set(array);
-
-        this.emit('userChange');
-
-        return this;
+        return this._userChange(array);
     }
 
-    remove (index) {
-        let array = this[typedArray].slice(0);
+    remove (index: number): Object {
+        let array = this._clone();
 
         array.splice(index, 1);
 
-        this.set(array);
-
-        this.emit('userChange');
-
-        return this;
+        return this._userChange(array);
     }
 
-    removeAll () {
-        this.set([]);
-
-        this.emit('userChange');
-
-        return this;
+    removeAll (): Object {
+        return this._userChange([]);
     }
 
-    set (arr) {
-        this[typedArray] = arr;
+    _clone () {
+        return this._typedArray.slice(0);
+    }
+
+    set (arr: Array<any>) {
+        this._typedArray = arr;
         this.emit('change');
     }
 
-    toJSON () {
+    toJSON (): Array<any> {
         return this.all();
-    }
-
-    validate (noRecursion) {
-        if (!noRecursion && this[typedArray]) {
-            this[typedArray].forEach((arrayItem) => {
-                arrayItem.validate();
-            });
-        }
-
-        if (this.validations) {
-            const fieldName = this.validations.field || 'all';
-
-            return validate({
-                data: {
-                    [ fieldName ]: this.all()
-                },
-                validations: {
-                    [ fieldName ]: this.validations
-                }
-            });
-        }
     }
 
 }

@@ -1,69 +1,53 @@
+/* @flow */
+
 'use strict';
 
 const BaseType = require('./base');
-const HasMany = require('./hasMany');
+const MultiModel = require('./multiModel');
 const parseFields = require('../util/parseFields');
-const addListenersUtil = require('../util/addListeners');
 const validate = require('valid-point');
-const fields = Symbol();
-const addListeners = Symbol();
-const applyFieldNames = Symbol();
-const applyFieldParent = Symbol();
+const debounce = require('lodash.debounce');
 
 class ObjectType extends BaseType {
 
-    constructor (fields, options = {}) {
-        super(options);
-        this.parent = options.parent;
+    constructor (parentModel: Object, fields: Object, options: ?Object) {
+        super(parentModel, options || {});
+
         this.initialize(fields);
     }
 
-    [ addListeners ] () {
-        Object.keys(this[fields]).forEach((key) => {
-            const field = this[fields][key];
-            addListenersUtil(this, field);
+    _applyFieldNames () {
+        Object.keys(this._fields).forEach((key) => {
+            this._fields[key].fieldName = key;
         });
     }
 
-    [ applyFieldNames ] () {
-        Object.keys(this[fields]).forEach((key) => {
-            this[fields][key].fieldName = key;
+    _applyFieldParent () {
+        Object.keys(this._fields).forEach((key) => {
+            this._fields[key].parent = this._parent;
         });
     }
 
-    [ applyFieldParent ] () {
-        Object.keys(this[fields]).forEach((key) => {
-            this[fields][key].parent = this.parent;
-            if (typeof this[fields][key].setParent === 'function') {
-                this[fields][key].setParent();
-            }
-        });
-    }
-
-    apply (data) {
-        if (!data) {
-            return;
-        }
+    apply (data: Object = {}): Object {
 
         Object.keys(data).forEach((key) => {
-            if (this[fields][key]) {
-                this[fields][key].apply(data[key]);
+            if (this._fields[key]) {
+                this._fields[key].apply(data[key]);
             }
         });
 
         return this;
     }
 
-    initialize (initalFields) {
-        this[fields] = parseFields(initalFields);
-        this[applyFieldNames]();
-        this[applyFieldParent]();
-        this[addListeners]();
+    initialize (initalFields: Object) {
+        this._fields = parseFields(this._parent, initalFields);
+        this._applyFieldNames();
+        this._applyFieldParent();
     }
 
-    get (key) {
+    get (key: string): any {
         const ArrayType = require('./array');
-        const field = this[fields][key];
+        const field = this._fields[key];
 
         if (!field) {
             throw new Error(`cannot get "${key}." It is undefined in your Cannery model`);
@@ -79,49 +63,48 @@ class ObjectType extends BaseType {
             return field;
         }
 
-        // HasMany's
-        if (field instanceof HasMany) {
+        // MultiModel's
+        if (field instanceof MultiModel) {
             return field;
         }
 
         return field.get();
     }
 
-    getFields () {
-        return this[fields];
-    }
+    set (key: string, value: any): Object {
+        const field = this._fields[key];
 
-    getLastModified (key) {
-        if (key) {
-            return this[fields][key].lastModified;
+        if (!field) {
+            throw new Error(`cannot set "${key}." It is undefined in your Cannery model`);
         }
 
-        throw new Error('getLastModified requires a key');
-    }
+        field.set(value);
 
-    set (key, value) {
-        this[fields][key].set(value);
         return this;
     }
 
-    toJSON () {
+    toJSON (options: ?Object): Object {
         let json = {};
 
-        Object.keys(this[fields]).map((key) => {
-            json[key] = this[fields][key].toJSON();
+        Object.keys(this._fields).map((key) => {
+            const value = this._fields[key].toJSON(options);
+
+            if (value !== undefined) {
+                json[key] = value;
+            }
         });
 
         return json;
     }
 
-    validate (key) {
+    validate (key: string): any {
         if (key) {
-            return this[fields][key].validate();
+            return this._fields[key].validate();
         }
 
-        return Object.keys(this[fields]).map((key) => {
-            if (typeof this[fields][key].validate === 'function') {
-                return this[fields][key].validate();
+        return Object.keys(this._fields).map((key) => {
+            if (this._fields[key].validate) {
+                return this._fields[key].validate();
             }
         });
     }
