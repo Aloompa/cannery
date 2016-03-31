@@ -188,6 +188,8 @@ class Model extends EventEmitter {
 
                 this.setState('saving', false);
                 this.setState('isChanged', false);
+
+                this.emit('saveSuccess');
             });
 
         if (saveType === 'create') {
