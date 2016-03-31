@@ -1,10 +1,12 @@
+/* @flow */
+
 'use strict';
 
 const BaseType = require('./base');
 
 class BooleanType extends BaseType {
 
-    get () {
+    get (): boolean {
         const val = super.get();
 
         let parseVal = Boolean(val);

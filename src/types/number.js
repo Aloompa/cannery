@@ -1,3 +1,5 @@
+/* @flow */
+
 'use strict';
 
 const BaseType = require('./base');
