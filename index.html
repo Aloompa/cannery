@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Cannery by Aloompa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Cannery</h1>
+      <h2 class="project-tagline">A modern ES6 class-based event-driven ORM for client-side or server-side JavaScript.</h2>
+      <a href="https://github.com/Aloompa/cannery" class="btn">View on GitHub</a>
+      <a href="https://github.com/Aloompa/cannery/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Aloompa/cannery/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h2>
+<a id="welcome-to-cannery" class="anchor" href="#welcome-to-cannery" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to Cannery</h2>
+
+<p>A modern ES6 class-based event-driven ORM for client-side or server-side JavaScript.</p>
+
+<h2>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting Started</h2>
+
+<p>Getting started with Cannery is easy. You just need to extend the Cannery base Model class and provide a <code>getFields()</code> method that returns an object describing the fields on the model. From there, we can instantiate the model and use <code>get()</code> and <code>set()</code> to set and get data on the model fields.</p>
+
+<pre><code>const { Model, Type } = require('cannery');
+const { StringType, NumberType } = Type;
+
+class Car extends Model {
+
+    getFields () {
+        return {
+            make: StringType,
+            model: StringType,
+            year: NumberType
+        };
+    }
+
+}
+
+const myCar = new Car();
+
+myCar.set('make', 'Ford');
+
+console.log(myCar.get('make')); // Ford
+</code></pre>
+
+<p>So far, this is all pretty much what you might expect from any JavaScript model layer, but it gets better when you start handling async data. We'll get into how to define where our data is coming from (ajax, websockets, localStorage, some database, etc...) in the documentation, but for now, let's just say that the secret sauce of Cannery is that every field is return synchronously at first, and then events are triggered once the data is retrieved so that the UI layer can redraw with the updated data.</p>
+
+<pre><code>const myCar = new Car(1);
+
+// This is triggered any time data is retrieved from some remote source such as an Ajax call
+myCar.on('change', () =&gt; {
+    myCar.get('make'); // returns the value of the make retrieved from the server
+});
+
+myCar.get('make'); // returns an empty string immediately
+</code></pre>
+
+<h2>
+<a id="api" class="anchor" href="#api" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API</h2>
+
+<h3>
+<a id="adapters" class="anchor" href="#adapters" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Adapters</h3>
+
+<p>To change what type of data store you set and get data from, just switch out the adapter. For example, you may want to get data from ajax, mongoDB, localStorage, etc. No problem, just replace the <code>getAdapter()</code> method with your own:</p>
+
+<pre><code>const Cannery = require('cannery');
+
+class User extends Cannery.Model {
+
+    getAdapter () {
+        return new MyAdapter();
+    }
+
+}
+
+module.exports = User;
+</code></pre>
+
+<h3>
+<a id="cannerytype" class="anchor" href="#cannerytype" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cannery.Type</h3>
+
+<p>Fields in cannery can have types. Different types operate in different ways to handle data that is set and gotten from the model.</p>
+
+<h3>
+<a id="cannerymodel" class="anchor" href="#cannerymodel" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cannery.Model</h3>
+
+<p>This is the base model class where all the magic happens.</p>
+
+<h2>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>We encourage you to contribute to Cannery by submitting bug reports and pull requests through <a href="http//github.com">Github</a>.</p>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
+
+<p>Cannery is released under The <a href="http://www.opensource.org/licenses/MIT">MIT License</a> (MIT)</p>
+
+<p>Copyright (c) [2015] [Aloompa LLC]</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions</p>
+
+<p>The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Aloompa/cannery">Cannery</a> is maintained by <a href="https://github.com/Aloompa">Aloompa</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
