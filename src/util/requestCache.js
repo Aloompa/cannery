@@ -23,6 +23,7 @@ class RequestCache {
     }
 
     get (Model: Function, context: Object, query: Object = {}) : ?Array<Object> {
+
         if (!Model || !context) {
             throw new TypeError('RequestCache.get(): Model and context are not optional');
         }
