@@ -18,7 +18,7 @@ class Model extends EventEmitter {
     _fields: Object;
     state: Object;
 
-    constructor (parentModel: Object, id: string, options: ?Object) {
+    constructor (parentModel: Object, id: any, options: ?Object) {
         super();
 
         if (!parentModel) {
@@ -27,7 +27,9 @@ class Model extends EventEmitter {
 
         this._parent = parentModel;
 
-        this.id = (typeof id === 'number') ? String(id) : id;
+        if (id) {
+            this.id = String(id);
+        }
 
         const fields = this.getFields(...arguments);
 
@@ -177,7 +179,10 @@ class Model extends EventEmitter {
                             const fieldId = this.constructor.getFieldId();
                             const id = (response[fieldId]) ? String(response[fieldId]) : null;
 
-                            this.id = id;
+                            if (id) {
+                                this.id = id;
+                            }
+                            
                             ownsManyOwner.modelStore.addExisting(this, id);
                             ownsManyOwner.map.add(id);
                         }
