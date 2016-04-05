@@ -27,7 +27,7 @@ class Model extends EventEmitter {
 
         this._parent = parentModel;
 
-        this.id = id;
+        this.id = (typeof id === 'number') ? String(id) : id;
 
         const fields = this.getFields(...arguments);
 
@@ -82,10 +82,9 @@ class Model extends EventEmitter {
     }
 
     destroy (options: Object = {}): Object {
-        this.getRoot().requestCache.clear(this.constructor);
-
         this.getAdapter()
             .destroy(this, options, (response) => {
+                this.getRoot().requestCache.clear(this.constructor);
                 this.emit('destroy', this);
                 this.emit('change');
             });
@@ -154,49 +153,53 @@ class Model extends EventEmitter {
     save (options: Object = {}, single: boolean = false): Object {
         const saveType = (this.id) ? 'update' : 'create';
 
-        try {
-            this.validate();
+        return new Promise((resolve, reject) => {
 
-        } catch (e) {
-            this.emit('saveError', e);
-            return this;
-        }
+            try {
+                this.validate();
 
-        this.setState('saving', true);
+            } catch (e) {
+                this.emit('saveError', e);
+                return reject(e);
+            }
 
-        this.getAdapter()
-            [saveType](this, this.getScope(), options, (response) => {
+            this.setState('saving', true);
 
-                // If we created a model, add the model to the ownsMany that contains the model type
-                if (saveType === 'create') {
+            this.getAdapter()
+                [saveType](this, this.getScope(), options, (response) => {
 
-                    const ownsManyOwner = this.findOwnsMany(this.constructor);
+                    // If we created a model, add the model to the ownsMany that contains the model type
+                    if (saveType === 'create') {
 
-                    if (ownsManyOwner) {
-                        const fieldId = this.constructor.getFieldId();
-                        const id = response[fieldId];
+                        const ownsManyOwner = this.findOwnsMany(this.constructor);
 
-                        this.id = id;
-                        ownsManyOwner.modelStore.addExisting(this, id);
-                        ownsManyOwner.map.add(id);
+                        if (ownsManyOwner) {
+                            const fieldId = this.constructor.getFieldId();
+                            const id = (response[fieldId]) ? String(response[fieldId]) : null;
+
+                            this.id = id;
+                            ownsManyOwner.modelStore.addExisting(this, id);
+                            ownsManyOwner.map.add(id);
+                        }
                     }
-                }
 
-                if (saveType === 'create') {
-                    this.apply(response);
-                }
+                    if (saveType === 'create') {
+                        this.apply(response);
+                    }
 
-                this.setState('saving', false);
-                this.setState('isChanged', false);
+                    this.setState('saving', false);
+                    this.setState('isChanged', false);
 
-                this.emit('saveSuccess');
-            });
+                    this.emit('saveSuccess');
 
-        if (saveType === 'create') {
-            this.getRoot().requestCache.clear(this.constructor);
-        }
+                    return resolve();
+                });
 
-        return this;
+            if (saveType === 'create') {
+                this.getRoot().requestCache.clear(this.constructor);
+            }
+
+        });
     }
 
     create (): Object {
