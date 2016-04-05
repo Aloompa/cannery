@@ -72,6 +72,10 @@ class MultiModel extends BaseType {
     }
 
     all (): Array<Object> {
+        if (!this.options.batchRequest && !this.map.all().length) {
+            return [];
+        }
+
         if (!this.requestCache.get(this.Model, this._parent, this.options.defaultQuery)) {
             this.requestMany(this.options.defaultQuery);
         }
@@ -159,6 +163,7 @@ class MultiModel extends BaseType {
             this.map.all().forEach((id) => {
                 this.requestOne(id, options);
             });
+
             return;
         }
 
