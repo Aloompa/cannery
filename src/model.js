@@ -18,7 +18,7 @@ class Model extends EventEmitter {
     _fields: Object;
     state: Object;
 
-    constructor (parentModel: Object, id: string, options: ?Object) {
+    constructor (parentModel: Object, id: any, options: ?Object) {
         super();
 
         if (!parentModel) {
@@ -27,7 +27,9 @@ class Model extends EventEmitter {
 
         this._parent = parentModel;
 
-        this.id = id;
+        if (id) {
+            this.id = String(id);
+        }
 
         const fields = this.getFields(...arguments);
 
@@ -61,7 +63,7 @@ class Model extends EventEmitter {
     apply (data: Object): Object {
         const responseId = data[this.constructor.getFieldId()];
 
-        if (!this.id) {
+        if (responseId && !this.id) {
             this.id = String(responseId);
         }
 
@@ -82,10 +84,9 @@ class Model extends EventEmitter {
     }
 
     destroy (options: Object = {}): Object {
-        this.getRoot().requestCache.clear(this.constructor);
-
         this.getAdapter()
             .destroy(this, options, (response) => {
+                this.getRoot().requestCache.clear(this.constructor);
                 this.emit('destroy', this);
                 this.emit('change');
             });
@@ -159,7 +160,6 @@ class Model extends EventEmitter {
 
         } catch (e) {
             this.emit('saveError', e);
-            return this;
         }
 
         this.setState('saving', true);
@@ -174,9 +174,12 @@ class Model extends EventEmitter {
 
                     if (ownsManyOwner) {
                         const fieldId = this.constructor.getFieldId();
-                        const id = response[fieldId];
+                        const id = (response[fieldId]) ? String(response[fieldId]) : null;
 
-                        this.id = id;
+                        if (id) {
+                            this.id = id;
+                        }
+
                         ownsManyOwner.modelStore.addExisting(this, id);
                         ownsManyOwner.map.add(id);
                     }
@@ -190,6 +193,7 @@ class Model extends EventEmitter {
                 this.setState('isChanged', false);
 
                 this.emit('saveSuccess');
+
             });
 
         if (saveType === 'create') {
