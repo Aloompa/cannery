@@ -2,17 +2,17 @@
 
 Every Cannery Model and Root requires a `getFields()` method which returns an object that composes multiple Cannery Types. These types become the fields for your Cannery model and are accessible via getters and setters. Every type has a `get()`, `set()`, `toJSON()` and `apply()` method by default, but some types provide additional methods as well.
 
-##### Types
-- [AnyType](#anytype)
-- [ArrayType](#arraytype)
-- [BooleanType](#booleantype)
-- [HasMany](#hasmany)
-- [HasOne](#hasone)
-- [NumberType](#numbertype)
-- [ObjectType](#objecttype)
-- [OwnsMany](#ownsmany)
-- [OwnsOne](#ownsone)
-- [StringType](#stringtype)
+## Table Of Contents
+* [AnyType](#anytype)
+* [ArrayType](#arraytype)
+* [BooleanType](#booleantype)
+* [HasMany](#hasmany)
+* [HasOne](#hasone)
+* [NumberType](#numbertype)
+* [ObjectType](#objecttype)
+* [OwnsMany](#ownsmany)
+* [OwnsOne](#ownsone)
+* [StringType](#stringtype)
 
 ### AnyType
 
