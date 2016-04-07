@@ -32,7 +32,7 @@ george
     .get('name'); // George
 ```
 
-This is just touching the surface, of course, for a more in-depth guide, checkout out our [documentation](./docs/index.md).
+This is just touching the surface, of course, for a more in-depth guide, checkout out our [documentation](./docs).
 
 ## Contributing
 
