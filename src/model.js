@@ -63,7 +63,7 @@ class Model extends EventEmitter {
     apply (data: Object): Object {
         const responseId = data[this.constructor.getFieldId()];
 
-        if (!this.id) {
+        if (responseId && !this.id) {
             this.id = String(responseId);
         }
 
@@ -155,56 +155,52 @@ class Model extends EventEmitter {
     save (options: Object = {}, single: boolean = false): Object {
         const saveType = (this.id) ? 'update' : 'create';
 
-        return new Promise((resolve, reject) => {
+        try {
+            this.validate();
 
-            try {
-                this.validate();
+        } catch (e) {
+            this.emit('saveError', e);
+        }
 
-            } catch (e) {
-                this.emit('saveError', e);
-                return reject(e);
-            }
+        this.setState('saving', true);
 
-            this.setState('saving', true);
+        this.getAdapter()
+            [saveType](this, this.getScope(), options, (response) => {
 
-            this.getAdapter()
-                [saveType](this, this.getScope(), options, (response) => {
+                // If we created a model, add the model to the ownsMany that contains the model type
+                if (saveType === 'create') {
 
-                    // If we created a model, add the model to the ownsMany that contains the model type
-                    if (saveType === 'create') {
+                    const ownsManyOwner = this.findOwnsMany(this.constructor);
 
-                        const ownsManyOwner = this.findOwnsMany(this.constructor);
+                    if (ownsManyOwner) {
+                        const fieldId = this.constructor.getFieldId();
+                        const id = (response[fieldId]) ? String(response[fieldId]) : null;
 
-                        if (ownsManyOwner) {
-                            const fieldId = this.constructor.getFieldId();
-                            const id = (response[fieldId]) ? String(response[fieldId]) : null;
-
-                            if (id) {
-                                this.id = id;
-                            }
-                            
-                            ownsManyOwner.modelStore.addExisting(this, id);
-                            ownsManyOwner.map.add(id);
+                        if (id) {
+                            this.id = id;
                         }
+
+                        ownsManyOwner.modelStore.addExisting(this, id);
+                        ownsManyOwner.map.add(id);
                     }
+                }
 
-                    if (saveType === 'create') {
-                        this.apply(response);
-                    }
+                if (saveType === 'create') {
+                    this.apply(response);
+                }
 
-                    this.setState('saving', false);
-                    this.setState('isChanged', false);
+                this.setState('saving', false);
+                this.setState('isChanged', false);
 
-                    this.emit('saveSuccess');
+                this.emit('saveSuccess');
 
-                    return resolve();
-                });
+            });
 
-            if (saveType === 'create') {
-                this.getRoot().requestCache.clear(this.constructor);
-            }
+        if (saveType === 'create') {
+            this.getRoot().requestCache.clear(this.constructor);
+        }
 
-        });
+        return this;
     }
 
     create (): Object {
