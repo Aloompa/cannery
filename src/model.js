@@ -185,9 +185,7 @@ class Model extends EventEmitter {
                     }
                 }
 
-                if (saveType === 'create') {
-                    this.apply(response);
-                }
+                this.apply(response);
 
                 this.setState('saving', false);
                 this.setState('isChanged', false);
