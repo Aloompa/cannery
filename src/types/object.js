@@ -29,6 +29,9 @@ class ObjectType extends BaseType {
     }
 
     apply (data: Object = {}): Object {
+        if (!data) {
+            return this;
+        }
 
         Object.keys(data).forEach((key) => {
             if (this._fields[key]) {
