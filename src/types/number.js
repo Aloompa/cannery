@@ -13,7 +13,13 @@ class NumberType extends BaseType {
             return;
         }
 
-        return parseFloat(val);
+        const parsedValue = parseFloat(val);
+
+        if (!parsedValue) {
+            return 0;
+        }
+
+        return parsedValue;
     }
 
 }
