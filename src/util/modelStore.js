@@ -35,7 +35,12 @@ class ModelStore {
         const ids = [];
 
         models.forEach((modelData) => {
+            if (!modelData[idKey]) {
+                return;
+            }
+
             const id = String(modelData[idKey]);
+            
             ids.push(id);
 
             const storedModel = this.get(id);
