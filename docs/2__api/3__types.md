@@ -168,15 +168,19 @@ class Monkey extends Cannery.Root {
 
 const monkey = new Monkey();
 
-monkey.set('is_tame', true);
+monkey.apply([1,2,3]);
 
-monkey.get('is_tame'); // true
+monkey.get(0); // 1
 
-monkey.apply({
-    is_tame: false
-});
+monkey.add(4);
 
-monkey.toJSON(); // { is_tame: false }
+monkey.move(0, 1);
+
+monkey.all(); // 2, 1, 3, 4
+
+monkey.remove(0);
+
+monkey.toJSON(); // [1, 3, 4]
 ```
 
 ### BooleanType
