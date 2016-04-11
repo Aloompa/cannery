@@ -26,7 +26,7 @@ No public API. This is a simple type.
 
 ##### Example
 
-```
+```JavaScript
 import Cannery from 'cannery';
 
 class Monkey extends Cannery.Root {
@@ -153,7 +153,7 @@ Converts the array to a plain JSON object.
 
 ##### Example
 
-```
+```JavaScript
 import Cannery from 'cannery';
 
 class Monkey extends Cannery.Root {
@@ -191,7 +191,7 @@ No public API. This is a simple type.
 
 ##### Example
 
-```
+```JavaScript
 import Cannery from 'cannery';
 
 class Monkey extends Cannery.Root {
@@ -241,7 +241,7 @@ No public API. This is a simple type.
 
 ##### Example
 
-```
+```JavaScript
 import Cannery from 'cannery';
 
 class Monkey extends Cannery.Root {
