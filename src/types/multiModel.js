@@ -122,9 +122,11 @@ class MultiModel extends BaseType {
     requestOne (id: string, options: ?Object = {}): Object {
         let model = this.modelStore.get(id);
 
-        if (!model) {
-            model = this.modelStore.stub(id);
+        if (model) {
+            return model;
         }
+
+        model = this.modelStore.stub(id);
 
         this.emit('fetching');
 
