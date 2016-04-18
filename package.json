@@ -1,6 +1,6 @@
 {
   "name": "cannery",
-  "version": "3.0.9",
+  "version": "3.0.10",
   "description": "An event-driven model layer for JavaScript",
   "main": "lib",
   "scripts": {
