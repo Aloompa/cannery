@@ -49,7 +49,7 @@ class Model extends EventEmitter {
         });
     }
 
-    _afterSave (saveType, response) {
+    _afterSave (saveType: string, response:Object) {
 
         // If we created a model, add the model to the ownsMany that contains the model type
         if (saveType === 'create') {
@@ -197,7 +197,7 @@ class Model extends EventEmitter {
 
         this.getAdapter()
             [saveType](this, this.getScope(), options, (response) => {
-                
+
                 try {
                     this._afterSave(saveType, response);
                 } catch (e) {
