@@ -87,8 +87,22 @@ class Model extends EventEmitter {
         return this;
     }
 
+    setStateFor (field: string, key: string, value: any) {
+        if (this._fields._fields[field]) {
+            this._fields._fields[field].setState(key, value);
+        }
+
+        return this;
+    }
+
     getState (key: string): any {
         return this.state[key];
+    }
+
+    getStateFor (field: string, key: string) {
+        if (this._fields._fields[field]) {
+            return this._fields._fields[field].getState(key);
+        }
     }
 
     apply (data: Object): Object {
@@ -191,6 +205,7 @@ class Model extends EventEmitter {
 
         } catch (e) {
             this.emit('saveError', e);
+            return this;
         }
 
         this.setState('saving', true);

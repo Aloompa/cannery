@@ -74,6 +74,20 @@ class ObjectType extends BaseType {
         return field.get();
     }
 
+    setStateFor (field: string, key: string, value: any) {
+        if (this._fields[field]) {
+            this._fields[field].setState(key, value);
+        }
+
+        return this;
+    }
+
+    getStateFor (field: string, key: string) {
+        if (this._fields[field]) {
+            return this._fields[field].getState(key);
+        }
+    }
+
     set (key: string, value: any): Object {
         const field = this._fields[key];
 
@@ -109,6 +123,8 @@ class ObjectType extends BaseType {
             if (this._fields[key].validate) {
                 return this._fields[key].validate();
             }
+        }).filter((err) => {
+            return err;
         });
     }
 
