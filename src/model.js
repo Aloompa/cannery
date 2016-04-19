@@ -49,6 +49,37 @@ class Model extends EventEmitter {
         });
     }
 
+    _afterSave (saveType, response) {
+
+        // If we created a model, add the model to the ownsMany that contains the model type
+        if (saveType === 'create') {
+
+            const ownsManyOwner = this.findOwnsMany(this.constructor);
+
+            if (ownsManyOwner) {
+                const fieldId = this.constructor.getFieldId() || 'id';
+                const id = (response[fieldId]) ? String(response[fieldId]) : null;
+
+                if (id) {
+                    this.id = id;
+                }
+
+                ownsManyOwner.modelStore.addExisting(this, id);
+
+                if (ownsManyOwner.map) {
+                    ownsManyOwner.map.add(id);
+                }
+            }
+        }
+
+        this.apply(response);
+
+        this.setState('saving', false);
+        this.setState('isChanged', false);
+
+        this.emit('saveSuccess');
+    }
+
     setState (key: string, value: any): Object {
         this.state[key] = value;
         this.emit('change');
@@ -166,31 +197,12 @@ class Model extends EventEmitter {
 
         this.getAdapter()
             [saveType](this, this.getScope(), options, (response) => {
-
-                // If we created a model, add the model to the ownsMany that contains the model type
-                if (saveType === 'create') {
-
-                    const ownsManyOwner = this.findOwnsMany(this.constructor);
-
-                    if (ownsManyOwner) {
-                        const fieldId = this.constructor.getFieldId();
-                        const id = (response[fieldId]) ? String(response[fieldId]) : null;
-
-                        if (id) {
-                            this.id = id;
-                        }
-
-                        ownsManyOwner.modelStore.addExisting(this, id);
-                        ownsManyOwner.map.add(id);
-                    }
+                
+                try {
+                    this._afterSave(saveType, response);
+                } catch (e) {
+                    this.emit('saveError', e);
                 }
-
-                this.apply(response);
-
-                this.setState('saving', false);
-                this.setState('isChanged', false);
-
-                this.emit('saveSuccess');
 
             });
 
