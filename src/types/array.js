@@ -65,7 +65,11 @@ class ArrayType extends EventEmitter {
         return arr;
     }
 
-    apply (data: Array<any>): Object {
+    apply (data: ?Array<any>): Object {
+
+        if (!data) {
+            return this;
+        }
 
         const array = data.map((item) => {
 
