@@ -94,7 +94,8 @@ class ArrayType extends EventEmitter {
 
         });
 
-        this.set(array);
+        this._typedArray = array;
+        this.emit('change');
 
         return this;
     }
@@ -155,17 +156,19 @@ class ArrayType extends EventEmitter {
 
     validate (): any {
 
-        if (this.options && this.options.validations) {
+        const options = this._fields;
+
+        if (options && options.validations) {
 
             this.setState('error', null);
 
             try {
                 validate({
                     data: {
-                        [ this.options.validationKey ]: this.toJSON()
+                        [ this.fieldName ]: this.toJSON()
                     },
                     validations: {
-                        [ this.options.validationKey ]: this.options.validations
+                        [ this.fieldName ]: options.validations
                     }
                 });
 

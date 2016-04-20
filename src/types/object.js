@@ -119,13 +119,26 @@ class ObjectType extends BaseType {
             return this._fields[key].validate();
         }
 
-        return Object.keys(this._fields).map((key) => {
+        const errors = Object.keys(this._fields).map((key) => {
             if (this._fields[key].validate) {
-                return this._fields[key].validate();
+                return {
+                    key,
+                    error: this._fields[key].validate()
+                };
             }
-        }).filter((err) => {
-            return err;
+        }).filter((res) => {
+            return res.error;
         });
+
+        if (errors.length) {
+            const messages = {};
+
+            errors.forEach((item) => {
+                messages[item.key] = item.error;
+            });
+
+            return messages;
+        }
     }
 
 }
