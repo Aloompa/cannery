@@ -74,7 +74,7 @@ class ObjectType extends BaseType {
         return field.get();
     }
 
-    setStateFor (field: string, key: string, value: any) {
+    setStateFor (field: string, key: string, value: any): Object {
         if (this._fields[field]) {
             this._fields[field].setState(key, value);
         }
@@ -114,7 +114,7 @@ class ObjectType extends BaseType {
         return json;
     }
 
-    validate (key: string): any {
+    validate (key: ?string): any {
         if (key) {
             return this._fields[key].validate();
         }
@@ -126,14 +126,14 @@ class ObjectType extends BaseType {
                     error: this._fields[key].validate()
                 };
             }
-        }).filter((res) => {
+        }).filter((res = {}) => {
             return res.error;
         });
 
         if (errors.length) {
             const messages = {};
 
-            errors.forEach((item) => {
+            errors.forEach((item = {}) => {
                 messages[item.key] = item.error;
             });
 

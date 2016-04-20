@@ -88,7 +88,7 @@ class Model extends EventEmitter {
         return this;
     }
 
-    setStateFor (field: string, key: string, value: any) {
+    setStateFor (field: string, key: string, value: any): Object {
         if (this._fields._fields[field]) {
             this._fields._fields[field].setState(key, value);
         }
