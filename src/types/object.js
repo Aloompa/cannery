@@ -29,6 +29,9 @@ class ObjectType extends BaseType {
     }
 
     apply (data: Object = {}): Object {
+        if (!data) {
+            return this;
+        }
 
         Object.keys(data).forEach((key) => {
             if (this._fields[key]) {
@@ -71,6 +74,20 @@ class ObjectType extends BaseType {
         return field.get();
     }
 
+    setStateFor (field: string, key: string, value: any): Object {
+        if (this._fields[field]) {
+            this._fields[field].setState(key, value);
+        }
+
+        return this;
+    }
+
+    getStateFor (field: string, key: string) {
+        if (this._fields[field]) {
+            return this._fields[field].getState(key);
+        }
+    }
+
     set (key: string, value: any): Object {
         const field = this._fields[key];
 
@@ -97,16 +114,31 @@ class ObjectType extends BaseType {
         return json;
     }
 
-    validate (key: string): any {
+    validate (key: ?string): any {
         if (key) {
             return this._fields[key].validate();
         }
 
-        return Object.keys(this._fields).map((key) => {
+        const errors = Object.keys(this._fields).map((key) => {
             if (this._fields[key].validate) {
-                return this._fields[key].validate();
+                return {
+                    key,
+                    error: this._fields[key].validate()
+                };
             }
+        }).filter((res = {}) => {
+            return res.error;
         });
+
+        if (errors.length) {
+            const messages = {};
+
+            errors.forEach((item = {}) => {
+                messages[item.key] = item.error;
+            });
+
+            return messages;
+        }
     }
 
 }

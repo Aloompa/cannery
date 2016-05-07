@@ -41,12 +41,44 @@ class Model extends EventEmitter {
         this.state = {};
 
         this.on('userChange', () => {
+            this.setState('saveError', null);
             this.setState('isChanged', true);
         });
 
         this.on('*', function () {
             parentModel.emit(...arguments);
         });
+    }
+
+    _afterSave (saveType: string, response:Object) {
+
+        // If we created a model, add the model to the ownsMany that contains the model type
+        if (saveType === 'create') {
+
+            const ownsManyOwner = this.findOwnsMany(this.constructor);
+
+            if (ownsManyOwner) {
+                const fieldId = this.constructor.getFieldId() || 'id';
+                const id = (response[fieldId]) ? String(response[fieldId]) : null;
+
+                if (id) {
+                    this.id = id;
+                }
+
+                ownsManyOwner.modelStore.addExisting(this, id);
+
+                if (ownsManyOwner.map) {
+                    ownsManyOwner.map.add(id);
+                }
+            }
+        }
+
+        this.apply(response);
+
+        this.setState('saving', false);
+        this.setState('isChanged', false);
+
+        this.emit('saveSuccess');
     }
 
     setState (key: string, value: any): Object {
@@ -56,14 +88,28 @@ class Model extends EventEmitter {
         return this;
     }
 
+    setStateFor (field: string, key: string, value: any): Object {
+        if (this._fields._fields[field]) {
+            this._fields._fields[field].setState(key, value);
+        }
+
+        return this;
+    }
+
     getState (key: string): any {
         return this.state[key];
+    }
+
+    getStateFor (field: string, key: string) {
+        if (this._fields._fields[field]) {
+            return this._fields._fields[field].getState(key);
+        }
     }
 
     apply (data: Object): Object {
         const responseId = data[this.constructor.getFieldId()];
 
-        if (!this.id) {
+        if (responseId && !this.id) {
             this.id = String(responseId);
         }
 
@@ -148,63 +194,55 @@ class Model extends EventEmitter {
     }
 
     validate (key: ?string): Object {
-        this._fields.validate(key);
+        const invalid = this._fields.validate(key);
+
+        if (invalid && Object.keys(invalid).length) {
+            this.setState('saveError', {
+                message: invalid
+            });
+
+        } else {
+            this.setState('saveError', null);
+        }
+
+        this.emit('change');
+
         return this;
     }
 
     save (options: Object = {}, single: boolean = false): Object {
         const saveType = (this.id) ? 'update' : 'create';
+        const invalid = this._fields.validate();
 
-        return new Promise((resolve, reject) => {
+        if (invalid && Object.keys(invalid).length) {
+            this.setState('saveError', {
+                message: invalid
+            });
 
-            try {
-                this.validate();
+            this.emit('change');
 
-            } catch (e) {
-                this.emit('saveError', e);
-                return reject(e);
-            }
+            return this;
+        }
 
-            this.setState('saving', true);
+        this.setState('saving', true);
 
-            this.getAdapter()
-                [saveType](this, this.getScope(), options, (response) => {
+        this.getAdapter()
+            [saveType](this, this.getScope(), options, (response) => {
 
-                    // If we created a model, add the model to the ownsMany that contains the model type
-                    if (saveType === 'create') {
+                try {
+                    this._afterSave(saveType, response);
+                } catch (e) {
+                    this.setState('saveError', e);
+                    this.emit('change');
+                }
 
-                        const ownsManyOwner = this.findOwnsMany(this.constructor);
+            });
 
-                        if (ownsManyOwner) {
-                            const fieldId = this.constructor.getFieldId();
-                            const id = (response[fieldId]) ? String(response[fieldId]) : null;
+        if (saveType === 'create') {
+            this.getRoot().requestCache.clear(this.constructor);
+        }
 
-                            if (id) {
-                                this.id = id;
-                            }
-                            
-                            ownsManyOwner.modelStore.addExisting(this, id);
-                            ownsManyOwner.map.add(id);
-                        }
-                    }
-
-                    if (saveType === 'create') {
-                        this.apply(response);
-                    }
-
-                    this.setState('saving', false);
-                    this.setState('isChanged', false);
-
-                    this.emit('saveSuccess');
-
-                    return resolve();
-                });
-
-            if (saveType === 'create') {
-                this.getRoot().requestCache.clear(this.constructor);
-            }
-
-        });
+        return this;
     }
 
     create (): Object {
