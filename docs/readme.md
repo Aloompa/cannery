@@ -10,7 +10,11 @@
     * [Cannery.Root](./2__api/1__root.md)
     * [Cannery.Model](./2__api/2__model.md)
     * [Cannery.Types](./2__api/3__types.md)
-    * [Cannery.Adapter](./2__api/4__adapter.md)
+    * [Cannery.Types.OwnsMany](./2__api/4__ownsMany.md)
+    * [Cannery.Types.OwnsOne](./2__api/4__ownsOne.md)
+    * [Cannery.Types.HasMany](./2__api/4__hasMany.md)
+    * [Cannery.Types.HasOne](./2__api/4__hasOne.md)
+    * [Cannery.Adapter](./2__api/8__adapter.md)
 * Guides
     * [Getting Started](./3__guides/1__getting-started.md)
     * [Working With React](./3__guides/2__working-with-react.md)

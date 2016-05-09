@@ -6,12 +6,8 @@ Every Cannery Model and Root requires a `getFields()` method which returns an ob
 * [AnyType](#anytype)
 * [ArrayType](#arraytype)
 * [BooleanType](#booleantype)
-* [HasMany](#hasmany)
-* [HasOne](#hasone)
 * [NumberType](#numbertype)
 * [ObjectType](#objecttype)
-* [OwnsMany](#ownsmany)
-* [OwnsOne](#ownsone)
 * [StringType](#stringtype)
 
 ### AnyType
@@ -42,8 +38,9 @@ class Monkey extends Cannery.Root {
 const monkey = new Monkey();
 
 monkey.set('name', 'George');
-
-monkey.get('name'); // George
+monkey.get('name'); // 'George'
+monkey.set('name', 123);
+monkey.get('name'); // 123
 
 monkey.apply({
     name: 'Donkey Kong'
@@ -51,6 +48,8 @@ monkey.apply({
 
 monkey.toJSON(); // { name: 'Donkey Kong' }
 ```
+
+**[⬆ back to top](#table-of-contents)**
 
 ### ArrayType
 
@@ -183,6 +182,8 @@ monkey.remove(0);
 monkey.toJSON(); // [1, 3, 4]
 ```
 
+**[⬆ back to top](#table-of-contents)**
+
 ### BooleanType
 
 The BooleanType is a simple type, which means that it can only be accessed through an object instead of directly. BooleanTypes convert all values provided to `true` or `false`. The BooleanType accepts a value via the ObjectType `set(:boolean)` method or the `apply({ :boolean })` method and is accessible through the ObjectType's `get()` and `toJSON()` methods.
@@ -221,21 +222,190 @@ monkey.apply({
 monkey.toJSON(); // { is_tame: false }
 ```
 
-### HasMany
-
-### HasOne
+**[⬆ back to top](#table-of-contents)**
 
 ### NumberType
 
+The NumberType is a simple type, so it can only be accessed through an object, no directly. It accepts a value through the ObjectType `set(:number)` method or the `apply({ :key: {:number} })` method and is accessible through the ObjectType's `get()` and `toJSON()` methods.
+
+Every non value that the NumberType receives that is not a `null` or `undefined` will be converted to a number. Setting `monkey.set('age', '5')` would result in `monkey.get('name'); // 5`.
+
+##### Api
+
+No public API. This is a simple type.
+
+##### Example
+
+```JavaScript
+import Cannery from 'cannery';
+
+class Monkey extends Cannery.Root {
+
+    getFields () {
+        return {
+            age: Cannery.Types.NumberType
+        };
+    }
+
+}
+
+const monkey = new Monkey();
+
+monkey.set('age', 5);
+
+monkey.get('age'); // 5
+
+monkey.apply({
+    age: 10
+});
+
+monkey.toJSON(); // { age: 10 }
+```
+
+**[⬆ back to top](#table-of-contents)**
+
 ### ObjectType
 
-### OwnsMany
+The Cannery ObjectType is a wrapper around multiple simple types. Just like a plain JavaScript object has multiple keys that point to values, the ObjectType reveals simple types or even ArrayTypes or other ObjectTypes through getters and setters.
 
-### OwnsOne
+Where a normal JavaScript object might look like this:
+
+```javascript
+const monkey = {
+	name: 'George',
+	age: 5,
+	skills: {
+		climbing: true
+	}
+};
+```
+
+A Cannery ObjectType will be defined like this:
+
+```javascript
+{
+	monkey: this.define(ObjectType, {
+		name: StringType,
+		skills: this.define(ObjectType, {
+			climbing: BooleanType
+		})
+	}))
+}
+```
+
+The ObjectType will probably be the most important type you will encounter in Cannery because it is used to compose every other type.
+
+##### Api
+
+`apply(data: Object): ObjectType`
+
+Applies a JavaScript object to the ObjectType. The simple types inside the ObjectType will be be used to convert data types if needed.
+
+```javascript
+monkey.apply({
+	name: 'George',
+	age: 5,
+	favoriteNumbers: [4,5,6],
+	isHappy: true,
+	skills: {
+		climbing: true,
+		speaking: false
+	}
+});
+```
+
+---
+
+`get(key: string): any`
+
+Gets a field's value by its key.
+
+```javascript
+monkey.get('name'); // 'George'
+monkey.get('skills').get('climbing'); // true
+```
+
+---
+
+`set(key: string, value: any): ObjectType`
+
+Sets a field's value by its key.
+
+```javascript
+monkey.set('name', 'King King');
+monkey.get('skills').set('climbing', false);
+```
+
+---
+
+`toJSON(): Object`
+
+Converts the ObjectType to a normal JavaScript object. This is used internally when data is being persisted to an outside data store, but it may also be useful for other things.
+
+```javascript
+monkey.toJSON(); // { ... }
+```
+
+---
+
+`validate(key: ?string): any`
+
+Validates the field matching the passed in key, or if no key is provided, it validates every field on the ObjectType. If there are any errors when we are validating all of the fields on the ObjectType, an object will be returned containing a list of all of the errors indexed by the field key.
+
+```javascript
+monkey.validate('name');
+
+// or
+monkey.validate(); // { 'name': 'Name is required' }
+```
+
+---
+
+##### Example
+
+```javascript
+import Cannery from 'cannery';
+
+const { ObjectType, StringType, BooleanType } = Cannery.Types;
+
+class Zoo extends Cannery.Root {
+	getFields () {
+		return {
+			monkey: this.define(ObjectType, {
+				name: StringType,
+				skills: this.define(ObjectType, {
+					climbing: BooleanType
+				})
+			}))
+		};
+	}
+}
+
+const zoo = new Zoo();
+const monkey = zoo.get('monkey');
+
+monkey.apply({
+	name: 'George',
+	skills: {
+		climbing: true
+	}
+});
+
+console.log(monkey.toJSON());
+// { name: 'George', skills: { climbing: true } }
+
+console.log(monkey.get('name')); // George
+console.log(monkey.get('skills').get('climbing')); // true
+
+monkey.set('name', 'King King');
+console.log(monkey.get('name')); // King Kong
+```
+
+**[⬆ back to top](#table-of-contents)**
 
 ### StringType
 
-The StringType is a simple type, which means that it can only be accessed through an object. It accepts a value via the ObjectType `set(:string)` method or the `apply({ :string })` method and is accessible through the ObjectType's `get()` and `toJSON()` methods.
+The StringType is a simple type, which means that it can only be accessed through an object. It accepts a value via the ObjectType `set(:string)` method or the `apply({ :key: :string })` method and is accessible through the ObjectType's `get()` and `toJSON()` methods.
 
 Every non-falsey value that the StringType receives will be converted to a string, which means that setting `monkey.set('name', 123)` would result in `monkey.get('name'); // '123'`.
 
@@ -262,7 +432,7 @@ const monkey = new Monkey();
 
 monkey.set('name', 'George');
 
-monkey.get('name'); // George
+monkey.get('name'); // 'George'
 
 monkey.apply({
     name: 'Donkey Kong'
@@ -270,3 +440,5 @@ monkey.apply({
 
 monkey.toJSON(); // { name: 'Donkey Kong' }
 ```
+
+**[⬆ back to top](#table-of-contents)**
