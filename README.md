@@ -2,73 +2,37 @@
 
 A modern ES6 class-based event-driven ORM for client-side or server-side JavaScript.
 
-##  Getting Started
+Cannery syncs data with an outside datasource, so you don't have to think about Ajax or database interactions in your application.
 
-Getting started with Cannery is easy. You just need to extend the Cannery base Model class and provide a `getFields()` method that returns an object describing the fields on the model. From there, we can instantiate the model and use `get()` and `set()` to set and get data on the model fields.
+## What It Looks Like
 
-```
-const { Model, Type } = require('cannery');
-const { StringType, NumberType } = Type;
+Cannery models are composed as nested getters and setters. You define your data structure once and then Cannery is able to stub out your data structure with nested objects, arrays and relational data types before your data is even loaded. This is awesome for writing applications because it means you never have to wrap anything in a conditional.
 
-class Car extends Model {
+Here is a simple example of setting up a Cannery model:
+
+```js
+import Cannery from 'cannery';
+const { StringType, NumberType } = Cannery.Types;
+
+class Monkey extends Cannery.Root {
 
     getFields () {
         return {
-            make: StringType,
-            model: StringType,
-            year: NumberType
+            name: StringType,
+            age: NumberType
         };
     }
 
 }
 
-const myCar = new Car();
+const george = new Monkey();
 
-myCar.set('make', 'Ford');
-
-console.log(myCar.get('make')); // Ford
+george
+    .set('name', 'George')
+    .get('name'); // George
 ```
 
-So far, this is all pretty much what you might expect from any JavaScript model layer, but it gets better when you start handling async data. We'll get into how to define where our data is coming from (ajax, websockets, localStorage, some database, etc...) in the documentation, but for now, let's just say that the secret sauce of Cannery is that every field is return synchronously at first, and then events are triggered once the data is retrieved so that the UI layer can redraw with the updated data.
-
-```
-const myCar = new Car(1);
-
-// This is triggered any time data is retrieved from some remote source such as an Ajax call
-myCar.on('change', () => {
-    myCar.get('make'); // returns the value of the make retrieved from the server
-});
-
-myCar.get('make'); // returns an empty string immediately
-```
-
-## API
-
-### Adapters
-
-To change what type of data store you set and get data from, just switch out the adapter. For example, you may want to get data from ajax, mongoDB, localStorage, etc. No problem, just replace the `getAdapter()` method with your own:
-
-```
-const Cannery = require('cannery');
-
-class User extends Cannery.Model {
-
-    getAdapter () {
-        return new MyAdapter();
-    }
-
-}
-
-module.exports = User;
-```
-
-### Cannery.Type
-
-Fields in cannery can have types. Different types operate in different ways to handle data that is set and gotten from the model.
-
-### Cannery.Model
-
-This is the base model class where all the magic happens.
+This is just touching the surface, of course, for a more in-depth guide, checkout out our [documentation](./docs).
 
 ## Contributing
 
