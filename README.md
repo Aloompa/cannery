@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Aloompa/cannery.svg?branch=master)](https://travis-ci.org/Aloompa/cannery)
+
 ## Welcome to Cannery
 
 A modern ES6 class-based event-driven ORM for client-side or server-side JavaScript.
