@@ -78,6 +78,8 @@ class Model extends EventEmitter {
         this.setState('saving', false);
         this.setState('isChanged', false);
 
+        this.findOwnsMany(this.constructor).refresh(true);
+
         this.emit('saveSuccess');
     }
 
