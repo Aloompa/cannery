@@ -9,7 +9,7 @@ const validate = require('valid-point');
 
 class ArrayType extends EventEmitter {
 
-    constructor (parentModel: Object, ArrayType: Function = BaseType, arrayFields: Object, options: Object = {}) {
+    constructor (parentModel: Object, ArrayType: Function = BaseType, arrayFields: Object = {}, options: Object = {}) {
         super();
 
         this._parent = parentModel;
@@ -18,7 +18,7 @@ class ArrayType extends EventEmitter {
         this._typedArray = [];
         this._fields = arrayFields;
         this._typeOptions = this.options;
-        this.validations = this.options.validations;
+        this.state = {};
 
         if (parentModel && parentModel.emit) {
             this.on('*', function () {
@@ -28,12 +28,25 @@ class ArrayType extends EventEmitter {
     }
 
     _userChange (array: Array<any>): Object {
+
         this.set(array);
+        this.validate();
 
         this.emit('userChange');
         this.emit('change');
 
         return this;
+    }
+
+    setState (key: string, value: any): Object {
+        this.state[key] = value;
+        this.emit('change');
+
+        return this;
+    }
+
+    getState (key: string): any {
+        return this.state[key];
     }
 
     add (item: any, index: number): Object {
@@ -81,7 +94,8 @@ class ArrayType extends EventEmitter {
 
         });
 
-        this.set(array);
+        this._typedArray = array;
+        this.emit('change');
 
         return this;
     }
@@ -138,6 +152,32 @@ class ArrayType extends EventEmitter {
 
     toJSON (): Array<any> {
         return this.all();
+    }
+
+    validate (): any {
+
+        const options = this._fields;
+
+        if (options && options.validations) {
+
+            this.setState('error', null);
+
+            try {
+                validate({
+                    data: {
+                        [ this.fieldName ]: this.toJSON()
+                    },
+                    validations: {
+                        [ this.fieldName ]: options.validations
+                    }
+                });
+
+            } catch (err) {
+                this.setState('error', err.message);
+                return err.message;
+            }
+
+        }
     }
 
 }

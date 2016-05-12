@@ -6,25 +6,21 @@ describe('Validations', () => {
         const zoo = new Zoo();
         const zookeeper = zoo.get('zookeeper');
 
-        assert.throws(() => {
-            zookeeper.validate('name');
-        }, Error);
+        assert.ok(zookeeper.validate('name').getState('saveError'));
 
         zookeeper.set('name', 'The International Zoo Station');
 
-        zookeeper.validate('name');
+        assert.ok(!zookeeper.validate('name').getState('saveError'));
     });
 
     it('Should allow us to validate every field in a model', () => {
         const zoo = new Zoo();
         const zookeeper = zoo.get('zookeeper');
 
-        assert.throws(() => {
-            zookeeper.validate();
-        }, Error);
+        assert.ok(zookeeper.validate().getState('saveError'));
 
         zookeeper.set('name', 'The International Zoo Station');
 
-        zookeeper.validate();
+        assert.ok(!zookeeper.validate().getState('saveError'));
     });
 });

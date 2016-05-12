@@ -41,6 +41,7 @@ class Model extends EventEmitter {
         this.state = {};
 
         this.on('userChange', () => {
+            this.setState('saveError', null);
             this.setState('isChanged', true);
         });
 
@@ -87,8 +88,22 @@ class Model extends EventEmitter {
         return this;
     }
 
+    setStateFor (field: string, key: string, value: any): Object {
+        if (this._fields._fields[field]) {
+            this._fields._fields[field].setState(key, value);
+        }
+
+        return this;
+    }
+
     getState (key: string): any {
         return this.state[key];
+    }
+
+    getStateFor (field: string, key: string) {
+        if (this._fields._fields[field]) {
+            return this._fields._fields[field].getState(key);
+        }
     }
 
     apply (data: Object): Object {
@@ -179,18 +194,34 @@ class Model extends EventEmitter {
     }
 
     validate (key: ?string): Object {
-        this._fields.validate(key);
+        const invalid = this._fields.validate(key);
+
+        if (invalid && Object.keys(invalid).length) {
+            this.setState('saveError', {
+                message: invalid
+            });
+
+        } else {
+            this.setState('saveError', null);
+        }
+
+        this.emit('change');
+
         return this;
     }
 
     save (options: Object = {}, single: boolean = false): Object {
         const saveType = (this.id) ? 'update' : 'create';
+        const invalid = this._fields.validate();
 
-        try {
-            this.validate();
+        if (invalid && Object.keys(invalid).length) {
+            this.setState('saveError', {
+                message: invalid
+            });
 
-        } catch (e) {
-            this.emit('saveError', e);
+            this.emit('change');
+
+            return this;
         }
 
         this.setState('saving', true);
@@ -201,7 +232,8 @@ class Model extends EventEmitter {
                 try {
                     this._afterSave(saveType, response);
                 } catch (e) {
-                    this.emit('saveError', e);
+                    this.setState('saveError', e);
+                    this.emit('change');
                 }
 
             });

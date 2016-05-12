@@ -11,6 +11,7 @@ class BaseType extends EventEmitter {
         super();
 
         this._parent = parentModel;
+        this.state = {};
 
         this.validations = options.validations;
         this._applyHooks(options.hooks);
@@ -21,6 +22,17 @@ class BaseType extends EventEmitter {
             });
         }
 
+    }
+
+    setState (key: string, value: any): Object {
+        this.state[key] = value;
+        this.emit('change');
+
+        return this;
+    }
+
+    getState (key: string): any {
+        return this.state[key];
     }
 
     apply (val: any): Object {
@@ -36,6 +48,7 @@ class BaseType extends EventEmitter {
 
     set (val: any): ?Object {
         this._value = val;
+        this.validate();
         this.emit('change');
         this.emit('userChange');
         return this;
@@ -45,16 +58,24 @@ class BaseType extends EventEmitter {
         return this._value;
     }
 
-    validate (key: string): any {
+    validate (): any {
         if (this.validations) {
-            return validate({
-                data: {
-                    [ this.fieldName ]: this._value
-                },
-                validations: {
-                    [ this.fieldName ]: this.validations
-                }
-            });
+            this.setState('error', null);
+
+            try {
+                validate({
+                    data: {
+                        [ this.fieldName ]: this._value
+                    },
+                    validations: {
+                        [ this.fieldName ]: this.validations
+                    }
+                });
+
+            } catch (e) {
+                this.setState('error', e.message);
+                return e.message;
+            }
         }
     }
 
