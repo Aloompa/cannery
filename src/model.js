@@ -52,10 +52,10 @@ class Model extends EventEmitter {
 
     _afterSave (saveType: string, response:Object) {
 
+        const ownsManyOwner = this.findOwnsMany(this.constructor);
+
         // If we created a model, add the model to the ownsMany that contains the model type
         if (saveType === 'create') {
-
-            const ownsManyOwner = this.findOwnsMany(this.constructor);
 
             if (ownsManyOwner) {
                 const fieldId = this.constructor.getFieldId() || 'id';
@@ -77,6 +77,10 @@ class Model extends EventEmitter {
 
         this.setState('saving', false);
         this.setState('isChanged', false);
+
+        if (ownsManyOwner) {
+            ownsManyOwner.refresh(true);
+        }
 
         this.emit('saveSuccess');
     }
