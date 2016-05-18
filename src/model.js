@@ -50,7 +50,7 @@ class Model extends EventEmitter {
         });
     }
 
-    _afterSave (saveType: string, response:Object) {
+    _afterSave (saveType: string, response:Object, refresh: boolean) {
 
         const ownsManyOwner = this.findOwnsMany(this.constructor);
 
@@ -78,7 +78,7 @@ class Model extends EventEmitter {
         this.setState('saving', false);
         this.setState('isChanged', false);
 
-        if (ownsManyOwner) {
+        if (ownsManyOwner && refresh) {
             ownsManyOwner.refresh(true);
         }
 
@@ -234,7 +234,7 @@ class Model extends EventEmitter {
             [saveType](this, this.getScope(), options, (response) => {
 
                 try {
-                    this._afterSave(saveType, response);
+                    this._afterSave(saveType, response, (options) && options.refresh);
                 } catch (e) {
                     this.setState('saveError', e);
                     this.emit('change');
