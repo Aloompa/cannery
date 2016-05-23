@@ -24,6 +24,8 @@ class Monkey extends Cannery.Model {
 
 `setState(key: string, value: any): Model`
 
+This sets the state of the model. The state is used internally for things like persisting errors and tracking whether a model is saved or changed. This method is no replacement for a state management system like Redux. It's just there to apply state directly related to your model.
+
 ---
 
 `setStateFor(field: string, key: string, value: any): Model`
