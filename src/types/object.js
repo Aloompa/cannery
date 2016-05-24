@@ -24,7 +24,12 @@ class ObjectType extends BaseType {
 
     _applyFieldParent () {
         Object.keys(this._fields).forEach((key) => {
-            this._fields[key].parent = this._parent;
+            this._fields[key]._parent = this._parent;
+            this._fields[key]._parentObject = this;
+            
+            if (this._fields[key]._applyListeners) {
+                this._fields[key]._applyListeners();
+            }
         });
     }
 
