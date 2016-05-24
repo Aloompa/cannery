@@ -10,6 +10,7 @@ class BaseType extends EventEmitter {
     constructor (parentModel: Object, options: Object = {}) {
         super();
 
+        this._options = options;
         this._parent = parentModel;
         this.state = {};
 
@@ -22,6 +23,10 @@ class BaseType extends EventEmitter {
             });
         }
 
+    }
+
+    getParent () {
+        return this._parentObject || this._parent;
     }
 
     setState (key: string, value: any): Object {
@@ -62,6 +67,16 @@ class BaseType extends EventEmitter {
         if (this.validations) {
             this.setState('error', null);
 
+            // Apply this context of the parent object to each validation.
+            // Otherwise it will be difficult to access
+            Object.keys(this.validations).forEach((validationType) => {
+                if (typeof this.validations[validationType] === 'object') {
+                    this.validations[validationType].fn = this.validations[validationType].fn.bind(
+                        this.getParent()
+                    );
+                }
+            });
+
             try {
                 validate({
                     data: {
@@ -76,6 +91,17 @@ class BaseType extends EventEmitter {
                 this.setState('error', e.message);
                 return e.message;
             }
+        }
+    }
+
+    _applyListeners () {
+        const { on } = this._options;
+        const parent = this.getParent();
+
+        if (on) {
+            Object.keys(on).forEach((eventName) => {
+                this.on(eventName, on[eventName].bind(parent));
+            });
         }
     }
 
